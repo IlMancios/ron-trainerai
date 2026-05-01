@@ -3760,8 +3760,9 @@ function mostraModalConferma(avvisi, callback) {
   const list = document.getElementById('modal-warnings-list');
   list.innerHTML = avvisi.map(a => `<li>${a}</li>`).join('');
   document.getElementById('modal-salva-btn').onclick = () => {
+    const cb = _modalCallback; // salva riferimento prima di chiudere
     chiudiModal();
-    if (_modalCallback) { _modalCallback(); _modalCallback = null; }
+    if (cb) cb();
   };
   document.getElementById('modal-validazione').classList.add('show');
 }
