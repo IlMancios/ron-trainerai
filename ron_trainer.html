@@ -1037,7 +1037,7 @@
     </div>
 
     <details class="gh-token-details" id="gh-token-details">
-      <summary>⚙ GitHub API — token</summary>
+      <summary>⚙ GitHub API — token <span id="gh-token-indicator" style="margin-left:6px;font-size:13px"></span></summary>
       <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
         <div style="flex:1;min-width:160px">
           <div class="form-label">Personal Access Token (PAT)</div>
@@ -2903,13 +2903,21 @@ function cancellaToken() {
   showToast('Token rimosso', 'success');
 }
 
-function aggiornaTokenStatus() {
-  const el = document.getElementById('gh-token-status');
-  if (!el) return;
+function aggiornaTokenStatus(valido = null) {
+  const el        = document.getElementById('gh-token-status');
+  const indicator = document.getElementById('gh-token-indicator');
   const t = localStorage.getItem('gh_token');
-  el.textContent = t
-    ? `✓ Token attivo: ${t.slice(0,6)}...${t.slice(-4)}`
-    : 'Nessun token — al salvataggio scaricherà il JSON.';
+  if (!t) {
+    if (el) el.textContent = 'Nessun token — al salvataggio scaricherà il JSON.';
+    if (el) el.style.color = '';
+    if (indicator) indicator.textContent = '🟡';
+  } else if (valido === false) {
+    if (el) { el.textContent = '⚠️ Token non valido o scaduto — inseriscine uno nuovo.'; el.style.color = '#ff4444'; }
+    if (indicator) indicator.textContent = '🔴';
+  } else {
+    if (el) { el.textContent = `✓ Token attivo: ${t.slice(0,6)}...${t.slice(-4)}`; el.style.color = ''; }
+    if (indicator) indicator.textContent = '🟢';
+  }
 }
 
 function aggiornaIndicatoreDimensione() {
@@ -3032,11 +3040,8 @@ async function verificaToken() {
     const resp = await fetch('https://api.github.com/user', {
       headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
     });
-    if (!resp.ok) {
-      const el = document.getElementById('gh-token-status');
-      if (el) { el.textContent = '⚠️ Token non valido o scaduto — inseriscine uno nuovo.'; el.style.color = '#ff4444'; }
-    }
-  } catch(e) { /* offline, ignora */ }
+    aggiornaTokenStatus(resp.ok); // true = verde, false = rosso
+  } catch(e) { /* offline, ignora — non cambiare indicatore */ }
 }
 
 function inizializzaInserimento() {
