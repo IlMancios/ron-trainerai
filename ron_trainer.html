@@ -1,0 +1,3411 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ron TrainerAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --bg4: #222222;
+    --border: #2a2a2a;
+    --orange: #FF6B00;
+    --orange2: #FF8C33;
+    --orange-dim: rgba(255,107,0,0.12);
+    --orange-dim2: rgba(255,107,0,0.06);
+    --text: #f0f0f0;
+    --text2: #999;
+    --text3: #555;
+    --green: #4CAF50;
+    --radius: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+  .logo span { color: var(--orange); }
+
+  /* NAV TABS */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    padding: 0 16px;
+  }
+  .tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text2);
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* MAIN */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 80px;
+  }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+    margin-top: 28px;
+  }
+  .session-note {
+    font-size: 14px;
+    color: var(--text2);
+    font-style: italic;
+    padding: 10px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }  .section-title:first-child { margin-top: 0; }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  @media(min-width: 600px) {
+    .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .kpi {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+  }
+  .kpi-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 36px;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .kpi-label {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .kpi-sub {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  /* EXERCISE SELECTOR */
+  .select-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.55);
+    cursor: pointer;
+  }
+  select, input[type="text"], input[type="date"], input[type="number"] {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select { cursor: pointer; }
+  select:focus, input:focus { border-color: var(--orange); }
+  select option { background: var(--bg3); }
+
+  /* CHART */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  canvas { width: 100% !important; }
+
+  .chart-info {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .chart-stat { font-size: 15px; color: var(--text2); }
+  .chart-stat strong { color: var(--orange); font-size: 17px; }
+
+  /* SESSION TABLE */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .filter-row select, .filter-row input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .session-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .session-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .session-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    cursor: pointer;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+  .session-header:hover { background: var(--bg3); }
+  .session-date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--orange);
+    min-width: 90px;
+  }
+  .session-luogo {
+    font-size: 13px;
+    color: var(--text2);
+    background: var(--bg4);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .session-ex-count { font-size: 13px; color: var(--text3); margin-left: auto; white-space: nowrap; }
+  .session-chevron { color: var(--text3); font-size: 13px; transition: transform 0.2s; }
+  .session-card.open .session-chevron { transform: rotate(90deg); }
+
+  .session-body {
+    display: none;
+    padding: 0 14px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .session-card.open .session-body { display: block; }
+
+  .session-note {
+    font-size: 13px;
+    color: var(--text2);
+    font-style: italic;
+    padding: 10px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .ex-row {
+    display: flex;
+    align-items: baseline;
+    padding: 9px 0;
+    gap: 12px;
+    border-bottom: 1px solid var(--bg3);
+    font-size: 15px;
+  }
+  .ex-row:last-child { border-bottom: none; }
+  .ex-schema {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--orange);
+    min-width: 56px;
+    flex-shrink: 0;
+  }
+  .ex-name { color: var(--text); flex: 1; min-width: 0; font-size: 15px; }
+  .ex-peso { color: #ddd; font-size: 15px; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+  .ex-nota { color: var(--text3); font-size: 14px; font-style: italic; margin-top: 2px; }
+
+  /* PR TABLE */
+  .pr-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pr-row {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .pr-nome { flex: 1; font-size: 16px; color: #eee; font-weight: 500; }
+  .pr-peso {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+    color: var(--orange);
+    min-width: 70px;
+    text-align: right;
+  }
+  .pr-meta { font-size: 11px; color: var(--text3); text-align: right; }
+  .pr-cat {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pr-cat.compound { background: rgba(255,107,0,0.15); color: var(--orange); }
+  .pr-cat.isolato { background: rgba(100,150,255,0.1); color: #7aa0ff; }
+  .pr-cat.cardio { background: rgba(80,200,120,0.1); color: #66cc88; }
+
+  /* PIANIFICATORE */
+  .piano-form { display: flex; flex-direction: column; gap: 12px; }
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .form-row > * { flex: 1; min-width: 140px; }
+  .form-label {
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .btn {
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn:hover { background: var(--orange2); }
+  .btn:active { transform: scale(0.98); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--orange);
+    color: var(--orange);
+  }
+  .btn-outline:hover { background: var(--orange-dim); }
+  .btn-sm { padding: 8px 14px; font-size: 13px; }
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg4); color: var(--text); }
+
+  /* PROPOSTA ALLENAMENTO */
+  .proposta {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .proposta-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .proposta-ex {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--bg3);
+  }
+  .proposta-ex-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .proposta-schema {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--orange);
+  }
+  .proposta-nome { font-size: 14px; font-weight: 600; flex: 1; }
+  .proposta-storico { font-size: 12px; color: var(--text2); }
+  .proposta-storico span { color: var(--orange2); }
+
+  /* INSERIMENTO */
+  .ins-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .ins-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .ex-builder { display: flex; flex-direction: column; gap: 10px; }
+  .ex-builder-row {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .ex-builder-row .form-row { margin-bottom: 8px; }
+  .ex-builder-row .form-row:last-child { margin-bottom: 0; }
+
+  .btn-remove {
+    background: transparent;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .btn-remove:hover { color: #ff4444; }
+
+  .ex-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .ex-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--orange);
+    letter-spacing: 1px;
+  }
+
+  /* BADGE */
+  .badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-new { background: rgba(80,200,120,0.15); color: #66cc88; }
+  .badge-old { background: rgba(255,107,0,0.12); color: var(--orange); }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    color: var(--text3);
+    padding: 40px 20px;
+    font-size: 14px;
+  }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    color: var(--text3);
+    padding: 60px 20px;
+    font-size: 14px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: var(--text);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: #ff4444; color: #ff4444; }
+
+  /* PAGINATION */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .page-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .page-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .page-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* ULTIMO FATTO BANNER */
+  .ultimo-banner {
+    background: var(--orange-dim);
+    border: 1px solid rgba(255,107,0,0.25);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .ultimo-banner strong { color: var(--orange); }
+
+  /* KEEP OUTPUT */
+  .keep-output {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text);
+    white-space: pre-wrap;
+    line-height: 1.8;
+    margin-top: 12px;
+  }
+
+  /* SDOPPIA SERIE */
+  .ex-riga + .ex-riga {
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  .btn-rimuovi-riga {
+    font-size: 12px;
+    color: var(--text3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    float: right;
+    transition: color 0.2s;
+  }
+  .btn-rimuovi-riga:hover { color: #ff4444; }
+
+  /* DRAG & DROP */
+  .drag-handle {
+    cursor: grab;
+    color: var(--text3);
+    font-size: 16px;
+    padding: 0 6px 0 0;
+    user-select: none;
+    line-height: 1;
+  }
+  .drag-handle:active { cursor: grabbing; }
+  .ex-builder-row.dragging { opacity: 0.4; border-style: dashed; }
+  .ex-builder-row.drag-over { border-color: var(--orange); }
+
+  /* SDOPPIA SMALL (inline header) */
+  .btn-sdoppia-small {
+    background: none;
+    border: 1px solid var(--text3);
+    color: var(--text3);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-sdoppia-small:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* UNDO BANNER */
+  .undo-banner {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text);
+    z-index: 1001;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .undo-banner.show { transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .undo-banner .undo-btn {
+    background: var(--orange);
+    border: none;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">RON<span>.</span>TRAINER<span>AI</span></div>
+    <div style="font-size:12px;color:var(--text3)" id="status-indicator"></div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="progressione">Progressione</div>
+    <div class="tab" data-tab="storico">Storico</div>
+    <div class="tab" data-tab="pr">Personal Records</div>
+    <div class="tab" data-tab="pianificatore">Pianificatore</div>
+    <div class="tab" data-tab="inserimento">Allenamento</div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="loading" id="overview-loading">Caricamento dati...</div>
+    <div id="overview-content" style="display:none">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <!-- Grafici a scomparsa -->
+      <div id="overview-grafico-wrap" style="display:none;margin-bottom:20px">
+        <div style="position:relative;width:100%;overflow:hidden">
+          <canvas id="overview-chart"></canvas>
+        </div>
+      </div>
+      <!-- Streak + reminder -->
+      <div id="overview-insights" style="margin-bottom:20px"></div>
+      <div class="section-title">Ultimi allenamenti</div>
+      <div id="ultimi-allenamenti"></div>
+    </div>
+  </div>
+
+  <!-- PROGRESSIONE -->
+  <div class="panel" id="panel-progressione">
+    <div class="section-title">Seleziona esercizio</div>
+    <div class="select-row" style="position:relative">
+      <div id="prog-ex-selected" onclick="toggleProgMenu()"
+        style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div id="prog-ex-label" style="display:flex;align-items:center;gap:8px;color:var(--text1)">Seleziona esercizio...</div>
+        <span style="color:var(--text3)">▾</span>
+      </div>
+      <div id="prog-ex-menu" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-top:4px;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4)">
+      </div>
+      <!-- Select nascosto per compatibilità con il codice esistente -->
+      <select id="prog-esercizio" style="display:none"></select>
+    </div>
+    <div class="select-row" style="margin-top:8px">
+      <select id="prog-schema" style="flex:1"></select>
+    </div>
+    <div id="prog-ultime" style="display:none;margin-bottom:16px"></div>
+    <div class="chart-wrap">
+      <canvas id="prog-chart" height="260"></canvas>
+    </div>
+    <div class="chart-info" id="chart-info"></div>
+  </div>
+
+  <!-- STORICO -->
+  <div class="panel" id="panel-storico">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-title" style="margin-bottom:0">Filtri</div>
+      <button id="btn-reset-filtri" onclick="resetFiltri()" style="background:none;border:1px solid var(--orange-dim);color:var(--text3);padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;display:none">✕ Reset filtri</button>
+    </div>
+    <div class="filter-row">
+      <input type="text" id="filter-search" placeholder="Cerca esercizio...">
+      <select id="filter-luogo"><option value="">Tutti i luoghi</option></select>
+      <select id="filter-anno">
+        <option value="">Tutti gli anni</option>
+      </select>
+    </div>
+    <div id="session-count" style="font-size:12px;color:var(--text3);margin-bottom:10px"></div>
+    <div class="session-list" id="session-list"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <!-- PERSONAL RECORDS -->
+  <div class="panel" id="panel-pr">
+    <div class="section-title">Record personali</div>
+    <div class="filter-row">
+      <select id="pr-cat">
+        <option value="">Tutte le categorie</option>
+        <option value="compound">Compound (Core)</option>
+        <option value="isolato">Isolato (Basic)</option>
+        <option value="cardio">Cardio</option>
+      </select>
+      <select id="pr-stato">
+        <option value="">Tutti gli esercizi</option>
+        <option value="attivo">Solo attivi</option>
+        <option value="archivio">Solo in pensione</option>
+      </select>
+    </div>
+    <div class="pr-grid" id="pr-grid"></div>
+  </div>
+
+  <!-- PIANIFICATORE -->
+  <div class="panel" id="panel-pianificatore">
+    <div class="section-title">Generatore allenamento</div>
+
+    <!-- STEP 1: Configurazione e selezione esercizi -->
+    <div id="piano-step1">
+      <div class="ins-section">
+        <div class="piano-form">
+          <div class="form-row">
+            <div>
+              <div class="form-label">Data</div>
+              <input type="date" id="piano-data">
+            </div>
+            <div>
+              <div class="form-label">Luogo</div>
+              <div style="display:flex;gap:8px">
+                <select id="piano-luogo" style="flex:1" onchange="aggiornaBottoneCancellaLuogo()"></select>
+                <button id="btn-cancella-luogo" class="btn btn-outline btn-sm" onclick="cancellaLuogoPiano()" title="Cancella luogo" style="padding:0 12px;display:none;color:#ff6b6b;border-color:#ff6b6b">✕</button>
+                <button class="btn btn-outline btn-sm" onclick="aggiungiLuogoPiano()" title="Aggiungi nuovo luogo" style="padding:0 12px">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <div class="form-label">Compound (Core)</div>
+              <select id="piano-core">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div>
+              <div class="form-label">Isolati (Basic)</div>
+              <select id="piano-basic">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div>
+              <div class="form-label">Cardio</div>
+              <select id="piano-cardio">
+                <option value="0" selected>No cardio</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" onclick="generaPropostaStep1()" style="color:#0a0a0a;font-weight:900">GENERA PROPOSTA</button>
+        </div>
+      </div>
+
+      <div id="piano-selezione" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px">
+          <div style="font-size:13px;color:var(--text2)">Seleziona gli esercizi che vuoi fare oggi</div>
+          <div style="font-size:13px;color:var(--orange)" id="piano-sel-count">0 selezionati</div>
+        </div>
+        <div id="piano-ex-lista"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:16px">
+          <button class="btn" id="piano-procedi-btn" onclick="procediStep2()" disabled style="opacity:0.4">PROCEDI →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Definizione serie e pesi -->
+    <div id="piano-step2" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <button class="btn btn-outline btn-sm" onclick="tornaStep1()">← Indietro</button>
+        <div style="font-size:15px;font-weight:600;color:var(--text1)" id="piano-step2-title"></div>
+      </div>
+      <div id="piano-step2-esercizi"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+        <button class="btn" onclick="confermaAllenamento()">CONFERMA ALLENAMENTO →</button>
+        <button class="btn btn-outline" onclick="esportaKeep()">📋 COPIA TESTO KEEP</button>
+        <button class="btn btn-outline" onclick="resetPianificatore()">↺ RIGENERA</button>
+      </div>
+      <div style="margin-top:16px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Output formato Keep</div>
+        <div class="keep-output" id="keep-output" style="white-space:pre;font-family:monospace;font-size:13px;color:var(--text2)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSERIMENTO -->
+  <div class="panel" id="panel-inserimento">
+    <div class="section-title">Dati sessione</div>
+    <div class="ins-section">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex-shrink:0">
+          <div class="form-label">Data</div>
+          <input type="date" id="ins-data">
+        </div>
+        <div style="flex:0 0 180px;min-width:120px">
+          <div class="form-label">Luogo</div>
+          <select id="ins-luogo" style="width:100%"></select>
+        </div>
+        <div style="flex:1;min-width:130px">
+          <div class="form-label">Nuovo luogo</div>
+          <input type="text" id="ins-nuovo-luogo" placeholder="Es. RM - Palestra XYZ" style="width:100%">
+        </div>
+        <div style="flex-shrink:0;align-self:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="aggiungiLuogo()">AGGIUNGI</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Esercizi</div>
+    <div id="ex-builder" class="ex-builder"></div>
+    <button class="btn btn-outline btn-sm" style="margin-bottom:8px;margin-top:8px" onclick="aggiungiEsercizio()">+ AGGIUNGI ESERCIZIO</button>
+
+    <div class="section-title" style="margin-top:8px">Note sessione</div>
+    <div class="ins-section">
+      <div style="position:relative">
+        <textarea id="ins-note" rows="2" oninput="aggiornaPreviewAllenamento()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:10px 28px 10px 10px;font-family:'Barlow',sans-serif;font-size:14px;resize:vertical;outline:none" placeholder="Note generali sulla sessione..."></textarea>
+        <button onclick="document.getElementById('ins-note').value='';aggiornaPreviewAllenamento()" style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1" title="Cancella note">×</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" onclick="salvaAllenamento()">SALVA ALLENAMENTO</button>
+      <button class="btn btn-ghost" onclick="resetInserimento()">RESET</button>
+    </div>
+
+    <div style="margin-top:20px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Preview formato Keep</div>
+      <div class="keep-output" id="allenamento-keep-output" style="white-space:pre;font-size:13px;color:var(--text2)"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+<div class="undo-banner" id="undo-banner">
+  Esercizio rimosso
+  <button class="undo-btn" onclick="annullaRimozione()">ANNULLA</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// =====================
+// STATO GLOBALE
+// =====================
+let DATA = null;
+let SESSION_PAGE = 1;
+const PAGE_SIZE = 20;
+let PROPOSTA_CORRENTE = null;
+let LUOGHI_CUSTOM = [];
+
+// Normalizzazione luoghi
+const LUOGHI_MAP = {
+  'TE-Casa': 'TE - Casa',
+  'CR-CASA': 'CR',
+  'PE palestra SHotel': 'PE - Palestra SHotel',
+  'PE-Palestra SHotel': 'PE - Palestra SHotel',
+  'PE Palestra SHotel': 'PE - Palestra SHotel',
+  'AN palestra HOTEL DEI NANI': 'AN - Hotel dei Nani',
+};
+function normLuogo(l) { return l ? (LUOGHI_MAP[l.trim()] || l.trim()) : ''; }
+
+// =====================
+// CARICAMENTO DATI
+// =====================
+async function caricaDati() {
+  try {
+    const cacheBust = Date.now();
+    const resp = await fetch(`ron_trainer_storico.json?v=${cacheBust}`);
+    if (!resp.ok) throw new Error('File non trovato');
+    DATA = await resp.json();
+
+    // Normalizza luoghi nelle sessioni
+    DATA.sessioni.forEach(s => { s.luogo = normLuogo(s.luogo); });
+
+    // Carica luoghi custom da localStorage come fallback
+    const lc = localStorage.getItem('luoghi_custom');
+    if (lc) LUOGHI_CUSTOM = JSON.parse(lc);
+
+    document.getElementById('status-indicator').textContent = '';
+    inizializza();
+  } catch(e) {
+    document.getElementById('overview-loading').innerHTML =
+      '<div style="color:#ff6b6b">Errore caricamento dati.<br><small>Assicurati che ron_trainer_storico.json sia nella stessa cartella.</small></div>';
+    document.getElementById('status-indicator').textContent = 'Errore';
+  }
+}
+
+function inizializza() {
+  inizializzaOverview();
+  inizializzaProgressione();
+  inizializzaStorico();
+  inizializzaPR();
+  inizializzaPianificatore();
+  inizializzaInserimento();
+}
+
+// =====================
+// TABS
+// =====================
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+  });
+});
+
+// =====================
+// OVERVIEW
+// =====================
+let overviewChart = null;
+let overviewGraficoAttivo = null;
+
+function inizializzaOverview() {
+  const meta = DATA.meta;
+  const sessioni = DATA.sessioni;
+
+  const oggi = new Date();
+  oggi.setHours(0,0,0,0);
+  const meseStr = oggi.toISOString().slice(0,7);
+  const anno = oggi.getFullYear().toString();
+  const sessMese = sessioni.filter(s => s.data.startsWith(meseStr));
+  const sessAnno = sessioni.filter(s => s.data.startsWith(anno));
+
+  // Frequenza esercizi
+  const freq = {};
+  sessioni.forEach(s => s.esercizi.forEach(e => {
+    if (e.esercizio_id) freq[e.esercizio_id] = (freq[e.esercizio_id] || 0) + 1;
+  }));
+  const topEx = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+  const topNome = getExNome(topEx[0]);
+
+  // Giorni dall'ultimo allenamento
+  const ultimaData = sessioni.reduce((acc, s) => s.data > acc ? s.data : acc, '');
+  const ultimaDate = new Date(ultimaData);
+  ultimaDate.setHours(0,0,0,0);
+  const giorniUltimo = Math.floor((oggi - ultimaDate) / 86400000);
+
+  // Streak settimanale (settimane con ≥2 allenamenti consecutive fino ad oggi)
+  const getSettimana = (dataStr) => {
+    const d = new Date(dataStr);
+    const day = d.getDay() || 7;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - day + 1);
+    return monday.toISOString().slice(0,10);
+  };
+  const sessPerSettimana = {};
+  sessioni.forEach(s => {
+    const w = getSettimana(s.data);
+    sessPerSettimana[w] = (sessPerSettimana[w] || 0) + 1;
+  });
+  // Streak attuale e record storico
+  const settimaneOrdinate2 = Object.keys(sessPerSettimana).sort();
+  let streakAttuale = 0;
+  let streakRecord = 0;
+  let streakTemp = 0;
+  const settCorrente = getSettimana(oggi.toISOString().slice(0,10));
+  const settScorsa = getSettimana(new Date(oggi.getTime() - 7*86400000).toISOString().slice(0,10));
+
+  // Calcola record storico (scansione in avanti)
+  for (const w of settimaneOrdinate2) {
+    if (sessPerSettimana[w] >= 2) {
+      streakTemp++;
+      if (streakTemp > streakRecord) streakRecord = streakTemp;
+    } else {
+      streakTemp = 0;
+    }
+  }
+
+  // Streak attuale: se l'ultima settimana con ≥2 allenamenti
+  // non è questa settimana o quella scorsa → streak = 0
+  streakAttuale = 0;
+  const settScorsa2 = getSettimana(new Date(oggi.getTime() - 7*86400000).toISOString().slice(0,10));
+  const ultimaSettValida = settimaneOrdinate2.filter(w => (sessPerSettimana[w]||0) >= 2).slice(-1)[0];
+  // Se l'ultima settimana valida non è corrente né scorsa → streak interrotto
+  if (ultimaSettValida && (ultimaSettValida === settCorrente || ultimaSettValida === settScorsa2)) {
+    const settimaneDesc = [...settimaneOrdinate2].reverse();
+    for (const w of settimaneDesc) {
+      const count = sessPerSettimana[w] || 0;
+      if (w === settCorrente) {
+        if (count >= 2) streakAttuale++;
+        continue;
+      }
+      if (count >= 2) streakAttuale++;
+      else break;
+    }
+  }
+
+  const isBattendoRecord = streakAttuale > 0 && streakAttuale >= streakRecord;
+  // Esercizio non fatto da più tempo (tra gli attivi)
+  const ultimaPerEx = {};
+  sessioni.forEach(s => s.esercizi.forEach(e => {
+    if (!ultimaPerEx[e.esercizio_id] || s.data > ultimaPerEx[e.esercizio_id]) {
+      ultimaPerEx[e.esercizio_id] = s.data;
+    }
+  }));
+  const attivi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo' && e.categoria !== 'cardio');
+  const exAbbandonato = attivi
+    .map(e => ({ id: e.id, nome: e.nome, ultima: ultimaPerEx[e.id] || '2000-01-01' }))
+    .sort((a,b) => a.ultima.localeCompare(b.ultima))[0];
+  const giorniAbbandonato = exAbbandonato
+    ? Math.floor((oggi - new Date(exAbbandonato.ultima)) / 86400000)
+    : 0;
+
+  // KPI clickabili
+  const kpiGrid = document.getElementById('kpi-grid');
+  kpiGrid.innerHTML = `
+    <div class="kpi" onclick="vaiStorico()" style="cursor:pointer" title="Vai allo storico">
+      <div class="kpi-value">${meta.totale_sessioni}</div>
+      <div class="kpi-label">Allenamenti totali</div>
+      <div class="kpi-sub" style="color:#66cc88">↗ clicca per storico</div>
+    </div>
+    <div class="kpi" onclick="vaiStorico('${anno}')" style="cursor:pointer" title="Vai allo storico ${anno}">
+      <div class="kpi-value">${sessAnno.length}</div>
+      <div class="kpi-label">Allenamenti ${anno}</div>
+      <div class="kpi-sub" style="color:#66cc88">↗ clicca per storico</div>
+    </div>
+    <div class="kpi" onclick="toggleGraficoOverview('mensile')" style="cursor:pointer" title="Mostra grafico mensile">
+      <div class="kpi-value">${sessMese.length}</div>
+      <div class="kpi-label">Allenamenti mese</div>
+      <div class="kpi-sub">${meseStr.replace('-','/')} · 📊 grafico</div>
+    </div>
+    <div class="kpi" onclick="toggleGraficoOverview('esercizi')" style="cursor:pointer" title="Mostra grafico esercizi">
+      <div class="kpi-value">${meta.totale_righe_esercizio}</div>
+      <div class="kpi-label">Esercizi totali</div>
+      <div class="kpi-sub">Top: ${topNome.split(' ')[0]} · 📊 grafico</div>
+    </div>
+  `;
+
+  // Streak + insights
+  const streakEmoji = isBattendoRecord ? '🏆' : streakAttuale >= 8 ? '🔥' : streakAttuale >= 4 ? '💪' : streakAttuale >= 2 ? '👍' : '😴';
+  // Salva dati per filtro esercizi
+  window._overviewFreq = freq;
+  const giorniMsg = giorniUltimo === 0 ? 'Ti sei allenato oggi!' :
+                    giorniUltimo === 1 ? 'Ultimo allenamento ieri' :
+                    `Non ti alleni da ${giorniUltimo} giorni`;
+  const giorniColor = giorniUltimo <= 2 ? '#66cc88' : giorniUltimo <= 4 ? 'var(--orange)' : '#ff6b6b';
+  const abbandonatoMsg = giorniAbbandonato > 21
+    ? `⚠️ <strong>${exAbbandonato.nome}</strong> non lo fai da ${giorniAbbandonato} giorni — ricordati!`
+    : giorniAbbandonato > 14
+    ? `👀 <strong>${exAbbandonato.nome}</strong> non lo fai da ${giorniAbbandonato} giorni`
+    : '';
+
+  document.getElementById('overview-insights').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:16px">
+        <div style="font-size:36px">${streakEmoji}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div style="font-size:36px;font-weight:700;color:var(--orange);font-family:'Barlow Condensed',sans-serif">${streakAttuale}</div>
+            <div style="font-size:13px;color:var(--text3)">settimane</div>
+          </div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px">Streak attuale · ≥2/settimana</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:6px;display:flex;align-items:center;gap:6px">
+            <span>🏅 Record storico:</span>
+            <span style="color:${streakAttuale>=streakRecord && streakAttuale>0 ? '#ffd700' : 'var(--orange)'};font-weight:700">${streakRecord} settimane</span>
+            ${isBattendoRecord ? '<span style="color:#ffd700;font-size:11px">· stai battendo il record!</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:16px">
+        <div style="font-size:36px">${giorniUltimo === 0 ? '✅' : giorniUltimo <= 2 ? '🟢' : giorniUltimo <= 4 ? '🟡' : '🔴'}</div>
+        <div>
+          <div style="font-size:18px;font-weight:700;color:${giorniColor}">${giorniMsg}</div>
+          ${abbandonatoMsg ? `<div style="font-size:14px;color:var(--text2);margin-top:8px">${abbandonatoMsg}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Ultimi 5 allenamenti
+  const ultimi = [...sessioni].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,5);
+  const wrap = document.getElementById('ultimi-allenamenti');
+  wrap.innerHTML = ultimi.map(s => `
+    <div class="session-card" style="margin-bottom:8px">
+      <div class="session-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="session-date">${formatData(s.data)}</div>
+        <div class="session-luogo">${s.luogo || '—'}</div>
+        <div class="session-ex-count">${contaGruppi(s.esercizi)} esercizi</div>
+        <div class="session-chevron">›</div>
+      </div>
+      <div class="session-body">
+        ${s.note_sessione && s.note_sessione.length ? `<div class="session-note">${s.note_sessione.join(' · ')}</div>` : ''}
+        ${renderSessioneBody(s)}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('overview-loading').style.display = 'none';
+  document.getElementById('overview-content').style.display = 'block';
+}
+
+function renderGraficoEsercizi(catFiltro) {
+  const wrap = document.getElementById('overview-grafico-wrap');
+
+  // Bottoni filtro
+  let filterBar = document.getElementById('overview-cat-filter');
+  if (!filterBar) {
+    filterBar = document.createElement('div');
+    filterBar.id = 'overview-cat-filter';
+    filterBar.style.cssText = 'display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap';
+    wrap.insertBefore(filterBar, wrap.firstChild);
+  }
+  filterBar.innerHTML = [
+    { val: 'tutti', label: 'Tutti', color: '#fff' },
+    { val: 'compound', label: 'CORE', color: 'var(--orange)' },
+    { val: 'isolato', label: 'ISOLATO', color: '#7aa0ff' },
+    { val: 'cardio', label: 'CARDIO', color: '#66cc88' },
+  ].map(c => `<button onclick="renderGraficoEsercizi('${c.val}')"
+    style="background:${c.val===catFiltro?'rgba(255,255,255,0.1)':'none'};color:${c.color};border:1px solid ${c.color};padding:4px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:700">${c.label}</button>`).join('');
+
+  // Frequenze
+  const freq = {};
+  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
+    const ex = DATA.esercizi_canonici.find(x => x.id === e.esercizio_id);
+    if (!ex) return;
+    const cat = e.esercizio_id === 'salita_vigneto' ? 'isolato' : ex.categoria;
+    if (catFiltro !== 'tutti') {
+      if (catFiltro === 'isolato' && !['isolato','skill','addominali'].includes(ex.categoria) && e.esercizio_id !== 'salita_vigneto') return;
+      if (catFiltro !== 'isolato' && cat !== catFiltro) return;
+    }
+    freq[e.esercizio_id] = (freq[e.esercizio_id] || 0) + 1;
+  }));
+
+  const top15 = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const maxVal = top15[0]?.[1] || 1;
+
+  // Nascondi canvas, usa div HTML
+  if (overviewChart) { overviewChart.destroy(); overviewChart = null; }
+  document.getElementById('overview-chart').style.display = 'none';
+
+  let htmlBar = document.getElementById('overview-chart-html');
+  if (!htmlBar) {
+    htmlBar = document.createElement('div');
+    htmlBar.id = 'overview-chart-html';
+    document.getElementById('overview-chart').parentElement.appendChild(htmlBar);
+  }
+  htmlBar.style.display = 'block';
+  htmlBar.innerHTML = top15.map(([id, val]) => {
+    const ex = DATA.esercizi_canonici.find(x => x.id === id);
+    const cat = id === 'salita_vigneto' ? 'isolato' : ex?.categoria;
+    const col = cat==='compound' ? 'rgba(255,107,0,0.8)' : cat==='cardio' ? 'rgba(80,200,120,0.7)' : 'rgba(100,150,255,0.7)';
+    const pct = (val/maxVal*100).toFixed(1);
+    const nome = getExNome(id);
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:260px;min-width:260px;color:#ddd;font-size:13px;text-align:right">${nome}</div>
+      <div style="flex:1;background:#1a1a1a;border-radius:3px;height:20px">
+        <div style="background:${col};width:${pct}%;height:100%;border-radius:3px"></div>
+      </div>
+      <div style="width:32px;color:#aaa;font-size:12px">${val}</div>
+    </div>`;
+  }).join('');
+}
+function vaiStorico(annoFiltro) {
+  // Vai alla tab storico
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.querySelector('.tab[data-tab="storico"]').classList.add('active');
+  document.getElementById('panel-storico').classList.add('active');
+  if (annoFiltro) {
+    document.getElementById('filter-anno').value = annoFiltro;
+    SESSION_PAGE = 1;
+    renderStorico();
+  }
+}
+
+function toggleGraficoOverview(tipo) {
+  const wrap = document.getElementById('overview-grafico-wrap');
+  if (overviewGraficoAttivo === tipo) {
+    // Chiudi
+    wrap.style.display = 'none';
+    overviewGraficoAttivo = null;
+    if (overviewChart) { overviewChart.destroy(); overviewChart = null; }
+    const fb = document.getElementById('overview-cat-filter');
+    if (fb) fb.remove();
+    const hb = document.getElementById('overview-chart-html');
+    if (hb) { hb.style.display = 'none'; }
+    document.getElementById('overview-chart').style.display = 'block';
+    return;
+  }
+  overviewGraficoAttivo = tipo;
+  wrap.style.display = 'block';
+  // Rimuovi filtri categoria se aperti da sessione precedente
+  const oldFb = document.getElementById('overview-cat-filter');
+  if (oldFb) oldFb.remove();
+  const oldHb = document.getElementById('overview-chart-html');
+  if (oldHb) oldHb.style.display = 'none';
+  document.getElementById('overview-chart').style.display = 'block';
+  if (overviewChart) { overviewChart.destroy(); overviewChart = null; }
+  // Reset altezza canvas
+  const cvs = document.getElementById('overview-chart');
+  const wrapChart = cvs.parentElement;
+  if (tipo === 'mensile') {
+    wrapChart.style.height = '350px';
+    cvs.style.height = '350px';
+  } else {
+    wrapChart.style.height = '500px';
+    cvs.style.height = '500px';
+  }
+
+  const ctx = document.getElementById('overview-chart').getContext('2d');
+
+  if (tipo === 'mensile') {
+    // Allenamenti per mese — ultimi 18 mesi
+    const oggi = new Date();
+    const mesi = [];
+    for (let i = 17; i >= 0; i--) {
+      const d = new Date(oggi.getFullYear(), oggi.getMonth() - i, 1);
+      mesi.push(d.toISOString().slice(0,7));
+    }
+    const counts = mesi.map(m => DATA.sessioni.filter(s => s.data.startsWith(m)).length);
+    const labels = mesi.map(m => { const [y,mo] = m.split('-'); return `${mo}/${y.slice(2)}`; });
+    overviewChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ data: counts, backgroundColor: counts.map(c => c >= 8 ? 'rgba(255,107,0,0.9)' : c >= 4 ? 'rgba(255,107,0,0.6)' : 'rgba(255,107,0,0.3)'), borderRadius: 4 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: item => `${item.raw} allenamenti` } } },
+        scales: {
+          x: { ticks: { color: '#aaa', font: { size: 13 } }, grid: { color: '#1e1e1e' } },
+          y: { ticks: { color: '#aaa', font: { size: 13 }, stepSize: 1 }, grid: { color: '#1e1e1e' }, beginAtZero: true }
+        }
+      }
+    });
+  } else {
+    renderGraficoEsercizi('tutti');
+  }
+}
+
+// =====================
+// PROGRESSIONE
+// =====================
+let progChart = null;
+
+function toggleProgMenu() {
+  const menu = document.getElementById('prog-ex-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function selezionaProgEx(idx) {
+  const v = window._progVociMenu[idx];
+  if (!v) return;
+  const badgeStyle = v.cat === 'compound'
+    ? 'background:rgba(255,107,0,0.2);color:var(--orange)'
+    : v.cat === 'cardio'
+    ? 'background:rgba(80,200,120,0.15);color:#66cc88'
+    : 'background:rgba(100,150,255,0.15);color:#7aa0ff';
+  const badgeText = v.cat === 'compound' ? 'CORE' : v.cat === 'cardio' ? 'CARDIO' : 'ISOLATO';
+  document.getElementById('prog-ex-label').innerHTML =
+    `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;${badgeStyle}">${badgeText}</span>
+     <span>${v.nome}</span>`;
+  document.getElementById('prog-ex-menu').style.display = 'none';
+  document.getElementById('prog-esercizio').value = v.val;
+  aggiornaSchemiDisponibili(v.val);
+}
+
+// Chiudi menu se si clicca fuori
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#prog-ex-selected') && !e.target.closest('#prog-ex-menu')) {
+    const m = document.getElementById('prog-ex-menu');
+    if (m) m.style.display = 'none';
+  }
+});
+
+function inizializzaProgressione() {
+  const sel = document.getElementById('prog-esercizio');
+  const esercizi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+
+  // Solo esercizi con dati di peso o bodyweight
+  const conDati = new Set();
+  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
+    if (e.peso_kg || e.schema) conDati.add(e.esercizio_id);
+  }));
+
+  esercizi.filter(e => conDati.has(e.id)).forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    const nomeBase = e.id === 'corsa' ? e.nome + ' (passo)' : e.nome;
+    opt.textContent = nomeBase;
+    sel.appendChild(opt);
+    if (e.id === 'corsa') {
+      const optDist = document.createElement('option');
+      optDist.value = '__corsa_distanza__';
+      optDist.textContent = e.nome + ' (distanza)';
+      sel.appendChild(optDist);
+    }
+  });
+
+  // Popola menu custom con badge colorati
+  const menu = document.getElementById('prog-ex-menu');
+  const vociMenu = [];
+  esercizi.filter(e => conDati.has(e.id)).forEach(e => {
+    const cat = e.id === 'salita_vigneto' ? 'isolato' : e.categoria;
+    const nomeBase = e.id === 'corsa' ? e.nome + ' (passo)' : e.nome;
+    vociMenu.push({ val: e.id, nome: nomeBase, cat });
+    if (e.id === 'corsa') {
+      vociMenu.push({ val: '__corsa_distanza__', nome: e.nome + ' (distanza)', cat: 'cardio' });
+    }
+  });
+
+  menu.innerHTML = vociMenu.map((v, idx) => {
+    const badgeStyle = v.cat === 'compound'
+      ? 'background:rgba(255,107,0,0.2);color:var(--orange)'
+      : v.cat === 'cardio'
+      ? 'background:rgba(80,200,120,0.15);color:#66cc88'
+      : 'background:rgba(100,150,255,0.15);color:#7aa0ff';
+    const badgeText = v.cat === 'compound' ? 'CORE' : v.cat === 'cardio' ? 'CARDIO' : 'ISOLATO';
+    return `<div onclick="selezionaProgEx(${idx})"
+      style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s"
+      onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
+      <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0;${badgeStyle}">${badgeText}</span>
+      <span style="color:var(--text1);font-size:14px">${v.nome}</span>
+    </div>`;
+  }).join('');
+  window._progVociMenu = vociMenu;
+
+  sel.addEventListener('change', () => {
+    aggiornaSchemiDisponibili(sel.value);
+  });
+
+  document.getElementById('prog-schema').addEventListener('change', () => {
+    const exId = document.getElementById('prog-esercizio').value;
+    const schema = document.getElementById('prog-schema').value;
+
+    // Gestisci opzioni di ordinamento
+    if (schema === '__ordina_freq__' || schema === '__ordina_rep__') {
+      riordinaSchemi(exId, schema);
+      return;
+    }
+    renderProgressione(exId, schema);
+  });
+
+  aggiornaSchemiDisponibili(sel.value);
+}
+
+function riordinaSchemi(exId, tipo) {
+  const sel = document.getElementById('prog-schema');
+  const attuale = sel.value;
+
+  // Raccoglie schemi esistenti (esclude le opzioni speciali)
+  const schemiCount = {};
+  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
+    if (e.esercizio_id === exId && e.schema) {
+      schemiCount[e.schema] = (schemiCount[e.schema] || 0) + 1;
+    }
+  }));
+
+  const schemiOrdinati = Object.entries(schemiCount).sort((a, b) => {
+    if (tipo === '__ordina_rep__') {
+      // Ordina per numero di ripetizioni (seconda cifra dello schema NxR)
+      const repA = parseInt((a[0].split('x')[1] || '0'));
+      const repB = parseInt((b[0].split('x')[1] || '0'));
+      return repB - repA;
+    }
+    // Default: per frequenza
+    return b[1] - a[1];
+  });
+
+  // Rimuovi le opzioni schema esistenti (mantieni le prime 4: generale + sep + freq + rep)
+  while (sel.options.length > 4) sel.remove(4);
+
+  const isEsCorsa = exId === 'corsa';
+  schemiOrdinati.forEach(([schema, count]) => {
+    const opt = document.createElement('option');
+    opt.value = schema;
+    const label = isEsCorsa && /^\d+%$/.test(schema) ? `Inclinazione ${schema}` : schema;
+    opt.textContent = `${label} (${count} volte)`;
+    sel.appendChild(opt);
+  });
+
+
+
+  // Seleziona il primo schema disponibile
+  sel.value = schemiOrdinati[0]?.[0] || '__generale__';
+  renderProgressione(exId, sel.value);
+}
+
+function aggiornaSchemiDisponibili(exId) {
+  if (exId === '__corsa_distanza__') {
+    renderProgressione('__corsa_distanza__', '__distanza__');
+    return;
+  }
+  if (exId === '__corsa_distanza__') {
+    renderProgressione('__corsa_distanza__', '__distanza__');
+    return;
+  }
+  const sel = document.getElementById('prog-schema');
+  sel.innerHTML = '';
+
+  // Aggiungi opzione "Progressione generale"
+  const optGen = document.createElement('option');
+  optGen.value = '__generale__';
+  optGen.textContent = 'Progressione generale';
+  sel.appendChild(optGen);
+
+  // Opzione Media per esercizi con tempi (salita vigneto)
+  const haTempi = DATA.sessioni.some(s => s.esercizi.some(e =>
+    e.esercizio_id === exId && e.unita === 'sec' && e.tipo_riga === 'tempo'
+  ));
+  const haMedia = DATA.sessioni.some(s => s.esercizi.some(e =>
+    e.esercizio_id === exId && e.unita === 'sec' && e.tipo_riga !== 'tempo'
+  ));
+  if (haMedia) {
+    const optMedia = document.createElement('option');
+    optMedia.value = '__media__';
+    optMedia.textContent = '⌀ Media tempi per sessione';
+    sel.appendChild(optMedia);
+  }
+  if (haTempi) {
+    const optTempi = document.createElement('option');
+    optTempi.value = '__tempi__';
+    optTempi.textContent = '⏱ Tempi singoli';
+    sel.appendChild(optTempi);
+  }
+
+  // Separatore ordinamento
+  const optSep = document.createElement('option');
+  optSep.disabled = true;
+  optSep.textContent = '── Ordina per ──';
+  sel.appendChild(optSep);
+
+  const optFreq = document.createElement('option');
+  optFreq.value = '__ordina_freq__';
+  optFreq.textContent = '↕ Per frequenza';
+  sel.appendChild(optFreq);
+
+  const optRep = document.createElement('option');
+  optRep.value = '__ordina_rep__';
+  optRep.textContent = '↕ Per ripetizioni';
+  sel.appendChild(optRep);
+
+  // Schemi usati per questo esercizio
+  const schemiCount = {};
+  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
+    if (e.esercizio_id === exId && e.schema) {
+      schemiCount[e.schema] = (schemiCount[e.schema] || 0) + 1;
+    }
+  }));
+
+  // Ordine default: per frequenza
+  const schemiOrdinati = Object.entries(schemiCount)
+    .sort((a,b) => b[1] - a[1]);
+
+  const isEsCorsa = exId === 'corsa';
+  schemiOrdinati.forEach(([schema, count]) => {
+    const opt = document.createElement('option');
+    opt.value = schema;
+    const label = isEsCorsa && /^\d+%$/.test(schema) ? `Inclinazione ${schema}` : schema;
+    opt.textContent = `${label} (${count} volte)`;
+    sel.appendChild(opt);
+  });
+
+
+
+  renderProgressione(exId, '__generale__');
+}
+
+function renderProgressione(exId, schemaFiltro) {
+  // Caso speciale: corsa distanza
+  if (exId === '__corsa_distanza__' || schemaFiltro === '__distanza__') {
+    const kmPerSessione = {};
+    DATA.sessioni.forEach(s => {
+      let totKm = 0;
+      s.esercizi.forEach(e => {
+        if (e.esercizio_id !== 'corsa') return;
+        totKm += kmCorsaFromNota(e.nota_riga);
+      });
+      if (totKm > 0) kmPerSessione[s.data] = (kmPerSessione[s.data] || 0) + totKm;
+    });
+    const recsDist = Object.entries(kmPerSessione)
+      .sort((a,b) => a[0].localeCompare(b[0]))
+      .map(([data, km]) => ({ data, peso: km, schema: 'km', bw: false, unita: 'km' }));
+
+    if (!recsDist.length) {
+      document.getElementById('chart-info').innerHTML = '<span style="color:var(--text3)">Nessun dato distanza</span>';
+      document.getElementById('prog-ultime').style.display = 'none';
+      return;
+    }
+
+    const maxKm = Math.max(...recsDist.map(r => r.peso));
+    const bestKm = recsDist.find(r => r.peso === maxKm);
+    document.getElementById('chart-info').innerHTML = `
+      <span>Record: <strong style="color:var(--orange)">${maxKm.toFixed(1)} km</strong>
+      &nbsp; Data PR: <strong style="color:var(--orange)">${formatData(bestKm.data)}</strong>
+      &nbsp; Sessioni: <strong>${recsDist.length}</strong></span>`;
+
+    // Ultime 3 sessioni
+    const ultimeDiv = document.getElementById('prog-ultime');
+    const ultime3 = [...recsDist].reverse().slice(0,3);
+    ultimeDiv.innerHTML = `
+      <div style="background:var(--orange-dim);border:1px solid rgba(255,107,0,0.25);border-radius:var(--radius);padding:12px 14px">
+        <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
+        ${ultime3.map(r => `
+          <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
+            <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
+            <span style="color:#ffffff;font-weight:600">${r.peso.toFixed(1)} km</span>
+          </div>`).join('')}
+      </div>`;
+    ultimeDiv.style.display = 'block';
+
+    if (progChart) { progChart.destroy(); progChart = null; }
+    const ctx = document.getElementById('prog-chart').getContext('2d');
+    progChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: recsDist.map(r => r.data),
+        datasets: [{ data: recsDist.map(r => r.peso), borderColor: '#FF6B00', backgroundColor: 'rgba(255,107,0,0.08)', tension: 0.3, pointBackgroundColor: '#FF6B00', pointRadius: 4, fill: true }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            title: (items) => formatData(recsDist[items[0].dataIndex]?.data || ''),
+            label: (item) => item.raw.toFixed(1) + ' km'
+          }}
+        },
+        scales: {
+          x: { ticks: { color: '#888', maxTicksLimit: 8 }, grid: { color: '#1e1e1e' } },
+          y: { ticks: { color: '#888', callback: val => val.toFixed(1) + ' km' }, grid: { color: '#1e1e1e' } }
+        }
+      }
+    });
+    return;
+  }
+
+  const records = [];
+  DATA.sessioni.forEach(s => {
+    s.esercizi.forEach(e => {
+      if (e.esercizio_id !== exId) return;
+  
+  if (schemaFiltro !== '__generale__' && schemaFiltro !== '__media__' && schemaFiltro !== '__tempi__' && schemaFiltro !== '__distanza__' && e.schema !== schemaFiltro) return;
+      // Filtro media: solo record con tipo != 'tempo' (quelli con la media)
+      if (schemaFiltro === '__media__' && e.tipo_riga === 'tempo') return;
+      // Filtro tempi: solo record con tipo_riga === 'tempo'
+      if (schemaFiltro === '__tempi__' && e.tipo_riga !== 'tempo') return;
+      if (e.peso_kg) {
+        // Escludi cardio_distanza SOLO se non stiamo cercando la media
+        if (e.tipo_riga === 'cardio_distanza' && schemaFiltro !== '__media__') return;
+        records.push({
+          data: e.data, peso: e.peso_kg, schema: e.schema,
+          bw: false, unita: e.unita || 'kg'
+        });
+      } else if (e.bodyweight === true && e.tipo_riga !== 'cardio_distanza') {
+        // Solo veri bodyweight (trazioni, wall walks, ecc.)
+        records.push({
+          data: e.data, peso: 0, schema: e.schema,
+          bw: true, unita: 'bw'
+        });
+      }
+      // Ignora senza_peso con bodyweight=false (peso non estratto = dato mancante)
+    });
+  });
+  records.sort((a,b) => a.data.localeCompare(b.data));
+
+  // Ultime 3 volte
+  const ultimeDiv = document.getElementById('prog-ultime');
+  if (records.length > 0) {
+    const ultime = [...records].reverse().slice(0, 3);
+    ultimeDiv.innerHTML = `
+      <div style="background:var(--orange-dim);border:1px solid rgba(255,107,0,0.25);border-radius:var(--radius);padding:12px 14px">
+        <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
+        ${ultime.map(r => {
+          const kmhProg = r.unita === 'min/km' && r.peso ? ` [${(60/r.peso).toFixed(1)} km/h]` : '';
+          const pesoLabel = r.bw ? 'BW' : `${r.peso} ${r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg'}${kmhProg}`;
+          return `
+            <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
+              <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
+              <span style="color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px">${fmtSchema(r.schema, r.unita)}</span>
+              <span style="color:var(--text);font-weight:600">${pesoLabel}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+    ultimeDiv.style.display = 'block';
+  } else {
+    ultimeDiv.style.display = 'none';
+  }
+
+  // Stats (solo record con peso reale)
+  const recordConPeso = records.filter(r => !r.bw);
+  const maxPeso = recordConPeso.length ? Math.max(...recordConPeso.map(r=>r.peso)) : 0;
+  const maxRec = recordConPeso.find(r => r.peso === maxPeso);
+  const unitaLabel = maxRec?.unita === 'kg/mano' ? 'kg/mano' : maxRec?.unita === 'min/km' ? 'min/km' : maxRec?.unita === 'sec' ? 'sec' : 'kg';
+
+  document.getElementById('chart-info').innerHTML = records.length ? `
+    ${maxPeso ? `<div class="chart-stat">Record: <strong>${maxPeso} ${unitaLabel}</strong></div>` : ''}
+    ${maxRec ? `<div class="chart-stat">Data PR: <strong>${formatData(maxRec.data)}</strong></div>` : ''}
+    <div class="chart-stat">Sessioni: <strong>${records.length}</strong></div>
+  ` : '<div class="chart-stat" style="color:var(--text3)">Nessun dato per questo filtro</div>';
+
+  // Chart
+  const ctx = document.getElementById('prog-chart').getContext('2d');
+  if (progChart) progChart.destroy();
+  if (!records.length) return;
+
+  // Colore punti: BW in grigio, con peso in arancione
+  const pointColors = records.map(r => r.bw ? '#666' : '#FF6B00');
+
+  progChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: records.map(r => r.data),
+      datasets: [{
+        data: records.map(r => r.peso),
+        borderColor: '#FF6B00',
+        backgroundColor: 'rgba(255,107,0,0.08)',
+        pointBackgroundColor: pointColors,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#333',
+          borderWidth: 1,
+          titleColor: '#FF6B00',
+          titleFont: { size: 13 },
+          bodyColor: '#f0f0f0',
+          bodyFont: { size: 13 },
+          padding: 10,
+          callbacks: {
+            title: (items) => formatData(records[items[0].dataIndex]?.data || ''),
+            label: (item) => {
+              const r = records[item.dataIndex];
+              const pesoStr = r.bw ? 'BW' : `${r.peso} ${r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg'}`;
+              const schTip = r.unita === 'min/km' && r.schema && /^\d+%$/.test(r.schema) ? `Inclinazione ${r.schema}` : (r.schema || '');
+              return `${pesoStr} — ${schTip}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#888', maxTicksLimit: 8, font: { size: 12 } },
+          grid: { color: '#1e1e1e' },
+        },
+        y: {
+          ticks: {
+            color: '#888', font: { size: 12 },
+            callback: (val) => {
+              if (val === 0) return 'BW';
+              const unita = records[0]?.unita;
+              if (unita === 'min/km') return val + ' min/km';
+              if (unita === 'sec') return val + 's';
+              return val;
+            }
+          },
+          grid: { color: '#1e1e1e' },
+          reverse: records[0]?.unita === 'min/km',
+          min: records.every(r => r.bw) ? -0.5 : undefined,
+          max: records.every(r => r.bw) ? 0.5 : undefined,
+        }
+      }
+    }
+  });
+}
+
+// =====================
+// STORICO
+// =====================
+let filteredSessions = [];
+
+function inizializzaStorico() {
+  // Luoghi per filtro — ordinati per frequenza
+  const luoghiCount = {};
+  DATA.sessioni.forEach(s => { if(s.luogo) luoghiCount[s.luogo] = (luoghiCount[s.luogo]||0)+1; });
+  const luoghi = Object.entries(luoghiCount).sort((a,b)=>b[1]-a[1]).map(([l])=>l);
+  const selLuogo = document.getElementById('filter-luogo');
+  luoghi.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l; opt.textContent = l;
+    selLuogo.appendChild(opt);
+  });
+
+  // Anni dinamici dal JSON
+  const anniSet = new Set(DATA.sessioni.map(s => s.data?.slice(0,4)).filter(Boolean));
+  const selAnno = document.getElementById('filter-anno');
+  selAnno.innerHTML = '<option value="">Tutti gli anni</option>';
+  [...anniSet].sort().reverse().forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    selAnno.appendChild(opt);
+  });
+
+  const aggiornaBtnReset = () => {
+    const attivi = document.getElementById('filter-search').value ||
+                   document.getElementById('filter-luogo').value ||
+                   document.getElementById('filter-anno').value;
+    document.getElementById('btn-reset-filtri').style.display = attivi ? 'block' : 'none';
+  };
+
+  document.getElementById('filter-search').addEventListener('input', () => { SESSION_PAGE=1; aggiornaBtnReset(); renderStorico(); });
+  document.getElementById('filter-search').addEventListener('keydown', (e) => { if(e.key==='Enter'){ e.preventDefault(); SESSION_PAGE=1; renderStorico(); } });
+  document.getElementById('filter-luogo').addEventListener('change', () => { SESSION_PAGE=1; aggiornaBtnReset(); renderStorico(); });
+  document.getElementById('filter-anno').addEventListener('change', () => { SESSION_PAGE=1; aggiornaBtnReset(); renderStorico(); });
+
+  renderStorico();
+}
+
+function resetFiltri() {
+  document.getElementById('filter-search').value = '';
+  document.getElementById('filter-luogo').value = '';
+  document.getElementById('filter-anno').value = '';
+  document.getElementById('btn-reset-filtri').style.display = 'none';
+  SESSION_PAGE = 1;
+  renderStorico();
+}
+
+function renderStorico() {
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  const luogo = document.getElementById('filter-luogo').value;
+  const anno = document.getElementById('filter-anno').value;
+
+  filteredSessions = DATA.sessioni.filter(s => {
+    if (luogo && s.luogo !== luogo) return false;
+    if (anno && !s.data.startsWith(anno)) return false;
+    if (search) {
+      const hasEx = s.esercizi.some(e =>
+        (e.esercizio_raw || '').toLowerCase().includes(search) ||
+        (getExNome(e.esercizio_id) || '').toLowerCase().includes(search)
+      );
+      const hasNota = (s.note_sessione || []).some(n => n.toLowerCase().includes(search));
+      if (!hasEx && !hasNota) return false;
+    }
+    return true;
+  }).sort((a,b) => b.data.localeCompare(a.data));
+
+  document.getElementById('session-count').textContent = filteredSessions.length + ' sessioni trovate';
+
+  const start = (SESSION_PAGE - 1) * PAGE_SIZE;
+  const page = filteredSessions.slice(start, start + PAGE_SIZE);
+
+  const list = document.getElementById('session-list');
+  list.innerHTML = page.map(s => `
+    <div class="session-card">
+      <div class="session-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="session-date">${formatData(s.data)}</div>
+        <div class="session-luogo">${s.luogo || '—'}</div>
+        <div class="session-ex-count">${contaGruppi(s.esercizi)} esercizi</div>
+        <div class="session-chevron">›</div>
+      </div>
+      <div class="session-body">
+        ${s.note_sessione && s.note_sessione.length ? `<div class="session-note">${s.note_sessione.join(' · ')}</div>` : ''}
+        ${renderSessioneBody(s)}
+      </div>
+    </div>
+  `).join('');
+
+  renderPagination(filteredSessions.length);
+}
+
+function renderPagination(total) {
+  const pages = Math.ceil(total / PAGE_SIZE);
+  const wrap = document.getElementById('pagination');
+  if (pages <= 1) { wrap.innerHTML = ''; return; }
+
+  let html = '';
+  if (SESSION_PAGE > 1) html += `<button class="page-btn" onclick="goPage(${SESSION_PAGE-1})">‹</button>`;
+  for (let i = Math.max(1,SESSION_PAGE-2); i <= Math.min(pages,SESSION_PAGE+2); i++) {
+    html += `<button class="page-btn${i===SESSION_PAGE?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if (SESSION_PAGE < pages) html += `<button class="page-btn" onclick="goPage(${SESSION_PAGE+1})">›</button>`;
+  wrap.innerHTML = html;
+}
+
+function goPage(p) {
+  SESSION_PAGE = p;
+  renderStorico();
+  document.getElementById('panel-storico').scrollIntoView({ behavior: 'smooth' });
+}
+
+// =====================
+// PERSONAL RECORDS
+// =====================
+function inizializzaPR() {
+  document.getElementById('pr-cat').addEventListener('change', renderPR);
+  document.getElementById('pr-stato').addEventListener('change', renderPR);
+  renderPR();
+}
+
+function renderPR() {
+  const catFilter = document.getElementById('pr-cat').value;
+  const statoFilter = document.getElementById('pr-stato').value;
+  const pr = {};
+
+  DATA.sessioni.forEach(s => {
+    s.esercizi.forEach(e => {
+      if (!e.peso_kg) return;
+      const ex = DATA.esercizi_canonici.find(x => x.id === e.esercizio_id);
+      if (!ex) return;
+      const catEffettiva = e.esercizio_id === 'salita_vigneto' ? 'isolato' : ex.categoria;
+      if (catFilter && catEffettiva !== catFilter) return;
+      if (statoFilter && ex.stato !== statoFilter) return;
+      const isCorsa = e.unita === 'min/km';
+      const isTempoMinimo = e.unita === 'sec'; // salita vigneto: meno è meglio
+      const isMigliore = !pr[e.esercizio_id] ||
+        (isCorsa || isTempoMinimo ? e.peso_kg < pr[e.esercizio_id].peso : e.peso_kg > pr[e.esercizio_id].peso);
+      if (isMigliore) {
+        pr[e.esercizio_id] = {
+          peso: e.peso_kg, data: e.data, schema: e.schema,
+          nome: ex.nome, cat: catEffettiva,
+          unita: e.unita || 'kg',
+          nota: e.nota_riga || null
+        };
+      }
+    });
+  });
+
+  const sorted = Object.entries(pr).sort((a,b) => {
+    const catOrder = { compound:0, isolato:1, cardio:2, skill:3, pliometrico:4 };
+    const ca = catOrder[a[1].cat] ?? 5;
+    const cb = catOrder[b[1].cat] ?? 5;
+    return ca !== cb ? ca - cb : b[1].peso - a[1].peso;
+  });
+
+  // Record distanza corsa
+  const kmPerData = {};
+  DATA.sessioni.forEach(s => {
+    s.esercizi.forEach(e => {
+      if (e.esercizio_id !== 'corsa' || !e.nota_riga) return;
+      const km = kmCorsaFromNota(e.nota_riga);
+      if (km > 0) kmPerData[s.data] = (kmPerData[s.data] || 0) + km;
+    });
+  });
+  const corsaKmEntries = Object.entries(kmPerData);
+  const corsaBest = corsaKmEntries.length
+    ? corsaKmEntries.reduce((acc, [d, km]) => km > acc.km ? {data: d, km} : acc, {data:'', km:0})
+    : null;
+
+  document.getElementById('pr-grid').innerHTML = sorted.map(([id, r]) => {
+    const unitaLabel = r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg';
+    const isCorsa = r.unita === 'min/km';
+    const schemaDisplayPR = isCorsa ? 'Passo minimo' : (r.schema || '1x1');
+    const inclNota = isCorsa && r.schema ? `Inclinazione ${r.schema}` : null;
+    const notaTxt = [inclNota, r.nota].filter(Boolean).join(' · ');
+    const notaHtml = notaTxt ? `<div style="font-size:13px;color:#999;margin-top:5px;font-style:italic">${notaTxt}</div>` : '';
+    // Dopo il record passo corsa, inserisci distanza massima
+    let distanzaHtml = '';
+    if (id === 'corsa' && corsaBest && (!catFilter || catFilter === 'cardio')) {
+      distanzaHtml = `
+      <div class="pr-row" style="align-items:flex-start;gap:16px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="pr-nome">${r.nome}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange)">Distanza massima</span>
+            <span style="color:var(--text3);font-size:12px">·</span>
+            <span style="color:#bbb;font-size:14px">${formatData(corsaBest.data)}</span>
+            <span style="color:var(--text3);font-size:12px">·</span>
+            <span class="pr-cat cardio">cardio</span>
+          </div>
+        </div>
+        <div class="pr-peso" style="flex-shrink:0">${corsaBest.km.toFixed(1)}<small style="font-size:13px;color:var(--text2)"> km</small></div>
+      </div>`;
+    }
+
+    return distanzaHtml + `
+    <div class="pr-row" style="align-items:flex-start;gap:16px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="pr-nome">${r.nome}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--orange)">${schemaDisplayPR}</span>
+          <span style="color:var(--text3);font-size:12px">·</span>
+          <span style="color:#bbb;font-size:14px">${formatData(r.data)}</span>
+          <span style="color:var(--text3);font-size:12px">·</span>
+          <span class="pr-cat ${r.cat}">${r.cat}</span>
+        </div>
+        ${notaHtml}
+      </div>
+      <div class="pr-peso" style="flex-shrink:0">${r.peso}<small style="font-size:13px;color:var(--text2)"> ${unitaLabel}</small></div>
+    </div>`;
+  }).join('') || '<div class="empty">Nessun record trovato</div>';
+}
+
+// =====================
+// PIANIFICATORE
+// =====================
+function inizializzaPianificatore() {
+  document.getElementById('piano-data').value = oggi();
+  // Luoghi ordinati per frequenza
+  const luoghiCount = {};
+  DATA.sessioni.forEach(s => { if(s.luogo) luoghiCount[s.luogo] = (luoghiCount[s.luogo]||0)+1; });
+  const luoghi = Object.entries(luoghiCount).sort((a,b)=>b[1]-a[1]).map(([l])=>l);
+  const sel = document.getElementById('piano-luogo');
+  sel.innerHTML = '<option value="">— Seleziona luogo —</option>';
+  luoghi.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l; opt.textContent = l;
+    sel.appendChild(opt);
+  });
+}
+
+function aggiungiLuogoPiano() {
+  const nuovo = prompt('Nome del nuovo luogo (es. MI - Palestra X):');
+  if (!nuovo || !nuovo.trim()) return;
+  const sel = document.getElementById('piano-luogo');
+  const opt = document.createElement('option');
+  opt.value = nuovo.trim();
+  opt.textContent = nuovo.trim();
+  opt.dataset.custom = 'true';
+  sel.appendChild(opt);
+  sel.value = nuovo.trim();
+  aggiornaBottoneCancellaLuogo();
+}
+
+function aggiornaBottoneCancellaLuogo() {
+  const sel = document.getElementById('piano-luogo');
+  const btn = document.getElementById('btn-cancella-luogo');
+  if (!btn) return;
+  const opt = sel.options[sel.selectedIndex];
+  btn.style.display = opt?.dataset?.custom ? 'inline-block' : 'none';
+}
+
+function cancellaLuogoPiano() {
+  const sel = document.getElementById('piano-luogo');
+  const idx = sel.selectedIndex;
+  if (idx >= 0 && sel.options[idx]?.dataset?.custom) {
+    sel.remove(idx);
+    sel.selectedIndex = 0;
+    aggiornaBottoneCancellaLuogo();
+  }
+}
+
+let ESERCIZI_PROPOSTI = [];
+let ESERCIZI_SELEZIONATI = new Set();
+
+function generaPropostaStep1() {
+  // Validazione
+  const dataP = document.getElementById('piano-data').value;
+  const luogoP = document.getElementById('piano-luogo').value;
+  if (!dataP) { showToast('Seleziona una data', 'error'); return; }
+  if (!luogoP) { showToast('Seleziona un luogo', 'error'); return; }
+
+  const nCore = parseInt(document.getElementById('piano-core').value);
+  const nBasic = parseInt(document.getElementById('piano-basic').value);
+  const nCardio = parseInt(document.getElementById('piano-cardio').value);
+
+  // Calcola ultima data per ogni esercizio — usa la data della SESSIONE, non dell'esercizio
+  const ultima = {};
+  DATA.sessioni.forEach(s => {
+    const d = new Date(s.data);
+    s.esercizi.forEach(e => {
+      if (!e.esercizio_id) return;
+      if (!ultima[e.esercizio_id] || d > ultima[e.esercizio_id]) {
+        ultima[e.esercizio_id] = d;
+      }
+    });
+  });
+
+  const oggi_d = new Date(dataP || Date.now());
+  oggi_d.setHours(0,0,0,0);
+  const giorni = (eid) => {
+    if (!ultima[eid]) return 9999;
+    const u = new Date(ultima[eid]);
+    u.setHours(0,0,0,0);
+    return Math.floor((oggi_d - u) / 86400000);
+  };
+
+  const attivi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+  const compound = attivi.filter(e => e.categoria === 'compound');
+  // salita_vigneto va tra gli isolati, non tra il cardio
+  const isolati = attivi.filter(e => ['isolato','skill','addominali'].includes(e.categoria) || e.id === 'salita_vigneto');
+  const cardio = attivi.filter(e => e.categoria === 'cardio' && e.id !== 'salita_vigneto');
+
+  // Ordina per giorni decrescenti (non fatto da più tempo prima), poi seleziona N
+  const seleziona = (lista, n) =>
+    [...lista].sort((a,b) => giorni(b.id) - giorni(a.id)).slice(0, n);
+
+  const proposti = [
+    ...seleziona(compound, nCore),
+    ...seleziona(isolati, nBasic),
+    ...seleziona(cardio, nCardio),
+  ];
+
+  ESERCIZI_PROPOSTI = proposti.map(ex => ({
+    id: ex.id, nome: ex.nome, cat: ex.categoria,
+    giorni: giorni(ex.id),
+    isCompound: ex.categoria === 'compound',
+  }));
+
+  ESERCIZI_SELEZIONATI = new Set();
+
+  // Scala colori: da verde (recente) a rosso (lontano)
+  const maxGiorni = Math.max(...ESERCIZI_PROPOSTI.filter(e=>e.giorni<9999).map(e=>e.giorni), 1);
+  document.getElementById('piano-ex-lista').innerHTML = ESERCIZI_PROPOSTI.map((ex, i) => {
+    const badgeCat = ex.cat === 'compound'
+      ? '<span style="background:rgba(255,107,0,0.2);color:var(--orange);font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.5px">CORE</span>'
+      : (ex.cat === 'cardio' && ex.id !== 'salita_vigneto')
+      ? '<span style="background:rgba(80,200,120,0.15);color:#66cc88;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">CARDIO</span>'
+      : '<span style="background:rgba(100,150,255,0.15);color:#7aa0ff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">ISOLATO</span>';
+
+    let coloreGiorni, testoGiorni;
+    if (ex.giorni === 9999) {
+      coloreGiorni = '#ff3333';
+      testoGiorni = 'MAI FATTO';
+    } else {
+      const ratio = Math.min(ex.giorni / Math.max(maxGiorni, 14), 1);
+      // Verde (#44cc44) per recente, rosso (#ff3333) per lontano
+      const r = Math.round(68 + (255 - 68) * ratio);
+      const g = Math.round(204 - (204 - 51) * ratio);
+      const b = Math.round(68 - 68 * ratio);
+      coloreGiorni = `rgb(${r},${g},${b})`;
+      testoGiorni = `${ex.giorni}gg fa`;
+    }
+
+    return `
+    <div class="proposta-ex" id="piano-ex-${i}" onclick="toggleEsercizioPiano(${i})"
+      style="cursor:pointer;border:2px solid transparent;transition:all 0.15s;margin-bottom:8px">
+      <div class="proposta-ex-head" style="align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px;flex:1">
+          ${badgeCat}
+          <div style="font-size:17px;font-weight:600;color:var(--text1)">${ex.nome}</div>
+        </div>
+        <span style="font-size:15px;font-weight:700;color:${coloreGiorni};white-space:nowrap">${testoGiorni}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('piano-selezione').style.display = 'block';
+  document.getElementById('piano-step2').style.display = 'none';
+  aggiornaContatoreSelezione();
+}
+
+function toggleEsercizioPiano(i) {
+  const el = document.getElementById(`piano-ex-${i}`);
+  if (ESERCIZI_SELEZIONATI.has(i)) {
+    ESERCIZI_SELEZIONATI.delete(i);
+    el.style.border = '2px solid transparent';
+    el.style.background = '';
+  } else {
+    ESERCIZI_SELEZIONATI.add(i);
+    el.style.border = '2px solid var(--orange)';
+    el.style.background = 'rgba(255,107,0,0.07)';
+  }
+  aggiornaContatoreSelezione();
+}
+
+function aggiornaContatoreSelezione() {
+  const n = ESERCIZI_SELEZIONATI.size;
+  document.getElementById('piano-sel-count').textContent = n + ' selezionati';
+  const btn = document.getElementById('piano-procedi-btn');
+  btn.disabled = n === 0;
+  btn.style.opacity = n === 0 ? '0.4' : '1';
+}
+
+function procediStep2() {
+  const dataP = document.getElementById('piano-data').value;
+  const luogoP = document.getElementById('piano-luogo').value;
+  const selezionati = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).map(i => ESERCIZI_PROPOSTI[i]);
+
+  document.getElementById('piano-step2-title').textContent =
+    `${formatData(dataP)} · ${luogoP || '—'}`;
+
+  // Regex per schemi validi NxN
+  const isSchemaValido = s => /^\d+[xX]\d+/.test(s) || /^\d+%$/.test(s);
+
+  // Pre-calcola: tutti gli schemi NxN per esercizio specifico (conta per sessione, non per riga)
+  const schemiPerEx = {}; // exId -> {schema: count}
+  const schemiPerCatGenerica = { compound: {}, isolato: {} };
+
+  // Raggruppa per sessione per calcolare schema totale
+  DATA.sessioni.forEach(s => {
+    const exInSessione = {}; // exId -> [righe]
+    s.esercizi.forEach(e => {
+      if (!e.esercizio_id) return;
+      if (!exInSessione[e.esercizio_id]) exInSessione[e.esercizio_id] = [];
+      exInSessione[e.esercizio_id].push(e);
+    });
+
+    Object.entries(exInSessione).forEach(([exId, righe]) => {
+      // Calcola schema totale della sessione
+      const totaleSerie = righe.reduce((acc, r) => acc + (r.serie||0), 0);
+      const reps = righe.map(r => r.rep).filter(Boolean);
+      const repUnica = reps.length && reps.every(r => r === reps[0]) ? reps[0] : null;
+      const schema = totaleSerie && repUnica ? `${totaleSerie}x${repUnica}` : righe[0]?.schema;
+      if (!schema || !isSchemaValido(schema)) return;
+
+      if (!schemiPerEx[exId]) schemiPerEx[exId] = {};
+      schemiPerEx[exId][schema] = (schemiPerEx[exId][schema] || 0) + 1;
+
+      const ex = DATA.esercizi_canonici.find(x => x.id === exId);
+      if (!ex) return;
+      if (ex.categoria === 'compound') {
+        schemiPerCatGenerica.compound[schema] = (schemiPerCatGenerica.compound[schema] || 0) + 1;
+      } else if (['isolato','skill','addominali'].includes(ex.categoria)) {
+        schemiPerCatGenerica.isolato[schema] = (schemiPerCatGenerica.isolato[schema] || 0) + 1;
+      }
+    });
+  });
+
+  // Mappa: exId -> schema -> {peso, unita, data}
+  const pesoPerSchema = {};
+  DATA.sessioni.forEach(s => {
+    s.esercizi.forEach(e => {
+      if (!e.esercizio_id || !e.schema || !e.peso_kg) return;
+      if (!pesoPerSchema[e.esercizio_id]) pesoPerSchema[e.esercizio_id] = {};
+      const cur = pesoPerSchema[e.esercizio_id][e.schema];
+      if (!cur || s.data > cur.data) {
+        pesoPerSchema[e.esercizio_id][e.schema] = { peso: e.peso_kg, unita: e.unita||'kg', data: s.data };
+      }
+    });
+  });
+
+  // Verifica se esercizio è bodyweight
+  const ESERCIZI_BW = new Set(['trazioni_neutre','trazioni_polsi','trazioni_dorsi','verticale','tric_dips','sollevamento_gambe']);
+
+  document.getElementById('piano-step2-esercizi').innerHTML = selezionati.map((ex, i) => {
+    const isBW = ESERCIZI_BW.has(ex.id);
+    const isCardio = ex.cat === 'cardio';
+    const isCorsa = ex.id === 'corsa';
+
+    // Storico: raggruppa per sessione
+    const storicoPerSessione = {};
+    DATA.sessioni.forEach(s => {
+      s.esercizi.forEach(e => {
+        if (e.esercizio_id !== ex.id) return;
+        if (!e.schema && !e.peso_kg && !e.bodyweight) return;
+        // Per salita vigneto: escludi i record tempo singoli dal raggruppamento principale
+        // (vengono gestiti separatamente nel render)
+        if (ex.id === 'salita_vigneto' && e.tipo_riga === 'tempo') return;
+        if (!storicoPerSessione[s.data]) storicoPerSessione[s.data] = { principale: [], tempi: [] };
+        storicoPerSessione[s.data].principale.push(e);
+      });
+      // Aggiungi tempi singoli separatamente per salita vigneto
+      if (ex.id === 'salita_vigneto') {
+        s.esercizi.forEach(e => {
+          if (e.esercizio_id !== ex.id || e.tipo_riga !== 'tempo') return;
+          if (!storicoPerSessione[s.data]) storicoPerSessione[s.data] = { principale: [], tempi: [] };
+          storicoPerSessione[s.data].tempi.push(e);
+        });
+      }
+    });
+
+    // Normalizza struttura per esercizi non-vigneto
+    if (ex.id !== 'salita_vigneto') {
+      Object.keys(storicoPerSessione).forEach(k => {
+        if (Array.isArray(storicoPerSessione[k])) {
+          storicoPerSessione[k] = { principale: storicoPerSessione[k], tempi: [] };
+        }
+      });
+    }
+
+    // Ultime 5 sessioni
+    const sessioniOrd = Object.entries(storicoPerSessione)
+      .filter(([, v]) => v.principale.length > 0)
+      .sort((a,b) => b[0].localeCompare(a[0])).slice(0,5);
+
+    const storicoHtml = sessioniOrd.length ? sessioniOrd.map(([data, sess]) => {
+      const righe = sess.principale;
+      const tempiSingoli = sess.tempi || [];
+      const totaleSerie = righe.reduce((acc, r) => acc + (r.serie||0), 0);
+      const reps = righe.map(r => r.rep).filter(Boolean);
+      const repUnica = reps.length && reps.every(r => r === reps[0]) ? reps[0] : null;
+      // Per corsa: schemaLabel vuoto (inclinazione già in pesoDisplay)
+      const schemaLabelRaw = isCorsa
+        ? ''
+        : (totaleSerie && repUnica ? `${totaleSerie}x${repUnica}` : (righe[0]?.schema || '—'));
+      // Per verticale: mostra sempre "verticale"
+      const schemaLabel = ex.id === 'verticale' ? 'verticale' : schemaLabelRaw;
+
+      // Sottoschemi a fianco con separatore
+      const sottoschemi = righe.length > 1
+        ? ' <span style="color:var(--text3);font-size:14px;margin-left:6px">(' +
+          righe.map(r => {
+            const p = r.peso_kg ? `${r.peso_kg}${r.unita&&r.unita!=='kg'?' '+r.unita:'kg'}` : (r.bodyweight ? 'BW' : '—');
+            return `${r.schema||'—'} ${p}`;
+          }).join(' + ') + ')</span>'
+        : '';
+
+      const primoConPeso = righe.find(r => r.peso_kg);
+      let pesoDisplay;
+
+      if (isCorsa) {
+        const incl = righe[0]?.schema || '0%';
+        const passo = primoConPeso?.peso_kg || '—';
+        const kmTot = righe.reduce((acc, r) => {
+          if (r.nota_riga) { const m = r.nota_riga.match(/^([\d,\.]+)km/); if (m) acc += parseFloat(m[1].replace(',','.')); }
+          return acc;
+        }, 0);
+        const kmhVal = passo > 0 ? (60 / passo).toFixed(1) : null;
+        const kmhStr = kmhVal ? ` <span style="color:#999;font-size:13px">[${kmhVal} km/h]</span>` : '';
+        // Dettaglio tratti: "2.5km a 9.8 + 0.3km a 5.0 min/km"
+        const dettaglio = righe.length > 1
+          ? ' <span style="color:#bbb;font-size:14px">(' +
+            righe.map(r => { const km = r.nota_riga?.match(/^([\d,\.]+)km/)?.[1]||'?'; return `${km}km a ${r.peso_kg||'—'} min/km`; }).join(' + ') + ')</span>'
+          : '';
+        pesoDisplay = `<span style="color:var(--text2);font-size:13px">Inclinazione </span><span style="color:var(--orange);font-weight:700;font-size:16px">${incl}</span> <span style="color:#ffffff;font-size:17px;font-weight:600"> ${passo} min/km</span>${kmTot>0?` <span style="color:#bbb;font-size:15px"> ${kmTot.toFixed(1)}km${kmhStr}</span>`:''}${dettaglio}`;
+      } else if (ex.id === 'salita_vigneto') {
+        const mediaRiga = righe.find(r => r.peso_kg);
+        // Calcola N attesi dallo schema (es. 3x100mt -> 3, 4x60mt -> 4)
+        const schemaRiga = righe[0]?.schema || '';
+        const nAttesi = parseInt(schemaRiga.match(/^(\d+)/)?.[1] || '0');
+        const tempiEstratti = tempiSingoli.map(r => r.peso_kg ? r.peso_kg+'s' : 'TNV');
+        // Riempi con TNV se mancano tempi
+        while (nAttesi > 0 && tempiEstratti.length < nAttesi) tempiEstratti.push('TNV');
+        const tempiStr = tempiEstratti.length ? '<span style="font-size:11px;color:#888">BW</span> — ' + tempiEstratti.join(' · ') : '<span style="font-size:11px;color:#888">BW</span>';
+        const mediaStr = mediaRiga ? ` <span style="color:#999;font-size:13px">media: ${mediaRiga.peso_kg}s</span>` : '';
+        pesoDisplay = `<span style="color:#ffffff;font-size:16px">${tempiStr}${mediaStr}</span>`;
+      } else {
+        const p = primoConPeso ? `${primoConPeso.peso_kg} ${primoConPeso.unita||'kg'}` : (righe[0]?.bodyweight ? 'BW' : '—');
+        pesoDisplay = `<span style="color:#ffffff;font-size:17px;font-weight:600">${p}</span>`;
+      }
+
+      const luogoSess = Object.entries(storicoPerSessione).find(([d])=>d===data)?.[1]?.principale?.[0]?.luogo || '';
+      const notaSess = !isCorsa && ex.id !== 'salita_vigneto' ? (righe[0]?.nota_riga || '') : '';
+      return `
+      <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span style="color:#bbb;font-size:14px;min-width:85px">${formatData(data)}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--orange);font-size:20px">${schemaLabel}</span>
+          ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}
+          ${notaSess ? `<span style="color:#999;font-size:12px;font-style:italic"> · ${notaSess}</span>` : ''}
+          ${luogoSess ? `<span style="color:var(--text3);font-size:12px;margin-left:auto">${luogoSess}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('') : '<div style="color:var(--text3);font-size:13px;font-style:italic;padding:8px 0">Nessuno storico disponibile</div>';
+
+    // Schemi per il menu a tendina
+    let tuttiSchemi;
+    if (isCorsa || ex.id === 'salita_vigneto') {
+      // Cardio: solo schemi specifici di questo esercizio
+      tuttiSchemi = Object.entries(schemiPerEx[ex.id] || {})
+        .filter(([s]) => isSchemaValido(s))
+        .sort((a,b) => b[1]-a[1]);
+    } else {
+      // Cross-categoria (solo compound/isolato)
+      const catNorm = ex.cat === 'compound' ? 'compound' : 'isolato';
+      const schemiCat = schemiPerCatGenerica[catNorm] || {};
+      const schemiEx = schemiPerEx[ex.id] || {};
+      const mergedKeys = new Set([...Object.keys(schemiEx), ...Object.keys(schemiCat)]);
+      tuttiSchemi = [...mergedKeys]
+        .filter(s => isSchemaValido(s))
+        .map(s => [s, schemiEx[s] || 0])
+        .sort((a,b) => b[1]-a[1]);
+    }
+
+    // Schema di default: l'ultimo usato per questo esercizio
+    const ultimaSessione = sessioniOrd[0];
+    const schemaDefault = ultimaSessione?.[1]?.principale?.[0]?.schema || tuttiSchemi[0]?.[0] || '';
+    const ultimoPesoSchema = pesoPerSchema[ex.id]?.[schemaDefault];
+    const pesoDefault = ex.id === 'salita_vigneto' ? '' : (ultimoPesoSchema?.peso || '');
+    const eraBW = !pesoDefault && (isBW || ex.id === 'salita_vigneto');
+    const unitaLabel = isCorsa ? 'min/km' : ex.id === 'salita_vigneto' ? 'bw' : (pesoPerSchema[ex.id]?.[schemaDefault]?.unita || 'kg');
+
+    const schemaOptions = tuttiSchemi.map(([s, count]) => {
+      const label = isCorsa && /^\d+%$/.test(s) ? `Inclinazione ${s}` : s;
+      return `<option value="${s}" ${s===schemaDefault?'selected':''}>${label}${count>0 ? `  —  fatto ${count} ${count===1?'volta':'volte'}` : ''}</option>`;
+    }).join('');
+
+    const isBWEx = isBW || ex.id === 'salita_vigneto';
+    const campoBody = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" id="piano2-peso-${i}" step="0.5" value="${pesoDefault}"
+          placeholder="${eraBW ? 'BW' : '—'}" style="width:90px;font-size:15px" oninput="aggiornaBWBtn(${i});aggiornaOutputKeep()">
+        ${isBWEx ? `<button id="piano2-bw-${i}" onclick="toggleBW(${i})"
+          data-bw="${eraBW ? '1' : '0'}"
+          style="border:1px solid ${eraBW ? 'var(--orange)' : 'var(--text3)'};color:${eraBW ? 'var(--orange)' : 'var(--text3)'};background:${eraBW ? 'rgba(255,107,0,0.2)' : 'none'};padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;transition:all 0.15s">BW</button>` : ''}
+      </div>`;
+
+    const badgeStep2 = ex.cat === 'compound'
+      ? '<span style="background:rgba(255,107,0,0.2);color:var(--orange);font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">CORE</span>'
+      : ex.id === 'salita_vigneto'
+      ? '<span style="background:rgba(100,150,255,0.15);color:#7aa0ff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">ISOLATO</span>'
+      : (ex.cat === 'cardio' && ex.id !== 'salita_vigneto')
+      ? '<span style="background:rgba(80,200,120,0.15);color:#66cc88;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">CARDIO</span>'
+      : '<span style="background:rgba(100,150,255,0.15);color:#7aa0ff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">ISOLATO</span>';
+    return `
+    <div style="background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        ${badgeStep2}
+        <div style="font-size:17px;font-weight:600;color:var(--text1)">${ex.nome}</div>
+      </div>
+      <div style="margin-bottom:14px">${storicoHtml}</div>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div>
+          <div class="form-label">Schema</div>
+          <select id="piano2-schema-${i}" onchange="aggiornaPesoAutomatico(${i})" style="min-width:150px;font-size:15px">
+            ${schemaOptions}
+            <option value="__nuovo__">+ Nuovo schema</option>
+          </select>
+          <div id="piano2-custom-wrap-${i}" style="display:none;margin-top:6px;gap:6px;align-items:center">
+            <input type="text" id="piano2-schema-custom-${i}" placeholder="es. 6x8"
+              style="width:110px;font-size:15px" oninput="aggiornaOutputKeep()">
+            <button onclick="cancellaSchemaCustom(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px">✕</button>
+          </div>
+        </div>
+        <div>
+          <div class="form-label">${unitaLabel==='bw' ? 'Bodyweight' : unitaLabel==='min/km' ? 'Passo (min/km)' : unitaLabel==='sec' ? 'Tempo (sec)' : 'Peso (' + unitaLabel + ')'}</div>
+          ${campoBody}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('piano-step2').style.display = 'block';
+  document.getElementById('piano-selezione').style.display = 'none';
+  document.getElementById('piano-step1').querySelector('.ins-section').style.display = 'none';
+  aggiornaOutputKeep();
+}
+
+function aggiornaPesoAutomatico(i) {
+  const sel = document.getElementById(`piano2-schema-${i}`);
+  const customWrap = document.getElementById(`piano2-custom-wrap-${i}`);
+  const pesoInput = document.getElementById(`piano2-peso-${i}`);
+
+  if (sel.value === '__nuovo__') {
+    customWrap.style.display = 'flex';
+    document.getElementById(`piano2-schema-custom-${i}`).focus();
+    pesoInput.value = '';
+  } else {
+    customWrap.style.display = 'none';
+    // Trova il peso per questo schema per questo esercizio
+    const idx = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).indexOf([...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b)[i]);
+    const ex = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).map(j => ESERCIZI_PROPOSTI[j])[i];
+    if (ex) {
+      // Cerca il peso nello storico
+      let ultimoPeso = null;
+      let ultimaData = null;
+      DATA.sessioni.forEach(s => {
+        s.esercizi.forEach(e => {
+          if (e.esercizio_id === ex.id && e.schema === sel.value && e.peso_kg) {
+            if (!ultimaData || s.data > ultimaData) {
+              ultimoPeso = e.peso_kg;
+              ultimaData = s.data;
+            }
+          }
+        });
+      });
+      pesoInput.value = ultimoPeso || '';
+    }
+  }
+  aggiornaOutputKeep();
+}
+
+function toggleBW(i) {
+  const input = document.getElementById(`piano2-peso-${i}`);
+  const btn = document.getElementById(`piano2-bw-${i}`);
+  if (!input || !btn) return;
+  const attivoBW = btn.dataset.bw === '1';
+  if (attivoBW) {
+    // Disattiva BW
+    btn.dataset.bw = '0';
+    btn.style.background = 'none';
+    btn.style.borderColor = 'var(--text3)';
+    btn.style.color = 'var(--text3)';
+    input.placeholder = '—';
+  } else {
+    // Attiva BW
+    btn.dataset.bw = '1';
+    input.value = '';
+    btn.style.background = 'rgba(255,107,0,0.2)';
+    btn.style.borderColor = 'var(--orange)';
+    btn.style.color = 'var(--orange)';
+    input.placeholder = 'BW';
+  }
+  aggiornaOutputKeep();
+}
+
+function aggiornaBWBtn(i) {
+  const input = document.getElementById(`piano2-peso-${i}`);
+  const btn = document.getElementById(`piano2-bw-${i}`);
+  if (!input || !btn) return;
+  // Se l'utente digita un peso, disattiva BW
+  if (input.value && parseFloat(input.value) > 0) {
+    btn.dataset.bw = '0';
+    btn.style.background = 'none';
+    btn.style.borderColor = 'var(--text3)';
+    btn.style.color = 'var(--text3)';
+  }
+}
+
+function cancellaSchemaCustom(i) {
+  const sel = document.getElementById(`piano2-schema-${i}`);
+  const customWrap = document.getElementById(`piano2-custom-wrap-${i}`);
+  document.getElementById(`piano2-schema-custom-${i}`).value = '';
+  customWrap.style.display = 'none';
+  // Torna al primo schema disponibile
+  if (sel.options.length > 1) {
+    sel.selectedIndex = 0;
+    aggiornaPesoAutomatico(i);
+  }
+  aggiornaOutputKeep();
+}
+
+function tornaStep1() {
+  document.getElementById('piano-step2').style.display = 'none';
+  document.getElementById('piano-selezione').style.display = 'block';
+  document.getElementById('piano-step1').querySelector('.ins-section').style.display = 'block';
+}
+
+function resetPianificatore() {
+  // Reset completo alla schermata iniziale
+  document.getElementById('piano-step2').style.display = 'none';
+  document.getElementById('piano-selezione').style.display = 'none';
+  document.getElementById('piano-step1').querySelector('.ins-section').style.display = 'block';
+  ESERCIZI_PROPOSTI = [];
+  ESERCIZI_SELEZIONATI = new Set();
+  document.getElementById('piano-ex-lista').innerHTML = '';
+  aggiornaContatoreSelezione();
+}
+
+function aggiornaNuovoSchema(i) {
+  const sel = document.getElementById(`piano2-schema-${i}`);
+  const custom = document.getElementById(`piano2-schema-custom-${i}`);
+  if (sel.value === '__nuovo__') {
+    custom.style.display = 'block';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
+  aggiornaOutputKeep();
+}
+
+function getSchemaEPeso(i) {
+  const sel = document.getElementById(`piano2-schema-${i}`);
+  if (!sel) return { schema: '', peso: '' };
+  const schema = sel.value === '__nuovo__'
+    ? (document.getElementById(`piano2-schema-custom-${i}`)?.value || '')
+    : sel.value;
+  const peso = document.getElementById(`piano2-peso-${i}`)?.value || '';
+  return { schema, peso };
+}
+
+function aggiornaNuovoSchema(i) { aggiornaPesoAutomatico(i); }
+
+function aggiornaOutputKeep() {
+  const dataP = document.getElementById('piano-data').value;
+  const luogoP = document.getElementById('piano-luogo').value;
+  const selezionati = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).map(i => ESERCIZI_PROPOSTI[i]);
+  const dataFmt = dataP ? dataP.split('-').reverse().join('/') : '';
+  const linee = [`Training ${dataFmt} ${luogoP || ''}`];
+  selezionati.forEach((ex, i) => {
+    const { schema, peso } = getSchemaEPeso(i);
+    const bwBtn = document.getElementById(`piano2-bw-${i}`);
+    const isBW = bwBtn?.dataset?.bw === '1' || (!peso && ex.id && ['trazioni_neutre','trazioni_polsi','trazioni_dorsi','verticale','tric_dips','sollevamento_gambe','salita_vigneto'].includes(ex.id));
+    if (!schema) return;
+    if (ex.cat === 'cardio' && ex.id !== 'salita_vigneto') {
+      // Corsa: schema = inclinazione, peso = passo
+      const inclKeep = schema && schema !== '0%' ? `Inclinazione ${schema}` : 'Piano';
+      const pesoStr = peso ? ` ${peso}min/km` : '';
+      linee.push(`Corsa tapis-roulant o corsa all'aperto ${inclKeep}${pesoStr}`);
+    } else if (ex.id === 'salita_vigneto') {
+      // Salita vigneto: schema x tempo
+      const tempoStr = peso ? ` ${peso}s` : '';
+      linee.push(`${schema} ${ex.nome}${tempoStr}`);
+    } else if (isBW) {
+      linee.push(`${schema} ${ex.nome} BW`);
+    } else {
+      // Trova unità dall'ultima sessione con questo schema
+      let unitaEx = 'kg';
+      for (const s of DATA.sessioni) {
+        const e = s.esercizi.find(e => e.esercizio_id === ex.id && e.schema === schema && e.peso_kg);
+        if (e) { unitaEx = e.unita || 'kg'; break; }
+      }
+      const pesoStr = peso ? ` ${peso}${unitaEx}` : '';
+      linee.push(`${schema} ${ex.nome}${pesoStr}`);
+    }
+  });
+  document.getElementById('keep-output').textContent = linee.join('\n');
+}
+
+function esportaKeep() {
+  const text = document.getElementById('keep-output').textContent;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('Testo copiato!', 'success'))
+    .catch(() => showToast('Copia manuale: seleziona il testo sotto', 'error'));
+}
+
+function copiaKeep() { esportaKeep(); }
+function usaPropostaPerInserimento() {}
+function generaProposta() { generaPropostaStep1(); }
+
+// =====================
+// INSERIMENTO / ALLENAMENTO
+// =====================
+let EX_COUNT = 0;
+let RIGA_COUNT = 0;
+let NUOVI_ALLENAMENTI = [];
+
+function inizializzaInserimento() {
+  document.getElementById('ins-data').value = oggi();
+  popolaSelectLuogo('ins-luogo');
+  document.getElementById('ex-builder').innerHTML = '';
+  EX_COUNT = 0;
+  aggiungiEsercizio();
+  initDragDrop();
+  document.getElementById('ins-data').addEventListener('change', aggiornaPreviewAllenamento);
+  document.getElementById('ins-luogo').addEventListener('change', aggiornaPreviewAllenamento);
+}
+
+let _dragSrc = null;
+
+function initDragDrop() {
+  const builder = document.getElementById('ex-builder');
+  builder.addEventListener('dragstart', e => {
+    const card = e.target.closest('.ex-builder-row');
+    if (!card) return;
+    _dragSrc = card;
+    setTimeout(() => card.classList.add('dragging'), 0);
+  });
+  builder.addEventListener('dragend', e => {
+    document.querySelectorAll('.ex-builder-row').forEach(r => {
+      r.classList.remove('dragging', 'drag-over');
+      r.draggable = false;
+    });
+    _dragSrc = null;
+    aggiornaNumeriEsercizi();
+    aggiornaPreviewAllenamento();
+  });
+  builder.addEventListener('dragover', e => {
+    e.preventDefault();
+    const card = e.target.closest('.ex-builder-row');
+    if (!card || card === _dragSrc) return;
+    document.querySelectorAll('.ex-builder-row').forEach(r => r.classList.remove('drag-over'));
+    card.classList.add('drag-over');
+    const rect = card.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      builder.insertBefore(_dragSrc, card);
+    } else {
+      builder.insertBefore(_dragSrc, card.nextSibling);
+    }
+  });
+  builder.addEventListener('drop', e => {
+    e.preventDefault();
+    document.querySelectorAll('.ex-builder-row').forEach(r => r.classList.remove('drag-over'));
+  });
+}
+
+function aggiornaNumeriEsercizi() {
+  document.querySelectorAll('#ex-builder .ex-builder-row').forEach((card, i) => {
+    const num = card.querySelector('.ex-num');
+    if (num) num.textContent = `ESERCIZIO #${i + 1}`;
+  });
+}
+
+function aggiornaPreviewAllenamento() {
+  const el = document.getElementById('allenamento-keep-output');
+  if (!el) return;
+  const data = document.getElementById('ins-data')?.value || '';
+  const luogo = document.getElementById('ins-luogo')?.value || '';
+  const dataFmt = data ? data.split('-').reverse().join('/') : '';
+  const linee = [`Training ${dataFmt} ${luogo}`];
+  document.querySelectorAll('#ex-builder .ex-builder-row').forEach(card => {
+    const exId = card.querySelector('.ins-ex-sel')?.value;
+    const ex = DATA?.esercizi_canonici?.find(e => e.id === exId);
+    if (!ex) return;
+    card.querySelectorAll('.ex-riga').forEach(riga => {
+      const tipo = riga.dataset.tipo || 'standard';
+      const nota = riga.querySelector('.ins-nota-riga')?.value || '';
+      const notaStr = nota ? ` — ${nota}` : '';
+
+      if (tipo === 'corsa') {
+        const incl  = riga.querySelector('.ins-inclinazione')?.value || '0%';
+        const passo = riga.querySelector('.ins-passo')?.value || '';
+        const km    = riga.querySelector('.ins-km')?.value || '';
+        if (!passo && !km) return;
+        const inclStr = incl ? `Inclinazione ${incl.includes('%')?incl:incl+'%'}` : '';
+        const passoStr = passo ? `${passo} min/km` : '';
+        const kmStr   = km ? `${km} km` : '';
+        linee.push([inclStr, passoStr, kmStr].filter(Boolean).join(' · ') + ` ${ex.nome}${notaStr}`);
+        return;
+      }
+
+      if (tipo === 'vigneto') {
+        const schema = getSchemaVigneto(riga);
+        const tempi  = [...riga.querySelectorAll('.ins-tempo')].map(i => i.value).filter(Boolean);
+        if (!tempi.length && !schema) return;
+        const tempiStr = tempi.length ? tempi.join('·') + 's' : '';
+        const mediaVal = tempi.length ? (tempi.reduce((a,v)=>a+parseFloat(v),0)/tempi.length).toFixed(1)+'s' : '';
+        const mediaStr = mediaVal ? ` | media ${mediaVal}` : '';
+        linee.push(`${schema} ${ex.nome} — ${tempiStr}${mediaStr}${notaStr}`);
+        return;
+      }
+
+      // standard
+      const serie = riga.querySelector('.ins-serie')?.value || '';
+      const rep   = riga.querySelector('.ins-rep')?.value   || '';
+      const pesoInput = riga.querySelector('.ins-peso')?.value || '';
+      const bwBtn = riga.querySelector('.ins-bw-btn');
+      const isBW  = bwBtn?.dataset?.bw === '1';
+      if (!serie && !rep) return;
+      const schema  = serie && rep ? `${serie}x${rep}` : (serie || rep);
+      const unita   = getUnitaEx(exId);
+      const pesoStr = isBW ? ' BW' : (pesoInput ? ` ${pesoInput}${unita==='kg_mano'?'kg/mano':unita==='bw'?'kg':unita}` : '');
+      linee.push(`${schema} ${ex.nome}${pesoStr}${notaStr}`);
+    });
+  });
+  const note = document.getElementById('ins-note')?.value || '';
+  if (note) linee.push(`Note: ${note}`);
+  el.textContent = linee.join('\n');
+}
+
+function popolaSelectLuogo(selectId) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '';
+  const conteggi = {};
+  DATA.sessioni.forEach(s => { if (s.luogo) conteggi[s.luogo] = (conteggi[s.luogo]||0)+1; });
+  const luoghi = [...new Set(DATA.sessioni.map(s=>s.luogo).filter(Boolean))];
+  const tutti = [...luoghi, ...LUOGHI_CUSTOM].filter((v,i,a)=>a.indexOf(v)===i);
+  tutti.sort((a,b) => (conteggi[b]||0) - (conteggi[a]||0));
+  tutti.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l; opt.textContent = l;
+    sel.appendChild(opt);
+  });
+}
+
+function aggiungiLuogo() {
+  const input = document.getElementById('ins-nuovo-luogo');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!LUOGHI_CUSTOM.includes(val)) {
+    LUOGHI_CUSTOM.push(val);
+    localStorage.setItem('luoghi_custom', JSON.stringify(LUOGHI_CUSTOM));
+  }
+  popolaSelectLuogo('ins-luogo');
+  popolaSelectLuogo('piano-luogo');
+  document.getElementById('ins-luogo').value = val;
+  input.value = '';
+  showToast('Luogo aggiunto', 'success');
+}
+
+// ---- HELPERS INSERIMENTO ----
+const ESERCIZI_BW_SET = new Set([
+  'trazioni_neutre','trazioni_polsi','trazioni_dorsi',
+  'verticale','tric_dips','sollevamento_gambe'
+]);
+
+function getUnitaEx(exId) {
+  if (ESERCIZI_BW_SET.has(exId)) return 'bw';
+  if (exId === 'salita_vigneto') return 'vigneto';
+  if (exId === 'corsa') return 'min/km';
+  for (const s of DATA.sessioni)
+    for (const e of s.esercizi)
+      if (e.esercizio_id === exId && e.unita && e.unita !== 'nessuna') return e.unita;
+  return 'kg';
+}
+
+function buildDropdownOpts(esercizi, selectedId) {
+  return esercizi.map(e =>
+    `<option value="${e.id}"${e.id===selectedId?' selected':''}>${e.nome}</option>`
+  ).join('');
+}
+
+function buildTempoField(t, val) {
+  return `<div class="ins-tempo-wrapper" style="display:inline-flex;flex-direction:column;align-items:stretch;width:76px;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:3px">
+      <div class="form-label ins-tempo-label" style="font-size:9px">T${t} (s)</div>
+      <button onclick="this.closest('.ins-tempo-wrapper').remove();aggiornaPreviewAllenamento()"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:10px;line-height:1;padding:0;flex-shrink:0;transition:color 0.2s"
+        onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='var(--text3)'">×</button>
+    </div>
+    <input type="number" class="ins-tempo" placeholder="—" value="${val||''}" step="0.1" min="0"
+      style="width:100%" oninput="aggiornaPreviewAllenamento()">
+  </div>`;
+}
+
+function buildRigaHtml(rigaId, cardId, exId, precompila) {
+  const unita   = getUnitaEx(exId);
+  const isBW    = unita === 'bw';
+  const isCorsa = exId === 'corsa';
+  const isVig   = exId === 'salita_vigneto';
+
+  // nota inline (standard/corsa) — × top-right inside input
+  const notaInline = `<div style="flex:1;min-width:90px">
+    <div class="form-label">Nota riga</div>
+    <div style="position:relative">
+      <input type="text" class="ins-nota-riga" placeholder="Nota..." value="${precompila.notaRiga||''}"
+        oninput="aggiornaPreviewAllenamento()" style="width:100%;padding-right:22px">
+      <button onclick="this.previousElementSibling.value='';aggiornaPreviewAllenamento()"
+        style="position:absolute;top:5px;right:5px;background:none;border:none;
+               color:var(--text3);cursor:pointer;font-size:14px;line-height:1;transition:color 0.2s;padding:0"
+        onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='var(--text3)'"
+        title="Cancella nota">×</button>
+    </div>
+  </div>`;
+
+  const sepX = `<div style="align-self:flex-end;padding-bottom:7px;color:var(--text3);font-size:12px;flex-shrink:0;user-select:none">×</div>`;
+
+  if (isCorsa) {
+    const rimuoviCorsa = `<button class="btn-rimuovi-riga"
+      style="display:none;align-self:flex-end;margin-bottom:2px;margin-left:auto;flex-shrink:0"
+      onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>`;
+    return `<div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+      <div style="flex:0 0 36px"><div class="form-label">Incl.(%)</div>
+        <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()"></div>
+      <div style="flex:0 0 46px"><div class="form-label">Passo min/km</div>
+        <input type="number" class="ins-passo" placeholder="8.5" step="0.1" min="0" value="${precompila.peso||''}" oninput="aggiornaPreviewAllenamento()"></div>
+      <div style="flex:0 0 38px"><div class="form-label">km</div>
+        <input type="number" class="ins-km" placeholder="3.0" step="0.1" min="0" value="${precompila.km||''}" oninput="aggiornaPreviewAllenamento()"></div>
+      ${notaInline}${rimuoviCorsa}
+    </div>`;
+  }
+
+  if (isVig) {
+    const schemiV = [...new Set(DATA.sessioni.flatMap(s =>
+      s.esercizi.filter(e=>e.esercizio_id==='salita_vigneto'&&e.schema&&/^\d+x/.test(e.schema)).map(e=>e.schema)
+    ))].slice(0,10);
+    const defaultSchema = precompila.schema || schemiV[0] || '3x100mt';
+    const parts = defaultSchema.match(/^(\d+)x(.+)/) || [null,'3','100mt'];
+    const defaultN = precompila.n || parts[1];
+    const defaultM = precompila.m || parts[2];
+    const nT = Math.min(parseInt(defaultN)||3, 10);
+    let tHtml = '';
+    for (let t=1;t<=nT;t++) tHtml += buildTempoField(t, precompila['t'+t]);
+    return `<div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:0 0 48px"><div class="form-label">Serie</div>
+          <input type="number" class="ins-schema-n" placeholder="3" value="${defaultN}" min="1" max="20" step="1"
+            style="width:100%" oninput="aggiornaPreviewAllenamento()"></div>
+        ${sepX}
+        <div style="flex:0 0 58px"><div class="form-label">Dist.</div>
+          <input type="text" class="ins-schema-m" placeholder="100mt" value="${defaultM}"
+            style="width:100%" oninput="aggiornaPreviewAllenamento()"></div>
+        <div style="flex:0 0 12px"></div>
+        <div id="${rigaId}-tempi" style="display:flex;gap:4px;flex-wrap:wrap;align-items:flex-end">${tHtml}</div>
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:5px 8px;align-self:flex-end;flex-shrink:0"
+          onclick="aggiungiTempoVigneto('${rigaId}')">+T</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <div style="flex:1">
+          <div class="form-label">Nota riga</div>
+          <div style="position:relative">
+            <input type="text" class="ins-nota-riga" placeholder="Nota..." value="${precompila.notaRiga||''}"
+              oninput="aggiornaPreviewAllenamento()" style="width:100%;padding-right:22px">
+            <button onclick="this.previousElementSibling.value='';aggiornaPreviewAllenamento()"
+              style="position:absolute;top:5px;right:5px;background:none;border:none;
+                     color:var(--text3);cursor:pointer;font-size:14px;line-height:1;transition:color 0.2s;padding:0"
+              onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='var(--text3)'"
+              title="Cancella nota">×</button>
+          </div>
+        </div>
+        <button class="btn-rimuovi-riga"
+          style="display:none;align-self:flex-end;margin-bottom:2px;flex-shrink:0"
+          onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>
+      </div>
+    </div>`;
+  }
+
+  // Standard: kg, kg/mano, bw
+  const rimuoviStd = `<button class="btn-rimuovi-riga"
+    style="display:none;align-self:flex-end;margin-bottom:2px"
+    onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>`;
+
+  const pesoLabel = isBW ? 'Peso (kg)' : `Peso (${unita})`;
+  const pesoField = isBW
+    ? `<div style="flex:0 0 82px"><div class="form-label">${pesoLabel}</div>
+        <div style="display:flex;gap:3px;align-items:center">
+          <input type="number" class="ins-peso" placeholder="BW" value="${precompila.peso||''}" step="0.5" min="0"
+            style="flex:1;min-width:0" oninput="aggiornaPreviewAllenamento()">
+          <button class="ins-bw-btn" data-bw="${precompila.peso?'0':'1'}" onclick="toggleBWIns(this)"
+            style="border:1px solid ${precompila.peso?'var(--text3)':'var(--orange)'};
+                   color:${precompila.peso?'var(--text3)':'var(--orange)'};
+                   background:${precompila.peso?'none':'rgba(255,107,0,0.15)'};
+                   padding:5px 6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0">BW</button>
+        </div></div>`
+    : `<div style="flex:0 0 44px"><div class="form-label">${pesoLabel}</div>
+        <input type="number" class="ins-peso" placeholder="0" value="${precompila.peso||''}" step="0.5" min="0" oninput="aggiornaPreviewAllenamento()"></div>`;
+
+  return `<div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+    <div style="flex:0 0 48px"><div class="form-label">Serie</div>
+      <input type="number" class="ins-serie" placeholder="6" value="${precompila.serie||''}" min="1" max="20" oninput="aggiornaPreviewAllenamento()"></div>
+    ${sepX}
+    <div style="flex:0 0 48px"><div class="form-label">Rip</div>
+      <input type="number" class="ins-rep" placeholder="6" value="${precompila.rep||''}" min="1" max="50" oninput="aggiornaPreviewAllenamento()"></div>
+    <div style="flex:0 0 10px"></div>
+    ${pesoField}${notaInline}${rimuoviStd}
+  </div>`;
+}
+
+function toggleBWIns(btn) {
+  const isBW = btn.dataset.bw === '1';
+  if (isBW) {
+    btn.dataset.bw = '0';
+    btn.style.cssText = 'border:1px solid var(--text3);color:var(--text3);background:none;padding:5px 6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0';
+  } else {
+    btn.dataset.bw = '1';
+    btn.previousElementSibling.value = '';
+    btn.style.cssText = 'border:1px solid var(--orange);color:var(--orange);background:rgba(255,107,0,0.15);padding:5px 6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0';
+  }
+  aggiornaPreviewAllenamento();
+}
+
+function getSchemaVigneto(riga) {
+  const n = riga.querySelector('.ins-schema-n')?.value.trim() || '';
+  const m = riga.querySelector('.ins-schema-m')?.value.trim() || '';
+  return n && m ? `${n}x${m}` : (n || m || '3x100mt');
+}
+
+function aggiornaTempiVigneto(rigaId, schema) {
+  const tempiDiv = document.getElementById(rigaId + '-tempi');
+  if (!tempiDiv) return;
+  const n = Math.min(parseInt(schema.match(/^(\d+)/)?.[1]||3), 10);
+  let html = '';
+  for (let t=1;t<=n;t++) html += buildTempoField(t, '');
+  tempiDiv.innerHTML = html;
+  aggiornaPreviewAllenamento();
+}
+
+function aggiungiTempoVigneto(rigaId) {
+  const tempiDiv = document.getElementById(rigaId + '-tempi');
+  if (!tempiDiv) return;
+  const n = tempiDiv.querySelectorAll('.ins-tempo-wrapper').length + 1;
+  tempiDiv.insertAdjacentHTML('beforeend', buildTempoField(n, ''));
+}
+
+function aggiornaRigheCard(cardId) {
+  const righeDiv = document.getElementById(cardId + '-righe');
+  const n = Math.max(1, righeDiv.querySelectorAll('.ex-riga').length);
+  righeDiv.innerHTML = '';
+  for (let i=0; i<n; i++) aggiungiRiga(cardId, {});
+  mostraUltimoDato(document.querySelector(`#${cardId} .ins-ex-sel`), cardId);
+  aggiornaPreviewAllenamento();
+}
+
+// ---- MAIN INSERIMENTO FUNCTIONS ----
+
+function aggiungiEsercizio(precompila = {}) {
+  EX_COUNT++;
+  const cardId = 'ex-' + EX_COUNT;
+  const esercizi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+  const badgeHtml = precompila.exId ? badgeEx(precompila.exId) : '';
+  const div = document.createElement('div');
+  div.className = 'ex-builder-row';
+  div.id = cardId;
+  div.innerHTML = `
+    <div class="ex-header-row">
+      <div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0;overflow:hidden">
+        <span class="drag-handle"
+          onmousedown="document.getElementById('${cardId}').draggable=true"
+          onmouseup="document.getElementById('${cardId}').draggable=false">⠿</span>
+        <div class="ex-num" style="white-space:nowrap">ESERCIZIO #${EX_COUNT}</div>
+        <span id="${cardId}-badge" style="margin-left:8px">${badgeHtml}</span>
+        <select class="ins-ex-sel" style="flex:1;max-width:260px;min-width:80px;width:auto"
+          onchange="aggiornaRigheCard('${cardId}');aggiornaBadgeCard('${cardId}');aggiornaPreviewAllenamento()">
+          ${buildDropdownOpts(esercizi, precompila.exId)}
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <button class="btn-sdoppia-small" onclick="sdoppiaEsercizio('${cardId}')">+ sdoppia</button>
+        <button class="btn-remove" onclick="rimuoviEsercizioConUndo('${cardId}')">×</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <div class="ex-righe" id="${cardId}-righe" style="flex:1;min-width:0"></div>
+      <div id="${cardId}-storico" style="flex:0 0 160px;font-size:11px;color:var(--text2);display:none"></div>
+    </div>`;
+  document.getElementById('ex-builder').appendChild(div);
+  aggiungiRiga(cardId, precompila);
+  if (precompila.exId) mostraUltimoDato(div.querySelector('.ins-ex-sel'), cardId);
+  aggiornaPreviewAllenamento();
+}
+
+function aggiungiRiga(cardId, precompila = {}) {
+  RIGA_COUNT++;
+  const rigaId = cardId + '-r-' + RIGA_COUNT;
+  const righeDiv = document.getElementById(cardId + '-righe');
+  const exId = document.querySelector(`#${cardId} .ins-ex-sel`)?.value || '';
+  const tipo = exId==='corsa' ? 'corsa' : exId==='salita_vigneto' ? 'vigneto' : 'standard';
+  const div = document.createElement('div');
+  div.className = 'ex-riga';
+  div.id = rigaId;
+  div.dataset.tipo = tipo;
+  div.innerHTML = buildRigaHtml(rigaId, cardId, exId, precompila);
+  righeDiv.appendChild(div);
+  aggiornaPulsantiRiga(cardId);
+}
+
+function aggiornaPulsantiRiga(cardId) {
+  const righe = document.querySelectorAll(`#${cardId}-righe .ex-riga`);
+  righe.forEach(r => {
+    const btn = r.querySelector('.btn-rimuovi-riga');
+    if (btn) btn.style.display = righe.length > 1 ? 'flex' : 'none';
+  });
+}
+
+function sdoppiaEsercizio(cardId) { aggiungiRiga(cardId); }
+
+function rimuoviRiga(cardId, rigaId) {
+  const el = document.getElementById(rigaId);
+  if (el) el.remove();
+  aggiornaPulsantiRiga(cardId);
+}
+
+function rimuoviEsercizio(cardId) {
+  const el = document.getElementById(cardId);
+  if (el) el.remove();
+}
+
+function aggiornaBadgeCard(cardId) {
+  const sel = document.querySelector(`#${cardId} .ins-ex-sel`);
+  const badgeEl = document.getElementById(cardId + '-badge');
+  if (sel && badgeEl) badgeEl.innerHTML = badgeEx(sel.value);
+}
+
+let _undoCard = null, _undoParent = null, _undoNext = null, _undoTimeout = null;
+
+function rimuoviEsercizioConUndo(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  _undoCard   = card;
+  _undoParent = card.parentNode;
+  _undoNext   = card.nextSibling;
+  card.remove();
+  aggiornaNumeriEsercizi();
+  aggiornaPreviewAllenamento();
+  clearTimeout(_undoTimeout);
+  const banner = document.getElementById('undo-banner');
+  banner.classList.add('show');
+  _undoTimeout = setTimeout(() => {
+    banner.classList.remove('show');
+    _undoCard = null;
+  }, 4500);
+}
+
+function annullaRimozione() {
+  clearTimeout(_undoTimeout);
+  document.getElementById('undo-banner').classList.remove('show');
+  if (_undoCard && _undoParent) {
+    if (_undoNext) _undoParent.insertBefore(_undoCard, _undoNext);
+    else _undoParent.appendChild(_undoCard);
+    aggiornaNumeriEsercizi();
+    aggiornaPreviewAllenamento();
+  }
+  _undoCard = null;
+}
+
+function mostraUltimoDato(sel, cardId) {
+  const exId = sel.value;
+  const storicoDiv = document.getElementById(cardId + '-storico');
+  if (!storicoDiv) return;
+  const isVig   = exId === 'salita_vigneto';
+  const isCorsa = exId === 'corsa';
+  const records = [];
+  DATA.sessioni.forEach(s => {
+    const rows = s.esercizi.filter(e => e.esercizio_id === exId);
+    if (!rows.length) return;
+    if (isVig) {
+      const tempi = s.esercizi
+        .filter(e=>e.esercizio_id===exId&&e.tipo_riga==='tempo'&&e.peso_kg)
+        .map(e=>e.peso_kg+'s');
+      records.push({ data:s.data, schema:rows[0]?.schema||'', display: tempi.length?tempi.join('·'):'—' });
+    } else if (isCorsa) {
+      const r = rows[0];
+      records.push({ data:s.data, schema:r.schema||'0%', display: r.peso_kg ? r.peso_kg+' min/km' : '—' });
+    } else {
+      const r = rows[0];
+      const u = r.unita && r.unita!=='nessuna' ? r.unita : 'kg';
+      records.push({ data:s.data, schema:r.schema||'', display: r.peso_kg ? `${r.peso_kg} ${u}` : 'BW' });
+    }
+  });
+  records.sort((a,b)=>b.data.localeCompare(a.data));
+  const ultimi = records.slice(0,3);
+  if (!ultimi.length) { storicoDiv.style.display='none'; return; }
+  storicoDiv.style.display = 'block';
+  storicoDiv.innerHTML =
+    `<div style="font-size:10px;color:var(--text3);margin-bottom:3px">ULTIMI DATI</div>` +
+    ultimi.map(r=>`<div style="padding:1px 0;font-size:11px;line-height:1.5">${formatData(r.data)} · <span style="color:var(--orange)">${r.schema||'—'}</span> · ${r.display}</div>`).join('');
+}
+
+function confermaAllenamento() {
+  const dataP = document.getElementById('piano-data').value;
+  const luogoP = document.getElementById('piano-luogo').value;
+  const selezionati = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).map(i => ESERCIZI_PROPOSTI[i]);
+
+  document.getElementById('ex-builder').innerHTML = '';
+  EX_COUNT = 0;
+  document.getElementById('ins-data').value = dataP;
+  document.getElementById('ins-note').value = '';
+  if (luogoP) document.getElementById('ins-luogo').value = luogoP;
+
+  selezionati.forEach((ex, i) => {
+    const { schema, peso } = getSchemaEPeso(i);
+    const bwBtn = document.getElementById(`piano2-bw-${i}`);
+    const isBW = bwBtn?.dataset?.bw === '1';
+    const match = schema.match(/^(\d+)[xX](\d+)/);
+    aggiungiEsercizio({
+      exId: ex.id,
+      serie: match ? parseInt(match[1]) : '',
+      rep:   match ? parseInt(match[2]) : '',
+      peso:  isBW ? '' : peso,
+      notaRiga: ''
+    });
+  });
+
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelector('.tab[data-tab="inserimento"]').classList.add('active');
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.getElementById('panel-inserimento').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function salvaAllenamento() {
+  const data = document.getElementById('ins-data').value;
+  const luogo = document.getElementById('ins-luogo').value;
+  const note = document.getElementById('ins-note').value;
+
+  if (!data) { showToast('Inserisci la data', 'error'); return; }
+
+  const cards = document.querySelectorAll('.ex-builder-row');
+  if (!cards.length) { showToast('Aggiungi almeno un esercizio', 'error'); return; }
+
+  const esercizi = [];
+  let errore = null;
+
+  cards.forEach(card => {
+    if (errore) return;
+    const exId = card.querySelector('.ins-ex-sel').value;
+    const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+    const righe = card.querySelectorAll('.ex-riga');
+
+    righe.forEach(riga => {
+      if (errore) return;
+      const tipo = riga.dataset.tipo || 'standard';
+      const nota = riga.querySelector('.ins-nota-riga')?.value.trim() || null;
+
+      if (tipo === 'corsa') {
+        const incl  = riga.querySelector('.ins-inclinazione')?.value.trim() || '0%';
+        const passo = parseFloat(riga.querySelector('.ins-passo')?.value) || null;
+        const km    = parseFloat(riga.querySelector('.ins-km')?.value) || null;
+        const schema = incl.includes('%') ? incl : incl + '%';
+        // encode km into nota_riga if present
+        const notaCorsa = [km ? `${km}km` : null, nota].filter(Boolean).join(' — ') || null;
+        esercizi.push({
+          esercizio_id: exId,
+          schema,
+          peso_kg: passo,
+          unita: 'min/km',
+          bodyweight: false,
+          tipo_riga: 'standard',
+          nota_riga: notaCorsa,
+          data, luogo,
+          file_sorgente: 'manuale'
+        });
+        return;
+      }
+
+      if (tipo === 'vigneto') {
+        const schema = getSchemaVigneto(riga);
+        const tempi  = [...riga.querySelectorAll('.ins-tempo')]
+          .map(i => parseFloat(i.value))
+          .filter(v => !isNaN(v) && v > 0);
+        if (!tempi.length) {
+          errore = `"${ex?.nome || exId}": inserisci almeno un tempo`;
+          return;
+        }
+        tempi.forEach(t => {
+          esercizi.push({
+            esercizio_id: exId,
+            schema,
+            peso_kg: t,
+            unita: 'sec',
+            bodyweight: true,
+            tipo_riga: 'tempo',
+            nota_riga: nota,
+            data, luogo,
+            file_sorgente: 'manuale'
+          });
+        });
+        const media = parseFloat((tempi.reduce((a,v)=>a+v,0)/tempi.length).toFixed(1));
+        esercizi.push({
+          esercizio_id: exId,
+          schema,
+          peso_kg: media,
+          unita: 'sec',
+          bodyweight: true,
+          tipo_riga: 'cardio_distanza',
+          nota_riga: `media ${media}s — ${tempi.length} ripetizioni`,
+          data, luogo,
+          file_sorgente: 'manuale'
+        });
+        return;
+      }
+
+      // standard (kg, kg/mano, bw)
+      const serie = parseInt(riga.querySelector('.ins-serie')?.value) || 0;
+      const rep   = parseInt(riga.querySelector('.ins-rep')?.value)   || 0;
+      if (!serie || !rep) {
+        errore = `"${ex?.nome || exId}": serie o rip mancanti`;
+        return;
+      }
+      const pesoInput = parseFloat(riga.querySelector('.ins-peso')?.value) || null;
+      const bwBtn  = riga.querySelector('.ins-bw-btn');
+      const isBW   = bwBtn?.dataset?.bw === '1';
+      const peso   = isBW ? null : pesoInput;
+      const unita  = getUnitaEx(exId);
+      const unitaFinal = isBW || !peso ? 'nessuna' : (unita === 'bw' ? 'kg' : unita);
+      esercizi.push({
+        esercizio_id: exId,
+        schema: `${serie}x${rep}`,
+        peso_kg: peso,
+        unita: unitaFinal,
+        bodyweight: isBW || (!peso && unita === 'bw'),
+        tipo_riga: 'standard',
+        nota_riga: nota,
+        data, luogo,
+        file_sorgente: 'manuale'
+      });
+    });
+  });
+
+  if (errore) { showToast(errore, 'error'); return; }
+  if (!esercizi.length) { showToast('Aggiungi almeno un esercizio valido', 'error'); return; }
+
+  const nuovaSessione = {
+    file: `Training_${data}_manuale.json`,
+    title: `Training ${data.split('-').reverse().join('/')} ${luogo}`,
+    data, luogo,
+    note_sessione: note ? [note] : [],
+    esercizi,
+    righe_non_parsificate: []
+  };
+
+  DATA.sessioni.push(nuovaSessione);
+  DATA.sessioni.sort((a,b) => b.data.localeCompare(a.data));
+  DATA.meta.totale_sessioni = DATA.sessioni.length;
+  DATA.meta.totale_righe_esercizio += esercizi.length;
+  NUOVI_ALLENAMENTI.push(nuovaSessione);
+
+  inizializzaOverview();
+  renderStorico();
+  renderPR();
+
+  showToast(`Allenamento salvato (${esercizi.length} esercizi)`, 'success');
+  mostraEsportazione();
+  resetInserimento();
+}
+
+function mostraEsportazione() {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ron_trainer_storico.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetInserimento() {
+  document.getElementById('ins-data').value = oggi();
+  document.getElementById('ins-note').value = '';
+  document.getElementById('ex-builder').innerHTML = '';
+  EX_COUNT = 0;
+  aggiungiEsercizio();
+}
+
+// =====================
+// UTILS
+// =====================
+
+function getCatEx(id) {
+  if (id === 'salita_vigneto') return 'isolato';
+  const ex = DATA?.esercizi_canonici?.find(e => e.id === id);
+  return ex ? ex.categoria : '';
+}
+
+function badgeEx(id) {
+  const cat = getCatEx(id);
+  if (cat === 'compound')
+    return '<span style="background:rgba(255,107,0,0.2);color:var(--orange);font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;flex-shrink:0">CORE</span>';
+  if (cat === 'cardio')
+    return '<span style="background:rgba(80,200,120,0.15);color:#66cc88;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;flex-shrink:0">CARDIO</span>';
+  return '<span style="background:rgba(100,150,255,0.15);color:#7aa0ff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;flex-shrink:0">ISOLATO</span>';
+}
+
+function kmCorsaFromNota(nota_riga) {
+  if (!nota_riga) return 0;
+  const m = nota_riga.match(/^([\d,\.]+)km/);
+  return m ? parseFloat(m[1].replace(',','.')) : 0;
+}
+
+function getExNome(id) {
+  const ex = DATA?.esercizi_canonici?.find(e => e.id === id);
+  return ex ? ex.nome : id;
+}
+
+function formatData(str) {
+  if (!str) return '—';
+  const [y, m, d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function oggi() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function contaGruppi(esercizi) {
+  const gruppi = [];
+  esercizi.forEach(e => {
+    const ultimo = gruppi[gruppi.length - 1];
+    if (ultimo && ultimo === e.esercizio_id) return;
+    gruppi.push(e.esercizio_id);
+  });
+  return gruppi.length;
+}
+
+function renderSessioneBody(s) {
+  const gruppi = [];
+  s.esercizi.forEach(e => {
+    const ultimo = gruppi[gruppi.length - 1];
+    if (ultimo && ultimo.id === e.esercizio_id) {
+      ultimo.righe.push(e);
+    } else {
+      gruppi.push({ id: e.esercizio_id, righe: [e] });
+    }
+  });
+
+  return gruppi.map(g => {
+    if (g.righe.length === 1) return renderExRow(g.righe[0]);
+
+    const nome = getExNome(g.id);
+
+    // Caso speciale: salita vigneto con media + tempi singoli
+    if (g.id === 'salita_vigneto') {
+      const mediaRec = g.righe.find(e => e.tipo_riga !== 'tempo');
+      const tempiRec = g.righe.filter(e => e.tipo_riga === 'tempo');
+      const schemaVig = mediaRec?.schema || tempiRec[0]?.schema || '';
+      const mediaLabel = mediaRec?.peso_kg ? `${mediaRec.peso_kg} sec` : '';
+      const notaMedia = mediaRec?.nota_riga || '';
+      const righeTempi = tempiRec.map((e, i) => {
+        const t = e.peso_kg ? `${e.peso_kg} sec` : '—';
+        return `
+          <div style="display:flex;align-items:baseline;gap:12px;padding:3px 0 3px 16px;border-left:2px solid var(--orange-dim);margin-left:4px">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;color:var(--text3);min-width:52px;flex-shrink:0">T${i+1}</div>
+            <div style="flex:1;font-size:13px;color:var(--text2)"></div>
+            <div class="ex-peso" style="font-size:13px">${t}</div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="ex-row" style="flex-direction:column;align-items:stretch;gap:2px;padding-bottom:8px">
+          <div style="display:flex;align-items:center;gap:12px;padding-bottom:2px">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--orange);min-width:56px;flex-shrink:0">${schemaVig}</div>
+            ${badgeEx(g.id)}
+            <div class="ex-name" style="font-size:15px;flex:1">${nome}</div>
+            <div class="ex-peso">${mediaLabel}</div>
+          </div>
+          ${notaMedia ? `<div class="ex-nota" style="padding-left:60px">${notaMedia}</div>` : ''}
+          ${righeTempi}
+        </div>`;
+    }
+
+    // Calcola schema totale: somma serie, controlla se rep sono tutte uguali
+    const totSerie = g.righe.reduce((acc, e) => acc + (e.serie || 0), 0);
+    const reps = g.righe.map(e => e.rep);
+    const repUguali = reps.every(r => r === reps[0]);
+    const schemaLabel = repUguali && reps[0]
+      ? `${totSerie}x${reps[0]}`
+      : null;
+
+    // Km totali corsa per gruppo
+    const kmTotGruppo = g.righe.reduce((acc, e) => acc + kmCorsaFromNota(e.nota_riga), 0);
+    const kmTotStr = kmTotGruppo > 0 ? `<span style="color:#ddd;font-size:14px;font-weight:600"> · ${kmTotGruppo.toFixed(1)}km tot</span>` : '';
+
+    const righe = g.righe.map(e => {
+      let peso;
+      if (e.peso_kg) {
+        const unita = e.unita === 'kg/mano' ? ' kg/mano' : e.unita === 'min/km' ? ' min/km' : e.unita === 'sec' ? ' sec' : ' kg';
+        const kmhExtra = e.unita === 'min/km' ? ` <span style="color:#bbb;font-size:14px">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
+        const kmRiga = kmCorsaFromNota(e.nota_riga);
+        const kmRigaStr = kmRiga > 0 && g.righe.length > 1 ? ` <span style="color:#ddd;font-size:14px;font-weight:600">${kmRiga.toFixed(1)}km</span>` : '';
+        peso = `${e.peso_kg}${unita}${kmhExtra}${kmRigaStr}`;
+      } else {
+        peso = e.bodyweight ? 'BW' : '—';
+      }
+      return `
+        <div style="display:flex;align-items:baseline;gap:12px;padding:5px 0 5px 16px;border-left:2px solid var(--orange-dim);margin-left:4px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange);min-width:52px;flex-shrink:0">${fmtSchema(e.schema, e.unita)}</div>
+          <div style="flex:1;min-width:0">
+            ${e.nota_riga ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
+          </div>
+          <div class="ex-peso">${peso}</div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="ex-row" style="flex-direction:column;align-items:stretch;gap:2px;padding-bottom:8px">
+        <div style="display:flex;align-items:center;gap:12px;padding-bottom:2px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--orange);min-width:56px;flex-shrink:0">${schemaLabel || ''}</div>
+          ${badgeEx(g.id)}
+          <div class="ex-name" style="font-size:15px">${nome}</div>
+        </div>
+        ${righe}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderExRow(e) {
+  const nome = getExNome(e.esercizio_id);
+  let peso;
+  if (e.peso_kg) {
+    const unita = e.unita === 'kg/mano' ? ' kg/mano' : e.unita === 'min/km' ? ' min/km' : e.unita === 'sec' ? ' sec' : ' kg';
+    const kmhExtra = e.unita === 'min/km' ? ` <span style="color:#bbb;font-size:14px">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
+    const kmCorsa0 = e.unita === 'min/km' ? kmCorsaFromNota(e.nota_riga) : 0;
+    const kmStr0 = kmCorsa0 > 0 ? ` <span style="color:#ddd;font-size:14px;font-weight:600">${kmCorsa0.toFixed(1)}km</span>` : '';
+    peso = `${e.peso_kg}${unita}${kmhExtra}${kmStr0}`;
+  } else if (e.bodyweight) {
+    peso = 'BW';
+  } else {
+    peso = '—';
+  }
+  const kmCorsa = 0; // già gestito sopra
+  const kmStr = '';
+  return `
+    <div class="ex-row">
+      <div class="ex-schema">${fmtSchema(e.schema, e.unita)}</div>
+      <div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px">
+        ${badgeEx(e.esercizio_id)}
+        <div style="min-width:0">
+          <div class="ex-name">${nome}</div>
+          ${e.nota_riga && e.unita !== 'min/km' ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
+        </div>
+      </div>
+      <div class="ex-peso">${peso}${kmStr}</div>
+    </div>
+  `;
+}
+
+function fmtSchema(schema, unita) {
+  if (unita === 'min/km' && schema && /^\d+%$/.test(schema)) {
+    return `Inclinazione ${schema}`;
+  }
+  return schema || '—';
+}
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// =====================
+// AVVIO
+// =====================
+caricaDati();
+</script>
+</body>
+</html>
