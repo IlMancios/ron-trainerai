@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 413,
-    "totale_righe_esercizio": 1126,
+    "totale_sessioni": 414,
+    "totale_righe_esercizio": 1133,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -321,6 +321,100 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-04-24_manuale.json",
+      "title": "Training 24/04/2026 TE - Casa",
+      "data": "2026-04-24",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "3x100mt",
+          "peso_kg": 23.8,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "3x100mt",
+          "peso_kg": 23.5,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "3x100mt",
+          "peso_kg": 24.8,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "3x100mt",
+          "peso_kg": 26.2,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "3x100mt",
+          "peso_kg": 24.6,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "cardio_distanza",
+          "nota_riga": "media 24.6s — 4 ripetizioni",
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_pulley",
+          "schema": "6x12",
+          "peso_kg": 15,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Con sbarra, difficili, costruire",
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_manubrio",
+          "schema": "4x4",
+          "peso_kg": 16,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "difficile soprattutto a sinistra",
+          "data": "2026-04-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-04-20_manuale.json",
       "title": "Training 20/04/2026 TE - Casa",
