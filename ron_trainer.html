@@ -3091,7 +3091,10 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
     const parts = defaultSchema.match(/^(\d+)x(.+)/) || [null,'3','100mt'];
     const defaultN = precompila.n || parts[1];
     const defaultM = precompila.m || parts[2];
-    const nT = Math.min(parseInt(defaultN)||3, 10);
+    // conta i T effettivamente salvati nella bozza (gestisce +T aggiunto dall'utente)
+    let savedTCount = 0;
+    while (precompila['t' + (savedTCount + 1)] !== undefined) savedTCount++;
+    const nT = savedTCount > 0 ? Math.min(savedTCount, 10) : Math.min(parseInt(defaultN)||3, 10);
     let tHtml = '';
     for (let t=1;t<=nT;t++) tHtml += buildTempoField(t, precompila['t'+t]);
     return `<div style="display:flex;flex-direction:column;gap:8px">
