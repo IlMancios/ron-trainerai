@@ -2159,13 +2159,20 @@ function inizializzaPianificatore() {
 function aggiungiLuogoPiano() {
   const nuovo = prompt('Nome del nuovo luogo (es. MI - Palestra X):');
   if (!nuovo || !nuovo.trim()) return;
+  const val = nuovo.trim();
   const sel = document.getElementById('piano-luogo');
   const opt = document.createElement('option');
-  opt.value = nuovo.trim();
-  opt.textContent = nuovo.trim();
+  opt.value = val;
+  opt.textContent = val;
   opt.dataset.custom = 'true';
   sel.appendChild(opt);
-  sel.value = nuovo.trim();
+  sel.value = val;
+  // Salva nel registro globale e aggiorna anche ins-luogo
+  if (!LUOGHI_CUSTOM.includes(val)) {
+    LUOGHI_CUSTOM.push(val);
+    localStorage.setItem('luoghi_custom', JSON.stringify(LUOGHI_CUSTOM));
+  }
+  popolaSelectLuogo('ins-luogo');
   aggiornaBottoneCancellaLuogo();
 }
 
@@ -2562,6 +2569,7 @@ function procediStep2() {
   document.getElementById('piano-selezione').style.display = 'none';
   document.getElementById('piano-step1').querySelector('.ins-section').style.display = 'none';
   aggiornaOutputKeep();
+  window.scrollTo(0, 0);
 }
 
 function aggiornaPesoAutomatico(i) {
@@ -3325,10 +3333,10 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
         <div style="display:flex;gap:3px;align-items:center">
           <input type="number" class="ins-peso" placeholder="BW" value="${precompila.peso||''}" step="0.5" min="0"
             style="flex:1;min-width:0" oninput="aggiornaPreviewAllenamento()">
-          <button class="ins-bw-btn" data-bw="${precompila.peso?'0':'1'}" onclick="toggleBWIns(this)"
-            style="border:1px solid ${precompila.peso?'var(--text3)':'var(--orange)'};
-                   color:${precompila.peso?'var(--text3)':'var(--orange)'};
-                   background:${precompila.peso?'none':'rgba(255,107,0,0.15)'};
+          <button class="ins-bw-btn" data-bw="${precompila.bwActive !== undefined ? (precompila.bwActive?'1':'0') : (precompila.peso?'0':'1')}" onclick="toggleBWIns(this)"
+            style="border:1px solid ${precompila.bwActive !== undefined ? (precompila.bwActive?'var(--orange)':'var(--text3)') : (precompila.peso?'var(--text3)':'var(--orange)')};
+                   color:${precompila.bwActive !== undefined ? (precompila.bwActive?'var(--orange)':'var(--text3)') : (precompila.peso?'var(--text3)':'var(--orange)')};
+                   background:${precompila.bwActive !== undefined ? (precompila.bwActive?'rgba(255,107,0,0.15)':'none') : (precompila.peso?'none':'rgba(255,107,0,0.15)')};
                    padding:5px 6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0">BW</button>
         </div></div>`
     : `<div style="flex:0 0 44px"><div class="form-label">${pesoLabel}</div>
@@ -3558,6 +3566,7 @@ function confermaAllenamento() {
       serie: match ? parseInt(match[1]) : '',
       rep:   match ? parseInt(match[2]) : '',
       peso:  isBW ? '' : peso,
+      bwActive: isBW,
       notaRiga: ''
     });
   });
