@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 410,
-    "totale_righe_esercizio": 1117,
+    "totale_sessioni": 411,
+    "totale_righe_esercizio": 1120,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -321,6 +321,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-04-18_manuale.json",
+      "title": "Training 18/04/2026 TE - Casa",
+      "data": "2026-04-18",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "6x8",
+          "peso_kg": 140,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Robusto ma da perseverare",
+          "data": "2026-04-18",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pullover",
+          "schema": "5x8",
+          "peso_kg": 32.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Bilanciere",
+          "data": "2026-04-18",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_neutre",
+          "schema": "3x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-18",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-04-16_manuale.json",
       "title": "Training 16/04/2026 AQ-Palestra Hotel della piana",
