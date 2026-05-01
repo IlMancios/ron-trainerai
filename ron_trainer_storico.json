@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 405,
-    "totale_righe_esercizio": 1105,
+    "totale_sessioni": 406,
+    "totale_righe_esercizio": 1107,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -321,6 +321,40 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-04-10_manuale.json",
+      "title": "Training 10/04/2026 AP",
+      "data": "2026-04-10",
+      "luogo": "AP",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "stacchi",
+          "schema": "6x12",
+          "peso_kg": 105,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-10",
+          "luogo": "AP",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca",
+          "schema": "6x12",
+          "peso_kg": 60,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-10",
+          "luogo": "AP",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-04-08_manuale.json",
       "title": "Training 08/04/2026 TE - Casa",
