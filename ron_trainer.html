@@ -3707,12 +3707,18 @@ function validaAllenamento(data, luogo, esercizi) {
     avvisi.push(`La data inserita (${data}) è nel futuro. Ti sei sbagliato?`);
   }
 
-  // Data lontana dall'ultimo allenamento (>10 giorni)
+  // Data troppo vecchia rispetto a oggi (>7 giorni nel passato)
+  const giorniDaOggi = Math.round((new Date(oggi()) - new Date(data)) / 86400000);
+  if (giorniDaOggi > 7) {
+    avvisi.push(`La data inserita (${data}) è ${giorniDaOggi} giorni fa. Stai registrando un allenamento vecchio?`);
+  }
+
+  // Gap >10 giorni dall'ultimo allenamento in storico
   const dateSessioni = DATA.sessioni.map(s => s.data).sort().reverse();
   if (dateSessioni.length && data) {
     const gg = Math.round((new Date(data) - new Date(dateSessioni[0])) / 86400000);
     if (gg > 10) {
-      avvisi.push(`Sono passati ${gg} giorni dall'ultimo allenamento (${dateSessioni[0]}). È insolito per te.`);
+      avvisi.push(`Sono passati ${gg} giorni dall'ultimo allenamento registrato (${dateSessioni[0]}). È insolito.`);
     }
   }
 
