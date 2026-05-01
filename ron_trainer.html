@@ -514,6 +514,19 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--green); color: var(--green); }
   .toast.error { border-color: #ff4444; color: #ff4444; }
+  .toast.loading { border-color: var(--orange); color: var(--orange); }
+
+  /* SIZE WARNING BANNER */
+  .size-warning {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    border: 1px solid;
+  }
+  .size-warning.warn { display: block; border-color: #f5a623; color: #f5a623; background: rgba(245,166,35,0.08); }
+  .size-warning.critical { display: block; border-color: #ff4444; color: #ff4444; background: rgba(255,68,68,0.08); }
 
   /* PAGINATION */
   .pagination {
@@ -740,6 +753,52 @@
   }
   .gh-token-details summary::-webkit-details-marker { display: none; }
   .gh-token-details[open] summary { color: var(--text2); margin-bottom: 8px; }
+
+  /* MODAL VALIDAZIONE */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.78);
+    z-index: 300;
+    align-items: center; justify-content: center;
+    display: none;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 440px;
+    width: 92%;
+    animation: draft-slidein 0.2s ease;
+  }
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: #f5a623; margin-bottom: 14px;
+  }
+  .modal-warnings { list-style: none; margin-bottom: 20px; }
+  .modal-warnings li {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; color: var(--text);
+    line-height: 1.4;
+  }
+  .modal-warnings li:last-child { border-bottom: none; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+  /* PENDING SAVE BANNER */
+  .pending-banner {
+    position: fixed; bottom: 70px; left: 50%;
+    transform: translateX(-50%) translateY(140px);
+    background: #1a1200; border: 1px solid #f5a623;
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 13px; color: #f5a623;
+    z-index: 400; transition: transform 0.3s ease;
+    display: flex; align-items: center; gap: 12px;
+    white-space: nowrap; pointer-events: none;
+  }
+  .pending-banner.show { transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -988,7 +1047,9 @@
         <button class="btn btn-ghost btn-sm" onclick="cancellaToken()">RIMUOVI</button>
       </div>
       <div id="gh-token-status" style="margin-top:6px;font-size:12px;color:var(--text2)"></div>
+      <div id="gh-size-indicator" style="margin-top:4px;font-size:11px;color:var(--text3)"></div>
     </details>
+    <div class="size-warning" id="size-warning"></div>
 
     <div style="margin-top:20px">
       <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Preview formato Keep</div>
@@ -1002,6 +1063,21 @@
 <div class="undo-banner" id="undo-banner">
   Esercizio rimosso
   <button class="undo-btn" onclick="annullaRimozione()">ANNULLA</button>
+</div>
+<div class="modal-overlay" id="modal-validazione">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Controlla prima di salvare</div>
+    <ul class="modal-warnings" id="modal-warnings-list"></ul>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="chiudiModal()">TORNA INDIETRO</button>
+      <button class="btn" id="modal-salva-btn">SALVA COMUNQUE</button>
+    </div>
+  </div>
+</div>
+<div class="pending-banner" id="pending-banner">
+  ⚠️ Salvataggio GitHub non completato
+  <button class="btn btn-ghost btn-sm" onclick="ritentaSalvaggio()">RIPROVA</button>
+  <button onclick="chiudiPendingBanner()" style="background:none;border:none;color:#f5a623;cursor:pointer;font-size:16px;line-height:1;padding:0">×</button>
 </div>
 <div class="draft-banner hidden" id="draft-banner">
   <div class="draft-banner-full">
@@ -1067,6 +1143,9 @@ function inizializza() {
   inizializzaPR();
   inizializzaPianificatore();
   inizializzaInserimento();
+  aggiornaIndicatoreDimensione();
+  verificaPendingSave();
+  verificaToken(); // async, non blocca
 }
 
 // =====================
@@ -2718,19 +2797,30 @@ function serializzaBozza() {
 }
 
 let _inizializzando = false;
+let _salvaBozzaTimeout = null;
+
+function _hasMeaningfulData() {
+  // almeno un campo compilato nel form esercizi o nelle note
+  return [...document.querySelectorAll('#ex-builder input, #ex-builder textarea')]
+    .some(el => el.value.trim() !== '')
+    || (document.getElementById('ins-note')?.value.trim() !== '');
+}
 
 function salvaBozza() {
-  if (_inizializzando) return; // non salvare durante l'init (evita bozza falsa)
-  try {
-    const bozza = serializzaBozza();
-    localStorage.setItem('ron_bozza', JSON.stringify(bozza));
-    // se il banner esiste ma è nascosto, mostralo come pill
-    const b = document.getElementById('draft-banner');
-    if (b && b.classList.contains('hidden')) {
-      b.classList.remove('hidden');
-      b.classList.add('collapsed');
-    }
-  } catch(e) { /* silenzioso */ }
+  if (_inizializzando) return;
+  if (!_hasMeaningfulData()) { cancellaBozza(); return; }
+  clearTimeout(_salvaBozzaTimeout);
+  _salvaBozzaTimeout = setTimeout(() => {
+    try {
+      const bozza = serializzaBozza();
+      localStorage.setItem('ron_bozza', JSON.stringify(bozza));
+      const b = document.getElementById('draft-banner');
+      if (b && b.classList.contains('hidden')) {
+        b.classList.remove('hidden');
+        b.classList.add('collapsed');
+      }
+    } catch(e) { /* silenzioso */ }
+  }, 400); // 400ms debounce — non salva ad ogni tasto
 }
 
 function cancellaBozza() {
@@ -2822,12 +2912,43 @@ function aggiornaTokenStatus() {
     : 'Nessun token — al salvataggio scaricherà il JSON.';
 }
 
+function aggiornaIndicatoreDimensione() {
+  const content = JSON.stringify(DATA);
+  const bytes = new TextEncoder().encode(content).length;
+  const kb = Math.round(bytes / 1024);
+  const pct = Math.round(bytes / 750000 * 100); // 750KB = limite pratico GitHub API
+  const el = document.getElementById('gh-size-indicator');
+  if (el) el.textContent = `Storico: ~${kb} KB (${pct}% del limite GitHub API)`;
+  const warn = document.getElementById('size-warning');
+  if (!warn) return;
+  if (bytes > 700000) {
+    warn.className = 'size-warning critical';
+    warn.textContent = `⚠️ Storico quasi pieno (${kb} KB / ~750 KB max). Il prossimo salvataggio su GitHub potrebbe fallire. Esporta subito un backup JSON e contatta il supporto per aumentare la capacità.`;
+  } else if (bytes > 500000) {
+    warn.className = 'size-warning warn';
+    warn.textContent = `⚠️ Storico a ${pct}% del limite GitHub API (~${kb} KB / 750 KB). Tra qualche mese potrebbe servire una soluzione di espansione.`;
+  } else {
+    warn.className = 'size-warning';
+  }
+}
+
 async function salvasuGitHub() {
   const token = localStorage.getItem('gh_token');
   if (!token) { mostraEsportazione(); return; }
 
-  const url = 'https://api.github.com/repos/IlMancios/ron-trainerai/contents/ron_trainer_storico.json';
+  // controllo dimensione preventivo
   const content = JSON.stringify(DATA, null, 2);
+  const bytes = new TextEncoder().encode(content).length;
+  if (bytes > 900000) {
+    showToast('File troppo grande per GitHub API — scarico il JSON', 'error');
+    mostraEsportazione();
+    aggiornaIndicatoreDimensione();
+    return;
+  }
+
+  showToast('⏳ Salvataggio su GitHub...', 'loading', 0); // spinner persistente
+
+  const url = 'https://api.github.com/repos/IlMancios/ron-trainerai/contents/ron_trainer_storico.json';
   const encoded = btoa(unescape(encodeURIComponent(content)));
 
   try {
@@ -2857,11 +2978,65 @@ async function salvasuGitHub() {
     }
 
     showToast('Salvato su GitHub ✓', 'success');
+    localStorage.removeItem('ron_pending_save');
+    chiudiPendingBanner();
+    aggiornaIndicatoreDimensione();
   } catch(e) {
     console.error('GitHub save error:', e);
-    showToast('GitHub fallito — scarica il JSON', 'error');
+    if (e instanceof TypeError) {
+      // errore di rete (offline) — salva in attesa di retry
+      localStorage.setItem('ron_pending_save', JSON.stringify(DATA));
+      showToast('Offline — sessione salvata, riprova la sync più tardi', 'error');
+      mostraPendingBanner();
+    } else {
+      showToast('GitHub fallito — scarica il JSON', 'error');
+      mostraEsportazione();
+    }
+  }
+}
+
+// ---- Pending save (offline recovery) ----
+function verificaPendingSave() {
+  if (localStorage.getItem('ron_pending_save')) mostraPendingBanner();
+}
+
+function mostraPendingBanner() {
+  document.getElementById('pending-banner').classList.add('show');
+}
+
+function chiudiPendingBanner() {
+  document.getElementById('pending-banner').classList.remove('show');
+  localStorage.removeItem('ron_pending_save');
+}
+
+async function ritentaSalvaggio() {
+  const raw = localStorage.getItem('ron_pending_save');
+  if (!raw) { chiudiPendingBanner(); return; }
+  try {
+    DATA = JSON.parse(raw);
+    inizializzaOverview(); renderStorico(); renderPR();
+    localStorage.removeItem('ron_pending_save');
+    chiudiPendingBanner();
+    await salvasuGitHub();
+  } catch(e) {
+    showToast('Errore nel ripristino — scarico il JSON', 'error');
     mostraEsportazione();
   }
+}
+
+// ---- Token check (D) ----
+async function verificaToken() {
+  const token = localStorage.getItem('gh_token');
+  if (!token) return;
+  try {
+    const resp = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (!resp.ok) {
+      const el = document.getElementById('gh-token-status');
+      if (el) { el.textContent = '⚠️ Token non valido o scaduto — inseriscine uno nuovo.'; el.style.color = '#ff4444'; }
+    }
+  } catch(e) { /* offline, ignora */ }
 }
 
 function inizializzaInserimento() {
@@ -3510,20 +3685,96 @@ function salvaAllenamento() {
     righe_non_parsificate: []
   };
 
+  // validazione soft — avvisi con possibilità di procedere comunque
+  const avvisi = validaAllenamento(data, luogo, esercizi);
+  if (avvisi.length > 0) {
+    mostraModalConferma(avvisi, () => eseguiSalvaggio(nuovaSessione, esercizi.length));
+  } else {
+    eseguiSalvaggio(nuovaSessione, esercizi.length);
+  }
+}
+
+function validaAllenamento(data, luogo, esercizi) {
+  const avvisi = [];
+
+  // Data nel futuro
+  if (data > oggi()) {
+    avvisi.push(`La data inserita (${data}) è nel futuro. Ti sei sbagliato?`);
+  }
+
+  // Data lontana dall'ultimo allenamento (>10 giorni)
+  const dateSessioni = DATA.sessioni.map(s => s.data).sort().reverse();
+  if (dateSessioni.length && data) {
+    const gg = Math.round((new Date(data) - new Date(dateSessioni[0])) / 86400000);
+    if (gg > 10) {
+      avvisi.push(`Sono passati ${gg} giorni dall'ultimo allenamento (${dateSessioni[0]}). È insolito per te.`);
+    }
+  }
+
+  // Luogo non selezionato
+  if (!luogo) {
+    avvisi.push('Nessun luogo selezionato.');
+  }
+
+  // Solo 1 esercizio unico
+  const exUnici = [...new Set(esercizi.map(e => e.esercizio_id))];
+  if (exUnici.length === 1) {
+    avvisi.push(`Stai salvando un allenamento con un solo esercizio (${getExNome(exUnici[0])}). Di solito ne fai di più.`);
+  }
+
+  // Esercizi standard senza peso (non BW)
+  const senzaPeso = esercizi.filter(e =>
+    e.tipo_riga === 'standard' && !e.bodyweight && e.peso_kg === null
+  );
+  if (senzaPeso.length > 0) {
+    const nomi = [...new Set(senzaPeso.map(e => getExNome(e.esercizio_id)))];
+    avvisi.push(`Peso non inserito per: ${nomi.join(', ')}.`);
+  }
+
+  // Corsa senza passo né km
+  const corsaVuota = esercizi.filter(e =>
+    e.esercizio_id === 'corsa' && e.peso_kg === null && !e.nota_riga
+  );
+  if (corsaVuota.length > 0) {
+    avvisi.push('Corsa inserita senza passo (min/km) né km — i dati potrebbero essere incompleti.');
+  }
+
+  return avvisi;
+}
+
+let _modalCallback = null;
+
+function mostraModalConferma(avvisi, callback) {
+  _modalCallback = callback;
+  const list = document.getElementById('modal-warnings-list');
+  list.innerHTML = avvisi.map(a => `<li>${a}</li>`).join('');
+  document.getElementById('modal-salva-btn').onclick = () => {
+    chiudiModal();
+    if (_modalCallback) { _modalCallback(); _modalCallback = null; }
+  };
+  document.getElementById('modal-validazione').classList.add('show');
+}
+
+function chiudiModal() {
+  document.getElementById('modal-validazione').classList.remove('show');
+  _modalCallback = null;
+}
+
+function eseguiSalvaggio(nuovaSessione, nEsercizi) {
   DATA.sessioni.push(nuovaSessione);
   DATA.sessioni.sort((a,b) => b.data.localeCompare(a.data));
   DATA.meta.totale_sessioni = DATA.sessioni.length;
-  DATA.meta.totale_righe_esercizio += esercizi.length;
+  DATA.meta.totale_righe_esercizio += nEsercizi;
   NUOVI_ALLENAMENTI.push(nuovaSessione);
 
   inizializzaOverview();
   renderStorico();
   renderPR();
 
-  showToast(`Allenamento salvato (${esercizi.length} esercizi)`, 'success');
+  showToast(`Allenamento salvato (${nEsercizi} esercizi)`, 'success');
   cancellaBozza();
   resetInserimento();
-  salvasuGitHub(); // async — non blocca l'UI
+  salvasuGitHub();
 }
 
 function mostraEsportazione() {
@@ -3724,12 +3975,16 @@ function fmtSchema(schema, unita) {
   }
   return schema || '—';
 }
-function showToast(msg, type='') {
+function showToast(msg, type='', duration=2500) {
   const t = document.getElementById('toast');
+  clearTimeout(t._toastTimeout);
   t.textContent = msg;
   t.className = 'toast' + (type ? ' ' + type : '');
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  if (duration > 0) {
+    t._toastTimeout = setTimeout(() => t.classList.remove('show'), duration);
+  }
+  // duration=0 → rimane visibile finché non viene sostituito
 }
 
 // =====================
