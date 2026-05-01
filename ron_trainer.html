@@ -671,16 +671,17 @@
   .draft-banner.collapsed .draft-banner-full { display: none; }
   .draft-banner-pill {
     display: none;
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     background: var(--orange);
     border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.25);
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 17px;
+    font-size: 20px;
     animation: draft-pulse 2.2s ease-in-out infinite;
-    box-shadow: 0 2px 8px rgba(255,107,0,0.4);
+    box-shadow: 0 2px 10px rgba(255,107,0,0.5);
   }
   .draft-banner.collapsed .draft-banner-pill { display: flex; }
   .draft-banner-btn {
@@ -1007,7 +1008,7 @@
     <button class="draft-banner-btn" onclick="vaiScheda()">CONTINUA</button>
     <button class="draft-banner-close" onclick="chiudiBannerDraft()" title="Chiudi">×</button>
   </div>
-  <div class="draft-banner-pill" onclick="vaiScheda()" title="Bozza in corso — continua">✏️</div>
+  <div class="draft-banner-pill" onclick="vaiScheda()" title="Bozza in corso — continua">🏋️</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -2715,7 +2716,10 @@ function serializzaBozza() {
   return bozza;
 }
 
+let _inizializzando = false;
+
 function salvaBozza() {
+  if (_inizializzando) return; // non salvare durante l'init (evita bozza falsa)
   try {
     const bozza = serializzaBozza();
     localStorage.setItem('ron_bozza', JSON.stringify(bozza));
@@ -2868,7 +2872,9 @@ function inizializzaInserimento() {
   document.getElementById('ins-data').addEventListener('change', aggiornaPreviewAllenamento);
   document.getElementById('ins-luogo').addEventListener('change', aggiornaPreviewAllenamento);
   aggiornaTokenStatus();
+  _inizializzando = true;
   ripristinaBozza(); // ripristina bozza se esiste, altrimenti aggiunge un esercizio vuoto
+  _inizializzando = false;
   if (localStorage.getItem('ron_bozza')) mostraBannerDraft();
 }
 
