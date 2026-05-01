@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 416,
-    "totale_righe_esercizio": 1138,
+    "totale_sessioni": 417,
+    "totale_righe_esercizio": 1139,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -321,6 +321,30 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-04-30_manuale.json",
+      "title": "Training 30/04/2026 AP",
+      "data": "2026-04-30",
+      "luogo": "AP",
+      "note_sessione": [
+        "Circa 12 lanci con il martello da 7kg 49mt PB"
+      ],
+      "esercizi": [
+        {
+          "esercizio_id": "stacchi",
+          "schema": "4x4",
+          "peso_kg": 140,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-30",
+          "luogo": "AP",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-04-29_manuale.json",
       "title": "Training 29/04/2026 TE - Casa",
