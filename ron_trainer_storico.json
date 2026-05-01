@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 407,
-    "totale_righe_esercizio": 1110,
+    "totale_sessioni": 408,
+    "totale_righe_esercizio": 1113,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -321,6 +321,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-04-13_manuale.json",
+      "title": "Training 13/04/2026 TE - Casa",
+      "data": "2026-04-13",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "croci_man",
+          "schema": "5x6",
+          "peso_kg": 11.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-13",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_sopra_testa",
+          "schema": "5x14",
+          "peso_kg": 10,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-13",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_incl_man",
+          "schema": "6x6",
+          "peso_kg": 24,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-04-13",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-04-12_manuale.json",
       "title": "Training 12/04/2026 TE - Casa",
