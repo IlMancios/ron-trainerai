@@ -682,6 +682,7 @@
     font-size: 20px;
     animation: draft-pulse 2.2s ease-in-out infinite;
     box-shadow: 0 2px 10px rgba(255,107,0,0.5);
+    text-shadow: 0 0 3px #000, 0 0 6px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.6);
   }
   .draft-banner.collapsed .draft-banner-pill { display: flex; }
   .draft-banner-btn {
@@ -2896,6 +2897,7 @@ function initDragDrop() {
     _dragSrc = null;
     aggiornaNumeriEsercizi();
     aggiornaPreviewAllenamento();
+    aggiornaPreviewAllenamento();
   });
   builder.addEventListener('dragover', e => {
     e.preventDefault();
@@ -3008,6 +3010,7 @@ function aggiungiLuogo() {
   popolaSelectLuogo('piano-luogo');
   document.getElementById('ins-luogo').value = val;
   input.value = '';
+  aggiornaPreviewAllenamento();
   showToast('Luogo aggiunto', 'success');
 }
 
@@ -3196,6 +3199,7 @@ function aggiungiTempoVigneto(rigaId) {
   if (!tempiDiv) return;
   const n = tempiDiv.querySelectorAll('.ins-tempo-wrapper').length + 1;
   tempiDiv.insertAdjacentHTML('beforeend', buildTempoField(n, ''));
+  aggiornaPreviewAllenamento();
 }
 
 function aggiornaRigheCard(cardId) {
@@ -3268,12 +3272,13 @@ function aggiornaPulsantiRiga(cardId) {
   });
 }
 
-function sdoppiaEsercizio(cardId) { aggiungiRiga(cardId); }
+function sdoppiaEsercizio(cardId) { aggiungiRiga(cardId); aggiornaPreviewAllenamento(); }
 
 function rimuoviRiga(cardId, rigaId) {
   const el = document.getElementById(rigaId);
   if (el) el.remove();
   aggiornaPulsantiRiga(cardId);
+  aggiornaPreviewAllenamento();
 }
 
 function rimuoviEsercizio(cardId) {
