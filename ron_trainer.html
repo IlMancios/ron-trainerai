@@ -267,6 +267,23 @@
   }
   .session-ex-count { font-size: 13px; color: var(--text3); margin-left: auto; white-space: nowrap; }
   .session-chevron { color: var(--text3); font-size: 13px; transition: transform 0.2s; }
+  .btn-modifica-sessione {
+    font-size: 11px; color: var(--text3); background: none;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 2px 7px; cursor: pointer; white-space: nowrap;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .btn-modifica-sessione:hover { color: var(--orange); border-color: var(--orange); }
+  .edit-mode-banner {
+    display: none; background: rgba(255,107,0,0.12); border: 1px solid var(--orange);
+    border-radius: 6px; padding: 10px 14px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .edit-mode-banner.hidden { display: none !important; }
+  .edit-mode-banner-text { color: var(--orange); font-size: 13px; font-weight: 600; flex: 1; }
+  .edit-mode-banner-annulla { background: none; border: 1px solid var(--orange); border-radius: 4px; color: var(--orange); font-size: 12px; padding: 3px 10px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
   .session-card.open .session-chevron { transform: rotate(90deg); }
 
   .session-body {
@@ -1149,6 +1166,10 @@
 
   <!-- INSERIMENTO -->
   <div class="panel" id="panel-inserimento">
+    <div class="edit-mode-banner hidden" id="edit-mode-banner">
+      <span class="edit-mode-banner-text" id="edit-mode-banner-text">⚠ Stai modificando una sessione esistente</span>
+      <button class="edit-mode-banner-annulla" onclick="cancellaModifica()">✕ ANNULLA MODIFICA</button>
+    </div>
     <div class="section-title">Dati sessione</div>
     <div class="ins-section">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
@@ -1183,7 +1204,7 @@
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn" onclick="salvaAllenamento()">SALVA ALLENAMENTO</button>
+      <button class="btn" id="btn-salva-allenamento" onclick="salvaAllenamento()">SALVA ALLENAMENTO</button>
       <button class="btn btn-ghost" onclick="resetInserimento()">RESET</button>
     </div>
 
@@ -2171,7 +2192,10 @@ function renderStorico() {
       <div class="session-header" onclick="this.parentElement.classList.toggle('open')">
         <div class="session-date">${formatData(s.data)}</div>
         <div class="session-luogo">${s.luogo || '—'}</div>
-        <div class="session-ex-count">${contaGruppi(s.esercizi)} esercizi</div>
+        <div class="session-ex-count" style="display:flex;align-items:center;gap:8px">
+          <button class="btn-modifica-sessione" onclick="event.stopPropagation();avviaModifica(${DATA.sessioni.indexOf(s)})">modifica</button>
+          ${contaGruppi(s.esercizi)} esercizi
+        </div>
         <div class="session-chevron">›</div>
       </div>
       <div class="session-body">
@@ -2945,6 +2969,11 @@ function generaProposta() { generaPropostaStep1(); }
 let EX_COUNT = 0;
 let RIGA_COUNT = 0;
 let NUOVI_ALLENAMENTI = [];
+
+// Stato modifica sessione esistente
+let _editMode = false;
+let _editIndex = null;       // indice in DATA.sessioni
+let _editOriginalData = null; // data originale per rilevare cambio data
 
 // =====================
 // AUTOSAVE + DRAFT BANNER
@@ -3944,6 +3973,17 @@ function salvaAllenamento() {
     righe_non_parsificate: []
   };
 
+  if (_editMode) {
+    // Modalità modifica — avvisi extra
+    const avvisiModifica = [];
+    if (data !== _editOriginalData) {
+      avvisiModifica.push(`Stai modificando la data da <strong>${formatData(_editOriginalData)}</strong> a <strong>${formatData(data)}</strong>. La sessione originale verrà sovrascritta.`);
+    }
+    avvisiModifica.push('Stai per sovrascrivere definitivamente una sessione già registrata. Questa operazione non può essere annullata.');
+    mostraModalConferma(avvisiModifica, () => eseguiSalvaggioModifica(nuovaSessione, esercizi.length));
+    return;
+  }
+
   // validazione soft — avvisi con possibilità di procedere comunque
   const avvisi = validaAllenamento(data, luogo, esercizi);
   if (avvisi.length > 0) {
@@ -4026,6 +4066,26 @@ function chiudiModal() {
   _modalCallback = null;
 }
 
+function eseguiSalvaggioModifica(nuovaSessione, nEsercizi) {
+  if (_editIndex === null || !DATA.sessioni[_editIndex]) {
+    showToast('Errore: sessione originale non trovata', 'error');
+    return;
+  }
+  // Sovrascrive la sessione all'indice originale
+  DATA.sessioni[_editIndex] = nuovaSessione;
+  DATA.sessioni.sort((a,b) => b.data.localeCompare(a.data));
+  DATA.meta.totale_sessioni = DATA.sessioni.length;
+
+  inizializzaOverview();
+  renderStorico();
+  renderPR();
+
+  showToast(`Sessione modificata (${nEsercizi} esercizi)`, 'success');
+  cancellaBozza();
+  resetInserimento(); // resetta anche _editMode
+  salvasuGitHub();
+}
+
 function eseguiSalvaggio(nuovaSessione, nEsercizi) {
   DATA.sessioni.push(nuovaSessione);
   DATA.sessioni.sort((a,b) => b.data.localeCompare(a.data));
@@ -4060,6 +4120,121 @@ function resetInserimento() {
   document.getElementById('ex-builder').innerHTML = '';
   EX_COUNT = 0;
   aggiungiEsercizio();
+  _editMode = false;
+  _editIndex = null;
+  _editOriginalData = null;
+  document.getElementById('edit-mode-banner').classList.add('hidden');
+  document.getElementById('btn-salva-allenamento').textContent = 'SALVA ALLENAMENTO';
+}
+
+function avviaModifica(idx) {
+  const s = DATA.sessioni[idx];
+  if (!s) return;
+  mostraModalConferma(
+    [`Stai per modificare la sessione del <strong>${formatData(s.data)}</strong> — <strong>${s.luogo || '—'}</strong>.<br>Questa azione sovrascriverà i dati originali.`],
+    () => caricaSessioneInModifica(idx)
+  );
+}
+
+function caricaSessioneInModifica(idx) {
+  const s = DATA.sessioni[idx];
+  if (!s) return;
+
+  _editMode = true;
+  _editIndex = idx;
+  _editOriginalData = s.data;
+
+  // Vai al tab Train
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.querySelector('.tab[data-tab="inserimento"]').classList.add('active');
+  document.getElementById('panel-inserimento').classList.add('active');
+
+  // Banner modifica
+  document.getElementById('edit-mode-banner').classList.remove('hidden');
+  document.getElementById('edit-mode-banner-text').innerHTML =
+    `⚠ Stai modificando: <strong>${formatData(s.data)}</strong> — <strong>${s.luogo || '—'}</strong>`;
+  document.getElementById('btn-salva-allenamento').textContent = 'SALVA MODIFICHE';
+
+  // Popola campi sessione
+  document.getElementById('ins-data').value = s.data;
+  popolaSelectLuogo('ins-luogo');
+  const sel = document.getElementById('ins-luogo');
+  if ([...sel.options].some(o => o.value === s.luogo)) {
+    sel.value = s.luogo;
+  } else {
+    const opt = document.createElement('option');
+    opt.value = s.luogo; opt.textContent = s.luogo;
+    sel.appendChild(opt); sel.value = s.luogo;
+  }
+  document.getElementById('ins-note').value = (s.note_sessione || []).join(' · ');
+
+  // Popola esercizi
+  document.getElementById('ex-builder').innerHTML = '';
+  EX_COUNT = 0;
+  RIGA_COUNT = 0;
+
+  // Raggruppa righe per esercizio_id (stesso ordine)
+  const gruppi = [];
+  s.esercizi.forEach(e => {
+    if (!gruppi.length || gruppi[gruppi.length-1].id !== e.esercizio_id) {
+      gruppi.push({ id: e.esercizio_id, righe: [] });
+    }
+    gruppi[gruppi.length-1].righe.push(e);
+  });
+
+  gruppi.forEach(g => {
+    const riga0 = g.righe[0];
+    const isBW = riga0.bodyweight && riga0.unita !== 'sec';
+    const isPeso = !riga0.bodyweight && riga0.unita !== 'sec' && riga0.unita !== 'min/km';
+    const pesoVal = isPeso ? riga0.peso_kg : (isBW ? '' : riga0.peso_kg);
+
+    if (riga0.unita === 'sec') {
+      // vigneto
+      aggiungiEsercizio({ exId: g.id, tipo: 'vigneto' });
+    } else if (riga0.unita === 'min/km') {
+      // corsa
+      aggiungiEsercizio({ exId: g.id, tipo: 'corsa', peso: riga0.peso_kg });
+    } else {
+      // standard — usa prima riga per la card, aggiungi righe extra
+      const match = riga0.schema ? riga0.schema.match(/(\d+)x(\d+)/) : null;
+      aggiungiEsercizio({
+        exId: g.id,
+        serie: match ? parseInt(match[1]) : '',
+        rep:   match ? parseInt(match[2]) : '',
+        peso:  isPeso ? riga0.peso_kg : '',
+        bwActive: isBW,
+        notaRiga: riga0.nota_riga || ''
+      });
+      // righe aggiuntive dello stesso esercizio
+      if (g.righe.length > 1) {
+        const cardId = 'ex-' + EX_COUNT;
+        g.righe.slice(1).forEach(r => {
+          const m2 = r.schema ? r.schema.match(/(\d+)x(\d+)/) : null;
+          const isBW2 = r.bodyweight;
+          aggiungiRiga(cardId, {
+            serie: m2 ? parseInt(m2[1]) : '',
+            rep:   m2 ? parseInt(m2[2]) : '',
+            peso:  !isBW2 ? r.peso_kg : '',
+            bwActive: isBW2,
+            notaRiga: r.nota_riga || ''
+          });
+        });
+      }
+    }
+  });
+
+  aggiornaPreviewAllenamento();
+  window.scrollTo(0, 0);
+}
+
+function cancellaModifica() {
+  _editMode = false;
+  _editIndex = null;
+  _editOriginalData = null;
+  document.getElementById('edit-mode-banner').classList.add('hidden');
+  document.getElementById('btn-salva-allenamento').textContent = 'SALVA ALLENAMENTO';
+  showToast('Modifica annullata', 'info');
 }
 
 // =====================
