@@ -3977,9 +3977,9 @@ function salvaAllenamento() {
     // Modalità modifica — avvisi extra
     const avvisiModifica = [];
     if (data !== _editOriginalData) {
-      avvisiModifica.push(`Stai modificando la data da <strong>${formatData(_editOriginalData)}</strong> a <strong>${formatData(data)}</strong>. La sessione originale verrà sovrascritta.`);
+      avvisiModifica.push(`Data modificata: <strong>${formatData(_editOriginalData)}</strong> → <strong>${formatData(data)}</strong>`);
     }
-    avvisiModifica.push('Stai per sovrascrivere definitivamente una sessione già registrata. Questa operazione non può essere annullata.');
+    avvisiModifica.push('La sessione originale verrà sovrascritta.');
     mostraModalConferma(avvisiModifica, () => eseguiSalvaggioModifica(nuovaSessione, esercizi.length));
     return;
   }
@@ -4053,8 +4053,13 @@ function mostraModalConferma(avvisi, callback) {
   _modalCallback = callback;
   const list = document.getElementById('modal-warnings-list');
   list.innerHTML = avvisi.map(a => `<li>${a}</li>`).join('');
+  const isEdit = _editMode;
+  document.getElementById('modal-validazione').querySelector('.modal-title').textContent =
+    isEdit ? '⚠️ Controlla prima di modificare' : '⚠️ Controlla prima di salvare';
+  document.getElementById('modal-salva-btn').textContent =
+    isEdit ? 'MODIFICA COMUNQUE' : 'SALVA COMUNQUE';
   document.getElementById('modal-salva-btn').onclick = () => {
-    const cb = _modalCallback; // salva riferimento prima di chiudere
+    const cb = _modalCallback;
     chiudiModal();
     if (cb) cb();
   };
