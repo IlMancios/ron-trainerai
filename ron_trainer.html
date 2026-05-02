@@ -806,6 +806,8 @@
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
   /* ===== MOBILE RESPONSIVENESS ===== */
+  html { overflow-x: hidden; }
+
   @media (max-width: 599px) {
 
     /* Evita overflow orizzontale */
@@ -874,16 +876,33 @@
     .chart-wrap { padding: 10px; }
     .chart-wrap canvas { max-height: 200px !important; }
 
-    /* FORM ROWS → min-width ridotto per evitare overflow */
-    .form-row > * { min-width: 100px; }
+    /* FORM ROWS → min-width ridotto */
+    .form-row > * { min-width: 90px; }
 
-    /* EXERCISE CARD → dropdown senza max-width, storico sidebar nascosto */
-    .ins-ex-sel { max-width: none !important; }
-    [id$="-storico"] { display: none !important; }
+    /* PIANIFICATORE STEP 1 → data e luogo stackati verticalmente */
+    #piano-step1 .form-row {
+      flex-direction: column;
+    }
+    #piano-step1 .form-row > * {
+      min-width: 0;
+      width: 100%;
+    }
 
-    /* PIANIFICATORE STEP 2 → pulsanti luogo compatti */
-    #btn-aggiungi-luogo { padding: 0 8px !important; font-size: 12px !important; }
-    #btn-cancella-luogo { padding: 0 8px !important; font-size: 12px !important; }
+    /* EXERCISE CARD HEADER → select su riga separata per massimizzare larghezza */
+    .ex-header-row > div:first-child {
+      flex-wrap: wrap;
+      overflow: visible !important;
+    }
+    .ins-ex-sel {
+      flex: 0 0 100% !important;
+      max-width: none !important;
+      width: 100% !important;
+      margin-top: 4px;
+    }
+
+    /* EXERCISE CARD → storico sidebar nascosto (già display:none di default,
+       ma usando selettore specifico per non colpire #panel-storico) */
+    .ex-builder-row [id$="-storico"] { display: none !important; }
 
     /* KPI value: leggermente più piccolo */
     .kpi-value { font-size: 30px; }
@@ -1853,11 +1872,12 @@ function renderProgressione(exId, schemaFiltro) {
 
     if (progChart) { progChart.destroy(); progChart = null; }
     const ctx = document.getElementById('prog-chart').getContext('2d');
+    const isMobile = window.innerWidth < 600;
     progChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: recsDist.map(r => r.data),
-        datasets: [{ data: recsDist.map(r => r.peso), borderColor: '#FF6B00', backgroundColor: 'rgba(255,107,0,0.08)', tension: 0.3, pointBackgroundColor: '#FF6B00', pointRadius: 4, fill: true }]
+        datasets: [{ data: recsDist.map(r => r.peso), borderColor: '#FF6B00', backgroundColor: 'rgba(255,107,0,0.08)', tension: 0.3, pointBackgroundColor: '#FF6B00', pointRadius: isMobile ? 2 : 4, fill: true }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
@@ -1869,8 +1889,8 @@ function renderProgressione(exId, schemaFiltro) {
           }}
         },
         scales: {
-          x: { ticks: { color: '#888', maxTicksLimit: 8 }, grid: { color: '#1e1e1e' } },
-          y: { ticks: { color: '#888', callback: val => val.toFixed(1) + ' km' }, grid: { color: '#1e1e1e' } }
+          x: { ticks: { color: '#888', maxTicksLimit: isMobile ? 4 : 8, font: { size: isMobile ? 10 : 12 } }, grid: { color: '#1e1e1e' } },
+          y: { ticks: { color: '#888', callback: val => val.toFixed(1) + ' km', font: { size: isMobile ? 10 : 12 } }, grid: { color: '#1e1e1e' } }
         }
       }
     });
@@ -1950,6 +1970,7 @@ function renderProgressione(exId, schemaFiltro) {
 
   // Colore punti: BW in grigio, con peso in arancione
   const pointColors = records.map(r => r.bw ? '#666' : '#FF6B00');
+  const isMobile = window.innerWidth < 600;
 
   progChart = new Chart(ctx, {
     type: 'line',
@@ -1960,8 +1981,8 @@ function renderProgressione(exId, schemaFiltro) {
         borderColor: '#FF6B00',
         backgroundColor: 'rgba(255,107,0,0.08)',
         pointBackgroundColor: pointColors,
-        pointRadius: 4,
-        pointHoverRadius: 7,
+        pointRadius: isMobile ? 2 : 4,
+        pointHoverRadius: isMobile ? 5 : 7,
         borderWidth: 2,
         tension: 0.3,
         fill: true,
@@ -1993,12 +2014,12 @@ function renderProgressione(exId, schemaFiltro) {
       },
       scales: {
         x: {
-          ticks: { color: '#888', maxTicksLimit: 8, font: { size: 12 } },
+          ticks: { color: '#888', maxTicksLimit: isMobile ? 4 : 8, font: { size: isMobile ? 10 : 12 } },
           grid: { color: '#1e1e1e' },
         },
         y: {
           ticks: {
-            color: '#888', font: { size: 12 },
+            color: '#888', font: { size: isMobile ? 10 : 12 },
             callback: (val) => {
               if (val === 0) return 'BW';
               const unita = records[0]?.unita;
