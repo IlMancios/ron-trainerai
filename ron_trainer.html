@@ -827,7 +827,7 @@
       right: 12px;
     }
 
-    /* TAB NAV → griglia 3+3 (2 righe) */
+    /* TAB NAV → griglia 3+3 (2 righe), font più grande */
     nav { overflow-x: visible; }
     .nav-inner {
       flex-wrap: wrap;
@@ -837,8 +837,8 @@
     .tab {
       flex: 0 0 33.333%;
       text-align: center;
-      padding: 8px 2px;
-      font-size: 10px;
+      padding: 6px 2px;
+      font-size: 12px;
       letter-spacing: 0.3px;
     }
 
@@ -879,13 +879,22 @@
     /* FORM ROWS → min-width ridotto */
     .form-row > * { min-width: 90px; }
 
-    /* PIANIFICATORE STEP 1 → data e luogo stackati verticalmente */
-    #piano-step1 .form-row {
+    /* PIANIFICATORE STEP 1 → solo data+luogo stackati verticalmente */
+    #piano-data-luogo-row {
       flex-direction: column;
     }
-    #piano-step1 .form-row > * {
+    #piano-data-luogo-row > * {
       min-width: 0;
       width: 100%;
+    }
+    /* Compound/Isolati/Cardio → rimangono sulla stessa riga, compatti */
+    #piano-counts-row {
+      flex-wrap: nowrap;
+      gap: 6px;
+    }
+    #piano-counts-row > div {
+      flex: 1;
+      min-width: 0;
     }
 
     /* EXERCISE CARD HEADER → select su riga separata per massimizzare larghezza */
@@ -1029,7 +1038,7 @@
     <div id="piano-step1">
       <div class="ins-section">
         <div class="piano-form">
-          <div class="form-row">
+          <div class="form-row" id="piano-data-luogo-row">
             <div>
               <div class="form-label">Data</div>
               <input type="date" id="piano-data">
@@ -1043,7 +1052,7 @@
               </div>
             </div>
           </div>
-          <div class="form-row">
+          <div class="form-row" id="piano-counts-row">
             <div>
               <div class="form-label">Compound (Core)</div>
               <select id="piano-core">
@@ -1066,10 +1075,10 @@
                 <option value="5">5</option>
               </select>
             </div>
-            <div>
+            <div style="flex:0 0 90px;min-width:0">
               <div class="form-label">Cardio</div>
-              <select id="piano-cardio">
-                <option value="0" selected>No cardio</option>
+              <select id="piano-cardio" style="width:100%">
+                <option value="0" selected>No</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
               </select>
@@ -2221,35 +2230,33 @@ function renderPR() {
     let distanzaHtml = '';
     if (id === 'corsa' && corsaBest && (!catFilter || catFilter === 'cardio')) {
       distanzaHtml = `
-      <div class="pr-row" style="align-items:flex-start;gap:16px">
+      <div class="pr-row" style="align-items:center;gap:12px">
+        <span class="pr-cat cardio" style="flex-shrink:0;width:60px;text-align:center">cardio</span>
         <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span class="pr-nome">${r.nome}</span>
+          <div style="font-size:15px;font-weight:500;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nome}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
             <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange)">Distanza massima</span>
             <span style="color:var(--text3);font-size:12px">·</span>
-            <span style="color:#bbb;font-size:14px">${formatData(corsaBest.data)}</span>
-            <span style="color:var(--text3);font-size:12px">·</span>
-            <span class="pr-cat cardio">cardio</span>
+            <span style="color:#888;font-size:12px">${formatData(corsaBest.data)}</span>
           </div>
         </div>
-        <div class="pr-peso" style="flex-shrink:0">${corsaBest.km.toFixed(1)}<small style="font-size:13px;color:var(--text2)"> km</small></div>
+        <div class="pr-peso" style="flex-shrink:0;text-align:right">${corsaBest.km.toFixed(1)}<small style="font-size:13px;color:var(--text2)"> km</small></div>
       </div>`;
     }
 
     return distanzaHtml + `
-    <div class="pr-row" style="align-items:flex-start;gap:16px">
+    <div class="pr-row" style="align-items:center;gap:12px">
+      <span class="pr-cat ${r.cat}" style="flex-shrink:0;width:60px;text-align:center">${r.cat}</span>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span class="pr-nome">${r.nome}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--orange)">${schemaDisplayPR}</span>
+        <div style="font-size:15px;font-weight:500;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nome}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange)">${schemaDisplayPR}</span>
           <span style="color:var(--text3);font-size:12px">·</span>
-          <span style="color:#bbb;font-size:14px">${formatData(r.data)}</span>
-          <span style="color:var(--text3);font-size:12px">·</span>
-          <span class="pr-cat ${r.cat}">${r.cat}</span>
+          <span style="color:#888;font-size:12px">${formatData(r.data)}</span>
+          ${notaTxt ? `<span style="color:var(--text3);font-size:11px;font-style:italic">· ${notaTxt}</span>` : ''}
         </div>
-        ${notaHtml}
       </div>
-      <div class="pr-peso" style="flex-shrink:0">${r.peso}<small style="font-size:13px;color:var(--text2)"> ${unitaLabel}</small></div>
+      <div class="pr-peso" style="flex-shrink:0;text-align:right">${r.peso}<small style="font-size:13px;color:var(--text2)"> ${unitaLabel}</small></div>
     </div>`;
   }).join('') || '<div class="empty">Nessun record trovato</div>';
 }
@@ -2529,12 +2536,14 @@ function procediStep2() {
       });
     }
 
-    // Ultime 5 sessioni
+    // Tutte le sessioni ordinate (mostra 5 + "altri")
     const sessioniOrd = Object.entries(storicoPerSessione)
       .filter(([, v]) => v.principale.length > 0)
-      .sort((a,b) => b[0].localeCompare(a[0])).slice(0,5);
+      .sort((a,b) => b[0].localeCompare(a[0]));
 
-    const storicoHtml = sessioniOrd.length ? sessioniOrd.map(([data, sess]) => {
+    const prime5 = sessioniOrd.slice(0, 5);
+    const altre = sessioniOrd.slice(5);
+    const buildRigaStorico = ([data, sess]) => {
       const righe = sess.principale;
       const tempiSingoli = sess.tempi || [];
       const totaleSerie = righe.reduce((acc, r) => acc + (r.serie||0), 0);
@@ -2602,7 +2611,23 @@ function procediStep2() {
           ${luogoSess ? `<span style="color:var(--text3);font-size:12px;margin-left:auto">${luogoSess}</span>` : ''}
         </div>
       </div>`;
-    }).join('') : '<div style="color:var(--text3);font-size:13px;font-style:italic;padding:8px 0">Nessuno storico disponibile</div>';
+    };
+
+    const storicoHtml = prime5.length
+      ? prime5.map(buildRigaStorico).join('') +
+        (altre.length ? `
+          <div id="piano-storico-extra-${i}" style="display:none">
+            ${altre.map(buildRigaStorico).join('')}
+          </div>
+          <div style="padding:6px 0">
+            <button onclick="
+              const x=document.getElementById('piano-storico-extra-${i}');
+              x.style.display='block';this.style.display='none';"
+              style="background:none;border:none;color:var(--orange);font-size:12px;cursor:pointer;padding:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.5px">
+              ▾ Mostra altri ${altre.length}
+            </button>
+          </div>` : '')
+      : '<div style="color:var(--text3);font-size:13px;font-style:italic;padding:8px 0">Nessuno storico disponibile</div>';
 
     // Schemi per il menu a tendina
     let tuttiSchemi;
@@ -2659,7 +2684,8 @@ function procediStep2() {
         ${badgeStep2}
         <div style="font-size:17px;font-weight:600;color:var(--text1)">${ex.nome}</div>
       </div>
-      <div style="margin-bottom:14px">${storicoHtml}</div>
+      <div style="margin-bottom:8px">${storicoHtml}</div>
+      <div style="border-top:2px solid var(--orange);margin:10px 0 14px;opacity:0.5"></div>
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
         <div>
           <div class="form-label">Schema</div>
