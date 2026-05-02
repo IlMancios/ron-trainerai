@@ -322,21 +322,21 @@
   },
   "sessioni": [
     {
-      "file": "Training_2026-05-02_manuale.json",
-      "title": "Training 02/05/2026 TE - Casa",
-      "data": "2026-05-02",
+      "file": "Training_2026-05-01_manuale.json",
+      "title": "Training 01/05/2026 TE - Casa",
+      "data": "2026-05-01",
       "luogo": "TE - Casa",
       "note_sessione": [],
       "esercizi": [
         {
           "esercizio_id": "military_man",
-          "schema": "5x5",
+          "schema": "5x6",
           "peso_kg": 22.5,
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": null,
-          "data": "2026-05-02",
+          "nota_riga": "Prova",
+          "data": "2026-05-01",
           "luogo": "TE - Casa",
           "file_sorgente": "manuale"
         },
@@ -348,19 +348,19 @@
           "bodyweight": false,
           "tipo_riga": "standard",
           "nota_riga": null,
-          "data": "2026-05-02",
+          "data": "2026-05-01",
           "luogo": "TE - Casa",
           "file_sorgente": "manuale"
         },
         {
           "esercizio_id": "trazioni_dorsi",
           "schema": "4x10",
-          "peso_kg": null,
-          "unita": "nessuna",
-          "bodyweight": true,
+          "peso_kg": 3,
+          "unita": "kg",
+          "bodyweight": false,
           "tipo_riga": "standard",
           "nota_riga": "Ultima rip dell ultima serie non riuscita",
-          "data": "2026-05-02",
+          "data": "2026-05-01",
           "luogo": "TE - Casa",
           "file_sorgente": "manuale"
         }
