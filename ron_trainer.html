@@ -4049,15 +4049,15 @@ function validaAllenamento(data, luogo, esercizi) {
 
 let _modalCallback = null;
 
-function mostraModalConferma(avvisi, callback) {
+function mostraModalConferma(avvisi, callback, isEdit = false) {
   _modalCallback = callback;
   const list = document.getElementById('modal-warnings-list');
   list.innerHTML = avvisi.map(a => `<li>${a}</li>`).join('');
-  const isEdit = _editMode;
+  const editMode = isEdit || _editMode;
   document.getElementById('modal-validazione').querySelector('.modal-title').textContent =
-    isEdit ? '⚠️ Controlla prima di modificare' : '⚠️ Controlla prima di salvare';
+    editMode ? '⚠️ Controlla prima di modificare' : '⚠️ Controlla prima di salvare';
   document.getElementById('modal-salva-btn').textContent =
-    isEdit ? 'MODIFICA COMUNQUE' : 'SALVA COMUNQUE';
+    editMode ? 'MODIFICA COMUNQUE' : 'SALVA COMUNQUE';
   document.getElementById('modal-salva-btn').onclick = () => {
     const cb = _modalCallback;
     chiudiModal();
@@ -4136,8 +4136,9 @@ function avviaModifica(idx) {
   const s = DATA.sessioni[idx];
   if (!s) return;
   mostraModalConferma(
-    [`Stai per modificare la sessione del <strong>${formatData(s.data)}</strong> — <strong>${s.luogo || '—'}</strong>.<br>Questa azione sovrascriverà i dati originali.`],
-    () => caricaSessioneInModifica(idx)
+    [`Stai per modificare la sessione del <strong>${formatData(s.data)}</strong> — <strong>${s.luogo || '—'}</strong>.`],
+    () => caricaSessioneInModifica(idx),
+    true
   );
 }
 
