@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ron TrainerAI</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%230a0a0a'/><text x='96' y='76' font-family='Arial Black,sans-serif' font-weight='900' font-size='62' fill='%23FF6B00' text-anchor='middle' dominant-baseline='middle'>RON</text><text x='96' y='138' font-family='Arial Black,sans-serif' font-weight='900' font-size='36' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle'>TRAINER<tspan fill='%23FF6B00'>AI</tspan></text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%230a0a0a'/><text x='96' y='76' font-family='Arial Black,sans-serif' font-weight='900' font-size='62' fill='%23FF6B00' text-anchor='middle' dominant-baseline='middle'>RON</text><text x='96' y='138' font-family='Arial Black,sans-serif' font-weight='900' font-size='36' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle'>TRAINER<tspan fill='%23FF6B00'>AI</tspan></text></svg>">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ron TrainerAI">
+<meta name="theme-color" content="#0a0a0a">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -838,7 +844,7 @@
       flex: 0 0 33.333%;
       text-align: center;
       padding: 6px 2px;
-      font-size: 12px;
+      font-size: 16px;
       letter-spacing: 0.3px;
     }
 
@@ -2542,7 +2548,7 @@ function procediStep2() {
       .sort((a,b) => b[0].localeCompare(a[0]));
 
     const prime5 = sessioniOrd.slice(0, 5);
-    const altre = sessioniOrd.slice(5);
+    const altre = sessioniOrd.slice(5, 10); // max 5 in più (tot 10)
     const buildRigaStorico = ([data, sess]) => {
       const righe = sess.principale;
       const tempiSingoli = sess.tempi || [];
@@ -2608,7 +2614,7 @@ function procediStep2() {
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--orange);font-size:20px">${schemaLabel}</span>
           ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}
           ${notaSess ? `<span style="color:#999;font-size:12px;font-style:italic"> · ${notaSess}</span>` : ''}
-          ${luogoSess ? `<span style="color:var(--text3);font-size:12px;margin-left:auto">${luogoSess}</span>` : ''}
+          ${luogoSess ? `<span style="color:var(--text3);font-size:12px;margin-left:auto;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block">${luogoSess}</span>` : ''}
         </div>
       </div>`;
     };
@@ -2620,9 +2626,12 @@ function procediStep2() {
             ${altre.map(buildRigaStorico).join('')}
           </div>
           <div style="padding:6px 0">
-            <button onclick="
+            <button id="piano-storico-btn-${i}" onclick="
               const x=document.getElementById('piano-storico-extra-${i}');
-              x.style.display='block';this.style.display='none';"
+              const btn=document.getElementById('piano-storico-btn-${i}');
+              const aperto=x.style.display==='block';
+              x.style.display=aperto?'none':'block';
+              btn.textContent=aperto?'▾ Mostra altri ${altre.length}':'▴ Chiudi';"
               style="background:none;border:none;color:var(--orange);font-size:12px;cursor:pointer;padding:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.5px">
               ▾ Mostra altri ${altre.length}
             </button>
@@ -3213,6 +3222,8 @@ let _dragSrc = null;
 
 function initDragDrop() {
   const builder = document.getElementById('ex-builder');
+
+  // ── Desktop (mouse) ──
   builder.addEventListener('dragstart', e => {
     const card = e.target.closest('.ex-builder-row');
     if (!card) return;
@@ -3226,7 +3237,6 @@ function initDragDrop() {
     });
     _dragSrc = null;
     aggiornaNumeriEsercizi();
-    aggiornaPreviewAllenamento();
     aggiornaPreviewAllenamento();
   });
   builder.addEventListener('dragover', e => {
@@ -3246,6 +3256,55 @@ function initDragDrop() {
     e.preventDefault();
     document.querySelectorAll('.ex-builder-row').forEach(r => r.classList.remove('drag-over'));
   });
+
+  // ── Mobile (touch) ──
+  let _touchSrc = null, _touchClone = null;
+  let _touchOffX = 0, _touchOffY = 0;
+
+  builder.addEventListener('touchstart', e => {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    const card = handle.closest('.ex-builder-row');
+    if (!card) return;
+    _touchSrc = card;
+    const rect = card.getBoundingClientRect();
+    _touchOffX = e.touches[0].clientX - rect.left;
+    _touchOffY = e.touches[0].clientY - rect.top;
+    // Clone ghost
+    _touchClone = card.cloneNode(true);
+    _touchClone.style.cssText = `position:fixed;z-index:9999;width:${rect.width}px;left:${rect.left}px;top:${rect.top}px;opacity:0.85;pointer-events:none;border:1px solid var(--orange);border-radius:6px;background:var(--bg3);`;
+    document.body.appendChild(_touchClone);
+    card.style.opacity = '0.3';
+  }, { passive: true });
+
+  builder.addEventListener('touchmove', e => {
+    if (!_touchSrc || !_touchClone) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    _touchClone.style.left = (t.clientX - _touchOffX) + 'px';
+    _touchClone.style.top  = (t.clientY - _touchOffY) + 'px';
+    // Evidenzia target
+    document.querySelectorAll('.ex-builder-row').forEach(r => r.classList.remove('drag-over'));
+    const els = document.elementsFromPoint(t.clientX, t.clientY);
+    const target = els.find(el => el.classList?.contains('ex-builder-row') && el !== _touchSrc);
+    if (target) {
+      target.classList.add('drag-over');
+      const rect = target.getBoundingClientRect();
+      if (t.clientY < rect.top + rect.height / 2) {
+        builder.insertBefore(_touchSrc, target);
+      } else {
+        builder.insertBefore(_touchSrc, target.nextSibling);
+      }
+    }
+  }, { passive: false });
+
+  builder.addEventListener('touchend', () => {
+    if (_touchClone) { _touchClone.remove(); _touchClone = null; }
+    if (_touchSrc) { _touchSrc.style.opacity = ''; _touchSrc = null; }
+    document.querySelectorAll('.ex-builder-row').forEach(r => r.classList.remove('drag-over'));
+    aggiornaNumeriEsercizi();
+    aggiornaPreviewAllenamento();
+  }, { passive: true });
 }
 
 function aggiornaNumeriEsercizi() {
