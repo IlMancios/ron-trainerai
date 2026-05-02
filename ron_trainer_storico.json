@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 417,
-    "totale_righe_esercizio": 1139,
+    "totale_sessioni": 418,
+    "totale_righe_esercizio": 1142,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -321,6 +321,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-02_manuale.json",
+      "title": "Training 02/05/2026 TE - Casa",
+      "data": "2026-05-02",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "military_man",
+          "schema": "5x5",
+          "peso_kg": 22.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-02",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_pip",
+          "schema": "6x12",
+          "peso_kg": 13.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-02",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_dorsi",
+          "schema": "4x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultima rip dell ultima serie non riuscita",
+          "data": "2026-05-02",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-04-30_manuale.json",
       "title": "Training 30/04/2026 AP",
