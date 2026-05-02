@@ -811,6 +811,13 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+  .piano-storico-luogo {
+    color: var(--text3);
+    font-size: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
   /* ===== MOBILE RESPONSIVENESS ===== */
   html { overflow-x: hidden; }
 
@@ -929,6 +936,15 @@
     .proposta-ex { padding: 10px; }
     .proposta-schema { font-size: 17px; }
     .proposta-nome { font-size: 13px; }
+
+    /* Luoghi storico pianificatore → tronca solo su mobile */
+    .piano-storico-luogo {
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+    }
 
     /* TOAST non esca dai bordi */
     .toast { max-width: calc(100vw - 32px); white-space: normal; text-align: center; }
@@ -2614,7 +2630,7 @@ function procediStep2() {
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--orange);font-size:20px">${schemaLabel}</span>
           ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}
           ${notaSess ? `<span style="color:#999;font-size:12px;font-style:italic"> · ${notaSess}</span>` : ''}
-          ${luogoSess ? `<span style="color:var(--text3);font-size:12px;margin-left:auto;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block">${luogoSess}</span>` : ''}
+          ${luogoSess ? `<span class="piano-storico-luogo">${luogoSess}</span>` : ''}
         </div>
       </div>`;
     };
