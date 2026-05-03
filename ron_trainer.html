@@ -302,14 +302,23 @@
   .guide-card.open .guide-card-chevron { transform:rotate(90deg); }
   .guide-card-body { display:none; padding:4px 14px 14px; border-top:1px solid var(--border); }
   .guide-card.open .guide-card-body { display:block; }
-  .guide-link-item { display:flex; gap:8px; align-items:center; margin-top:10px; }
-  .guide-link-title-inp { width:140px; flex-shrink:0; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
-  .guide-link-url-inp { flex:1; min-width:0; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
-  .guide-link-title-inp:focus, .guide-link-url-inp:focus { outline:none; border-color:var(--orange); }
-  .guide-link-open { color:var(--text3); font-size:15px; text-decoration:none; padding:0 2px; transition:color 0.15s; flex-shrink:0; }
-  .guide-link-open:hover { color:var(--orange); }
-  .guide-link-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:16px; padding:0 2px; transition:color 0.15s; flex-shrink:0; }
+  .guide-link-item { display:flex; gap:6px; align-items:center; margin-top:8px; }
+  .guide-drag-handle { color:var(--text3); font-size:13px; cursor:grab; padding:0 2px; flex-shrink:0; user-select:none; }
+  .guide-drag-handle:active { cursor:grabbing; }
+  .guide-link-btn { flex:1; min-width:0; padding:7px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text2); font-size:13px; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:background 0.15s, color 0.15s, border-color 0.15s; display:block; }
+  .guide-link-btn:hover { background:var(--bg4); color:var(--orange); border-color:var(--orange); }
+  .guide-link-edit-btn { background:none; border:none; color:var(--text3); cursor:pointer; font-size:13px; padding:0 3px; transition:color 0.15s; flex-shrink:0; }
+  .guide-link-edit-btn:hover { color:var(--orange); }
+  .guide-link-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:15px; padding:0 3px; transition:color 0.15s; flex-shrink:0; }
   .guide-link-del:hover { color:#ff4444; }
+  .guide-link-item.edit-mode .guide-link-inputs { display:flex; flex:1; gap:6px; flex-direction:column; min-width:0; }
+  .guide-link-title-inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
+  .guide-link-url-inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
+  .guide-link-title-inp:focus, .guide-link-url-inp:focus { outline:none; border-color:var(--orange); }
+  .guide-link-confirm-btn { background:none; border:none; color:#4caf50; cursor:pointer; font-size:16px; padding:0 3px; transition:color 0.15s; flex-shrink:0; }
+  .guide-link-confirm-btn:hover { color:#81c784; }
+  .guide-link-item.dragging { opacity:0.4; }
+  .guide-link-item.drag-over { border-top:2px solid var(--orange); }
   .guide-add-btn { margin-top:10px; background:none; border:1px dashed var(--border); border-radius:4px; color:var(--text3); font-size:12px; padding:6px 12px; cursor:pointer; width:100%; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.5px; transition:color 0.15s, border-color 0.15s; }
   .guide-add-btn:hover { color:var(--orange); border-color:var(--orange); }
   .guide-empty { font-size:12px; color:var(--text3); margin-top:10px; font-style:italic; }
@@ -1276,11 +1285,11 @@
     </div>
     <div class="guide-save-bar">
       <input class="guide-search" id="guide-search" placeholder="Cerca esercizio..." oninput="filterGuide()">
-      <button class="btn" onclick="salvaGuide()">SALVA SU GITHUB</button>
+      <button class="btn btn-sm" onclick="salvaGuide()">SALVA SU GITHUB</button>
     </div>
     <div id="guide-cards-container"></div>
     <div style="margin-top:20px">
-      <button class="btn" onclick="salvaGuide()">SALVA SU GITHUB</button>
+      <button class="btn btn-sm" onclick="salvaGuide()">SALVA SU GITHUB</button>
     </div>
   </div>
 
@@ -2343,7 +2352,7 @@ function renderPR() {
     if (id === 'corsa' && corsaBest && (!catFilter || catFilter === 'cardio')) {
       distanzaHtml = `
       <div class="pr-row" style="align-items:center;gap:12px">
-        <span class="pr-cat cardio" style="flex-shrink:0;width:60px;text-align:center">cardio</span>
+        <span class="pr-cat cardio" style="flex-shrink:0;width:60px;text-align:center">CARDIO</span>
         <div style="flex:1;min-width:0">
           <div style="font-size:15px;font-weight:500;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nome}</div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
@@ -2358,7 +2367,7 @@ function renderPR() {
 
     return distanzaHtml + `
     <div class="pr-row" style="align-items:center;gap:12px">
-      <span class="pr-cat ${r.cat}" style="flex-shrink:0;width:60px;text-align:center">${r.cat}</span>
+      <span class="pr-cat ${r.cat}" style="flex-shrink:0;width:60px;text-align:center">${r.cat==='compound'?'CORE':r.cat==='isolato'?'ISOLATO':r.cat==='cardio'?'CARDIO':r.cat.toUpperCase()}</span>
       <div style="flex:1;min-width:0">
         <div style="font-size:15px;font-weight:500;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nome}</div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
@@ -4513,11 +4522,12 @@ function buildGuideCard(ex) {
   const countTxt = links.length === 0 ? 'nessun link'
     : links.length === 1 ? '1 link' : `${links.length} link`;
 
+  const isIsolato = ['isolato','skill','addominali'].includes(ex.categoria) || ex.id === 'salita_vigneto';
   const catBadge = ex.categoria === 'compound'
     ? `<span style="background:rgba(255,107,0,0.2);color:var(--orange);font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">CORE</span>`
-    : ex.categoria === 'cardio'
-    ? `<span style="background:rgba(100,200,100,0.15);color:#6dc26d;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">CARDIO</span>`
-    : `<span style="background:rgba(100,150,255,0.15);color:#7ab4ff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">ISO</span>`;
+    : isIsolato
+    ? `<span style="background:rgba(100,150,255,0.15);color:#7ab4ff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">ISOLATO</span>`
+    : `<span style="background:rgba(100,200,100,0.15);color:#6dc26d;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">CARDIO</span>`;
 
   const linksHtml = links.length
     ? links.map((l, i) => buildGuideLinkRow(ex.id, i, l)).join('')
@@ -4537,15 +4547,33 @@ function buildGuideCard(ex) {
   </div>`;
 }
 
-function buildGuideLinkRow(exId, idx, link) {
+function buildGuideLinkRow(exId, idx, link, editMode = false) {
   const t = (link.titolo || '').replace(/"/g, '&quot;');
   const u = (link.url   || '').replace(/"/g, '&quot;');
-  return `<div class="guide-link-item" id="guide-link-${exId}-${idx}">
-    <input class="guide-link-title-inp" placeholder="Titolo (es. Tecnica base)" value="${t}"
-      oninput="syncGuideInput(this,'${exId}',${idx},'titolo')" >
-    <input class="guide-link-url-inp" placeholder="https://..." value="${u}"
-      oninput="syncGuideInput(this,'${exId}',${idx},'url')">
-    <a href="${u || '#'}" target="_blank" class="guide-link-open" id="guide-link-open-${exId}-${idx}" title="Apri">↗</a>
+  const label = link.titolo || link.url || 'Link senza titolo';
+
+  if (editMode) {
+    return `<div class="guide-link-item edit-mode" id="guide-link-${exId}-${idx}"
+        draggable="false" data-ex-id="${exId}" data-link-idx="${idx}">
+      <span class="guide-drag-handle" style="opacity:0.3">⋮⋮</span>
+      <div class="guide-link-inputs">
+        <input class="guide-link-title-inp" placeholder="Titolo (es. Tecnica base)" value="${t}" id="guide-link-title-${exId}-${idx}">
+        <input class="guide-link-url-inp"   placeholder="https://..." value="${u}" id="guide-link-url-${exId}-${idx}">
+      </div>
+      <button class="guide-link-confirm-btn" onclick="confermaLinkGuide('${exId}',${idx})" title="Conferma">✓</button>
+      <button class="guide-link-del" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Rimuovi">✕</button>
+    </div>`;
+  }
+
+  return `<div class="guide-link-item" id="guide-link-${exId}-${idx}"
+      draggable="true" data-ex-id="${exId}" data-link-idx="${idx}"
+      ondragstart="guideLinkDragStart(event,'${exId}',${idx})"
+      ondragover="guideLinkDragOver(event)"
+      ondrop="guideLinkDrop(event,'${exId}',${idx})"
+      ondragend="guideLinkDragEnd(event)">
+    <span class="guide-drag-handle" title="Trascina per riordinare">⋮⋮</span>
+    <a href="${u || '#'}" target="_blank" class="guide-link-btn" title="${u}">${label}</a>
+    <button class="guide-link-edit-btn" onclick="editLinkGuide('${exId}',${idx})" title="Modifica">✏</button>
     <button class="guide-link-del" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Rimuovi">✕</button>
   </div>`;
 }
@@ -4554,17 +4582,6 @@ function toggleGuideCard(exId) {
   document.getElementById('guide-card-' + exId)?.classList.toggle('open');
 }
 
-function syncGuideInput(inp, exId, idx, field) {
-  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
-  if (!ex || !ex.link_tecnica || !ex.link_tecnica[idx]) return;
-  ex.link_tecnica[idx][field] = inp.value;
-  // Aggiorna href del link apri se URL cambia
-  if (field === 'url') {
-    const a = document.getElementById(`guide-link-open-${exId}-${idx}`);
-    if (a) a.href = inp.value || '#';
-  }
-  setGuideDirty();
-}
 
 function aggiungiLinkGuide(exId) {
   const ex = DATA.esercizi_canonici.find(e => e.id === exId);
@@ -4572,19 +4589,44 @@ function aggiungiLinkGuide(exId) {
   if (!ex.link_tecnica) ex.link_tecnica = [];
   const idx = ex.link_tecnica.length;
   ex.link_tecnica.push({ titolo: '', url: '' });
-  setGuideDirty();
 
   const linksDiv = document.getElementById('guide-links-' + exId);
   if (!linksDiv) return;
-  // Rimuovi messaggio "nessun link" se presente
   const empty = linksDiv.querySelector('.guide-empty');
   if (empty) empty.remove();
-  // Aggiungi riga
-  linksDiv.insertAdjacentHTML('beforeend', buildGuideLinkRow(exId, idx, { titolo: '', url: '' }));
+  linksDiv.insertAdjacentHTML('beforeend', buildGuideLinkRow(exId, idx, { titolo: '', url: '' }, true));
+  // Focus titolo
+  setTimeout(() => document.getElementById(`guide-link-title-${exId}-${idx}`)?.focus(), 50);
+}
+
+function confermaLinkGuide(exId, idx) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+  if (!ex || !ex.link_tecnica) return;
+  const titolo = document.getElementById(`guide-link-title-${exId}-${idx}`)?.value.trim() || '';
+  const url    = document.getElementById(`guide-link-url-${exId}-${idx}`)?.value.trim() || '';
+  if (!url) { showToast('Inserisci almeno l\'URL', 'error'); return; }
+  ex.link_tecnica[idx] = { titolo, url };
+  setGuideDirty();
+  // Sostituisci riga con view mode
+  const row = document.getElementById(`guide-link-${exId}-${idx}`);
+  if (row) row.outerHTML = buildGuideLinkRow(exId, idx, { titolo, url }, false);
   // Aggiorna contatore
-  const cnt = ex.link_tecnica.length;
+  _aggiornaCountGuide(exId, ex.link_tecnica.length);
+}
+
+function editLinkGuide(exId, idx) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+  if (!ex || !ex.link_tecnica) return;
+  const link = ex.link_tecnica[idx];
+  const row = document.getElementById(`guide-link-${exId}-${idx}`);
+  if (row) row.outerHTML = buildGuideLinkRow(exId, idx, link, true);
+  setTimeout(() => document.getElementById(`guide-link-title-${exId}-${idx}`)?.focus(), 50);
+}
+
+function _aggiornaCountGuide(exId, cnt) {
   const el = document.getElementById('guide-count-' + exId);
-  if (el) el.textContent = cnt === 1 ? '1 link' : `${cnt} link`;
+  if (!el) return;
+  el.textContent = cnt === 0 ? 'nessun link' : cnt === 1 ? '1 link' : `${cnt} link`;
 }
 
 function rimuoviLinkGuide(exId, idx) {
@@ -4592,7 +4634,6 @@ function rimuoviLinkGuide(exId, idx) {
   if (!ex || !ex.link_tecnica) return;
   ex.link_tecnica.splice(idx, 1);
   setGuideDirty();
-  // Re-render card preservando stato open
   const card = document.getElementById('guide-card-' + exId);
   const wasOpen = card?.classList.contains('open');
   const tmp = document.createElement('div');
@@ -4600,6 +4641,49 @@ function rimuoviLinkGuide(exId, idx) {
   const newCard = tmp.firstElementChild;
   if (wasOpen) newCard.classList.add('open');
   card?.replaceWith(newCard);
+}
+
+// ---- Drag & drop link dentro un esercizio ----
+let _guideDragExId = null;
+let _guideDragIdx  = null;
+
+function guideLinkDragStart(e, exId, idx) {
+  _guideDragExId = exId;
+  _guideDragIdx  = idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function guideLinkDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.guide-link-item').forEach(r => r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+
+function guideLinkDrop(e, exId, toIdx) {
+  e.preventDefault();
+  document.querySelectorAll('.guide-link-item').forEach(r => r.classList.remove('drag-over'));
+  if (_guideDragExId !== exId || _guideDragIdx === toIdx || _guideDragIdx === null) return;
+  const ex = DATA.esercizi_canonici.find(x => x.id === exId);
+  if (!ex || !ex.link_tecnica) return;
+  const [moved] = ex.link_tecnica.splice(_guideDragIdx, 1);
+  ex.link_tecnica.splice(toIdx, 0, moved);
+  setGuideDirty();
+  // Re-render solo il body del card
+  const linksDiv = document.getElementById('guide-links-' + exId);
+  if (linksDiv) {
+    linksDiv.innerHTML = ex.link_tecnica.length
+      ? ex.link_tecnica.map((l, i) => buildGuideLinkRow(exId, i, l)).join('')
+      : '<div class="guide-empty">Nessun link.</div>';
+  }
+}
+
+function guideLinkDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.guide-link-item').forEach(r => r.classList.remove('drag-over'));
+  _guideDragExId = null;
+  _guideDragIdx  = null;
 }
 
 function setGuideDirty() {
