@@ -4593,8 +4593,8 @@ function buildGuideLinkRow(exId, idx, link, editMode = false) {
         <input class="guide-link-title-inp" placeholder="Titolo (es. Tecnica base)" value="${t}" id="guide-link-title-${exId}-${idx}">
         <input class="guide-link-url-inp"   placeholder="https://..." value="${u}" id="guide-link-url-${exId}-${idx}">
       </div>
-      <button class="guide-link-confirm-btn" onclick="confermaLinkGuide('${exId}',${idx})" title="Conferma">✓</button>
-      <button class="guide-link-del" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Rimuovi">✕</button>
+      <button class="guide-link-confirm-btn guide-action-btn" onclick="confermaLinkGuide('${exId}',${idx})" title="Conferma">✓</button>
+      <button class="guide-link-del guide-action-btn" id="guide-delbtn-${exId}-${idx}" onclick="chiediConfermaLink('${exId}',${idx})" title="Rimuovi">✕</button>
     </div>`;
   }
 
@@ -4606,7 +4606,7 @@ function buildGuideLinkRow(exId, idx, link, editMode = false) {
       ondragend="guideLinkDragEnd(event)">
     <span class="guide-drag-handle" title="Trascina per riordinare">⋮⋮</span>
     <a href="${u || '#'}" target="_blank" class="guide-link-btn" title="${u}">${label}</a>
-    <button class="guide-link-edit-btn guide-action-btn" onclick="editLinkGuide('${exId}',${idx})" title="Modifica"><span style="display:inline-block;transform:rotate(-35deg)">✏</span></button>
+    <button class="guide-link-edit-btn guide-action-btn" onclick="editLinkGuide('${exId}',${idx})" title="Modifica"><span style="display:inline-block;transform:rotate(145deg)">✏</span></button>
     <button class="guide-link-del guide-action-btn" id="guide-delbtn-${exId}-${idx}" onclick="chiediConfermaLink('${exId}',${idx})" title="Rimuovi">✕</button>
   </div>`;
 }
@@ -4638,8 +4638,11 @@ function confermaLinkGuide(exId, idx) {
   const titolo = document.getElementById(`guide-link-title-${exId}-${idx}`)?.value.trim() || '';
   const url    = document.getElementById(`guide-link-url-${exId}-${idx}`)?.value.trim() || '';
   if (!url) { showToast('Inserisci almeno l\'URL', 'error'); return; }
+  // Marca dirty solo se i valori sono davvero cambiati
+  const old = ex.link_tecnica[idx] || {};
+  const changed = (titolo !== (old.titolo || '')) || (url !== (old.url || ''));
   ex.link_tecnica[idx] = { titolo, url };
-  setGuideDirty();
+  if (changed) setGuideDirty();
   // Sostituisci riga con view mode
   const row = document.getElementById(`guide-link-${exId}-${idx}`);
   if (row) row.outerHTML = buildGuideLinkRow(exId, idx, { titolo, url }, false);
