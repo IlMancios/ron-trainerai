@@ -12,163 +12,195 @@
       "id": "squat",
       "nome": "Squat libero con bilanciere",
       "categoria": "compound",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": [
+        {
+          "titolo": "Short Check",
+          "url": "https://youtube.com/shorts/PPmvh7gBTi0?si=qF_y3mGBrAezfVeY"
+        }
+      ]
     },
     {
       "id": "stacchi",
       "nome": "Stacchi completi",
       "categoria": "compound",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "panca",
       "nome": "Panca classica",
       "categoria": "compound",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "panca_incl_bil",
       "nome": "Panca inclinata con bilanciere",
       "categoria": "compound",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "pendlay",
       "nome": "Pendlay row schiena dritta",
       "categoria": "compound",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "panca_stretta",
       "nome": "Panca con presa stretta",
       "categoria": "compound",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "panca_incl_man",
       "nome": "Panca inclinata con manubri",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "military_bil",
       "nome": "Military press in piedi con bilanciere",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "military_man",
       "nome": "Military press da seduto con manubri",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "croci_man",
       "nome": "Croci laterali con manubri, in piedi",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "croci_pulley",
       "nome": "Croci laterali con pulley basso",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "trazioni_neutre",
       "nome": "Trazioni con presa neutra",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "trazioni_polsi",
       "nome": "Trazioni polsi delle mani a me",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "trazioni_dorsi",
       "nome": "Trazioni dorsi delle mani a me",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "pulldown",
       "nome": "Trazioni con sbarra pulley alto",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "sollevamento_gambe",
       "nome": "Sollevamento gambe da appeso",
       "categoria": "addominali",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "bicipiti_man_sed",
       "nome": "Bicipiti con manubri, seduto su panca inclinata",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "bicipiti_man_pip",
       "nome": "Bicipiti con manubri, in piedi",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "bicipiti_pulley",
       "nome": "Bicipiti con pulley basso, in piedi",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "pullover",
       "nome": "Pullover con piastra/bilanciere/manubri",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "tric_sopra_testa",
       "nome": "Tricipiti spinte sopra la testa con pulley basso",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "tric_dips",
       "nome": "Tricipiti dips su panca",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "tric_basso",
       "nome": "Tricipiti spinte verso il basso con pulley alto",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "tric_manubrio",
       "nome": "Tricipite con manubrio dietro la testa",
       "categoria": "isolato",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "salita_vigneto",
       "nome": "100mt in salita vigneto",
       "categoria": "cardio",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "verticale",
       "nome": "Esercizi verticale (wall walks, handstand, kick-up)",
       "categoria": "skill",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "corsa",
       "nome": "Corsa tapis-roulant o corsa all'aperto",
       "categoria": "cardio",
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": []
     },
     {
       "id": "strappo",
