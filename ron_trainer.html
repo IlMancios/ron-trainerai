@@ -4670,7 +4670,7 @@ function chiediConfermaLink(exId, idx) {
   if (!btn) return;
   btn.outerHTML = `<span class="guide-del-confirm" id="guide-del-confirm-${exId}-${idx}">
     <span style="color:var(--text3);font-size:11px;white-space:nowrap">Elimina?</span>
-    <button class="guide-action-btn guide-link-confirm-btn" style="margin-left:4px;padding:4px 9px" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Sì, elimina">✓</button>
+    <button class="guide-action-btn" style="color:#ff4444;border:1px solid transparent;border-radius:4px;margin-left:4px;padding:4px 9px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px" onmouseover="this.style.borderColor='#ff4444';this.style.background='rgba(255,68,68,0.1)'" onmouseout="this.style.borderColor='transparent';this.style.background='none'" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Sì, elimina">SÌ</button>
     <button class="guide-action-btn" style="color:var(--text3);margin-left:4px" onclick="annullaConfermaLink('${exId}',${idx})" title="Annulla">✕</button>
   </span>`;
 }
