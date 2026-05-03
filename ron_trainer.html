@@ -284,6 +284,35 @@
   .edit-mode-banner.hidden { display: none !important; }
   .edit-mode-banner-text { color: var(--orange); font-size: 13px; font-weight: 600; flex: 1; }
   .edit-mode-banner-annulla { background: none; border: 1px solid var(--orange); border-radius: 4px; color: var(--orange); font-size: 12px; padding: 3px 10px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
+
+  /* ===== GUIDE ===== */
+  .guide-dirty-banner { display:none; align-items:center; gap:10px; background:rgba(255,107,0,0.1); border:1px solid var(--orange); border-radius:6px; padding:8px 14px; margin-bottom:14px; font-size:13px; color:var(--orange); font-weight:600; }
+  .guide-dirty-banner.show { display:flex; }
+  .guide-save-bar { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .guide-search { flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); padding:8px 12px; font-size:14px; font-family:'Barlow',sans-serif; }
+  .guide-search:focus { outline:none; border-color:var(--orange); }
+  .guide-cat-section { margin-bottom:8px; }
+  .guide-cat-label { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); margin:18px 0 8px; }
+  .guide-card { background:var(--bg2); border-radius:var(--radius); margin-bottom:6px; border:1px solid var(--border); overflow:hidden; }
+  .guide-card-header { display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; transition:background 0.15s; }
+  .guide-card-header:hover { background:var(--bg3); }
+  .guide-card-name { flex:1; font-size:14px; font-weight:500; color:var(--text); }
+  .guide-card-count { font-size:12px; color:var(--text3); white-space:nowrap; }
+  .guide-card-chevron { color:var(--text3); font-size:13px; transition:transform 0.2s; }
+  .guide-card.open .guide-card-chevron { transform:rotate(90deg); }
+  .guide-card-body { display:none; padding:4px 14px 14px; border-top:1px solid var(--border); }
+  .guide-card.open .guide-card-body { display:block; }
+  .guide-link-item { display:flex; gap:8px; align-items:center; margin-top:10px; }
+  .guide-link-title-inp { width:140px; flex-shrink:0; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
+  .guide-link-url-inp { flex:1; min-width:0; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
+  .guide-link-title-inp:focus, .guide-link-url-inp:focus { outline:none; border-color:var(--orange); }
+  .guide-link-open { color:var(--text3); font-size:15px; text-decoration:none; padding:0 2px; transition:color 0.15s; flex-shrink:0; }
+  .guide-link-open:hover { color:var(--orange); }
+  .guide-link-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:16px; padding:0 2px; transition:color 0.15s; flex-shrink:0; }
+  .guide-link-del:hover { color:#ff4444; }
+  .guide-add-btn { margin-top:10px; background:none; border:1px dashed var(--border); border-radius:4px; color:var(--text3); font-size:12px; padding:6px 12px; cursor:pointer; width:100%; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.5px; transition:color 0.15s, border-color 0.15s; }
+  .guide-add-btn:hover { color:var(--orange); border-color:var(--orange); }
+  .guide-empty { font-size:12px; color:var(--text3); margin-top:10px; font-style:italic; }
   .session-card.open .session-chevron { transform: rotate(90deg); }
 
   .session-body {
@@ -1241,7 +1270,18 @@
   <!-- GUIDE / LINK TECNICA -->
   <div class="panel" id="panel-guide">
     <div class="section-title">Guide</div>
-    <div style="color:var(--text3);font-size:14px;margin-top:20px">Coming soon — link tecnica e video esercizi.</div>
+    <div class="guide-dirty-banner" id="guide-dirty-banner">
+      ⚠ Modifiche non salvate
+      <button onclick="salvaGuide()" style="margin-left:auto;background:var(--orange);border:none;color:#000;font-weight:700;font-size:12px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px">SALVA ORA</button>
+    </div>
+    <div class="guide-save-bar">
+      <input class="guide-search" id="guide-search" placeholder="Cerca esercizio..." oninput="filterGuide()">
+      <button class="btn" onclick="salvaGuide()">SALVA SU GITHUB</button>
+    </div>
+    <div id="guide-cards-container"></div>
+    <div style="margin-top:20px">
+      <button class="btn" onclick="salvaGuide()">SALVA SU GITHUB</button>
+    </div>
   </div>
 
 </main>
@@ -1340,10 +1380,15 @@ function inizializza() {
 // =====================
 document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
+    const leavingGuide = document.querySelector('.tab[data-tab="guide"]')?.classList.contains('active');
+    if (leavingGuide && _guideDirty) {
+      showToast('⚠ Hai modifiche non salvate in Guide!', 'error', 4000);
+    }
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+    if (t.dataset.tab === 'guide') renderGuide();
   });
 });
 
@@ -2970,6 +3015,9 @@ let EX_COUNT = 0;
 let RIGA_COUNT = 0;
 let NUOVI_ALLENAMENTI = [];
 
+// Stato Guide
+let _guideDirty = false;
+
 // Stato modifica sessione esistente
 let _editMode = false;
 let _editIndex = null;       // indice in DATA.sessioni
@@ -4432,6 +4480,149 @@ function showToast(msg, type='', duration=2500) {
     t._toastTimeout = setTimeout(() => t.classList.remove('show'), duration);
   }
   // duration=0 → rimane visibile finché non viene sostituito
+}
+
+// =====================
+// GUIDE
+// =====================
+
+function renderGuide() {
+  const attivi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+  attivi.forEach(e => { if (!e.link_tecnica) e.link_tecnica = []; });
+
+  const compound = attivi.filter(e => e.categoria === 'compound');
+  const isolati  = attivi.filter(e => ['isolato','skill','addominali'].includes(e.categoria) || e.id === 'salita_vigneto');
+  const cardio   = attivi.filter(e => e.categoria === 'cardio' && e.id !== 'salita_vigneto');
+
+  const buildSect = (label, list) => {
+    if (!list.length) return '';
+    return `<div class="guide-cat-section">
+      <div class="guide-cat-label">${label}</div>
+      ${list.map(buildGuideCard).join('')}
+    </div>`;
+  };
+
+  document.getElementById('guide-cards-container').innerHTML =
+    buildSect('Compound / Core', compound) +
+    buildSect('Isolati / Skill', isolati) +
+    buildSect('Cardio', cardio);
+}
+
+function buildGuideCard(ex) {
+  const links = ex.link_tecnica || [];
+  const countTxt = links.length === 0 ? 'nessun link'
+    : links.length === 1 ? '1 link' : `${links.length} link`;
+
+  const catBadge = ex.categoria === 'compound'
+    ? `<span style="background:rgba(255,107,0,0.2);color:var(--orange);font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">CORE</span>`
+    : ex.categoria === 'cardio'
+    ? `<span style="background:rgba(100,200,100,0.15);color:#6dc26d;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">CARDIO</span>`
+    : `<span style="background:rgba(100,150,255,0.15);color:#7ab4ff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0">ISO</span>`;
+
+  const linksHtml = links.length
+    ? links.map((l, i) => buildGuideLinkRow(ex.id, i, l)).join('')
+    : '<div class="guide-empty">Nessun link. Aggiungine uno qui sotto.</div>';
+
+  return `<div class="guide-card" id="guide-card-${ex.id}">
+    <div class="guide-card-header" onclick="toggleGuideCard('${ex.id}')">
+      ${catBadge}
+      <span class="guide-card-name">${ex.nome}</span>
+      <span class="guide-card-count" id="guide-count-${ex.id}">${countTxt}</span>
+      <span class="guide-card-chevron">›</span>
+    </div>
+    <div class="guide-card-body" id="guide-body-${ex.id}">
+      <div id="guide-links-${ex.id}">${linksHtml}</div>
+      <button class="guide-add-btn" onclick="aggiungiLinkGuide('${ex.id}')">+ aggiungi link</button>
+    </div>
+  </div>`;
+}
+
+function buildGuideLinkRow(exId, idx, link) {
+  const t = (link.titolo || '').replace(/"/g, '&quot;');
+  const u = (link.url   || '').replace(/"/g, '&quot;');
+  return `<div class="guide-link-item" id="guide-link-${exId}-${idx}">
+    <input class="guide-link-title-inp" placeholder="Titolo (es. Tecnica base)" value="${t}"
+      oninput="syncGuideInput(this,'${exId}',${idx},'titolo')" >
+    <input class="guide-link-url-inp" placeholder="https://..." value="${u}"
+      oninput="syncGuideInput(this,'${exId}',${idx},'url')">
+    <a href="${u || '#'}" target="_blank" class="guide-link-open" id="guide-link-open-${exId}-${idx}" title="Apri">↗</a>
+    <button class="guide-link-del" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Rimuovi">✕</button>
+  </div>`;
+}
+
+function toggleGuideCard(exId) {
+  document.getElementById('guide-card-' + exId)?.classList.toggle('open');
+}
+
+function syncGuideInput(inp, exId, idx, field) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+  if (!ex || !ex.link_tecnica || !ex.link_tecnica[idx]) return;
+  ex.link_tecnica[idx][field] = inp.value;
+  // Aggiorna href del link apri se URL cambia
+  if (field === 'url') {
+    const a = document.getElementById(`guide-link-open-${exId}-${idx}`);
+    if (a) a.href = inp.value || '#';
+  }
+  setGuideDirty();
+}
+
+function aggiungiLinkGuide(exId) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+  if (!ex) return;
+  if (!ex.link_tecnica) ex.link_tecnica = [];
+  const idx = ex.link_tecnica.length;
+  ex.link_tecnica.push({ titolo: '', url: '' });
+  setGuideDirty();
+
+  const linksDiv = document.getElementById('guide-links-' + exId);
+  if (!linksDiv) return;
+  // Rimuovi messaggio "nessun link" se presente
+  const empty = linksDiv.querySelector('.guide-empty');
+  if (empty) empty.remove();
+  // Aggiungi riga
+  linksDiv.insertAdjacentHTML('beforeend', buildGuideLinkRow(exId, idx, { titolo: '', url: '' }));
+  // Aggiorna contatore
+  const cnt = ex.link_tecnica.length;
+  const el = document.getElementById('guide-count-' + exId);
+  if (el) el.textContent = cnt === 1 ? '1 link' : `${cnt} link`;
+}
+
+function rimuoviLinkGuide(exId, idx) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+  if (!ex || !ex.link_tecnica) return;
+  ex.link_tecnica.splice(idx, 1);
+  setGuideDirty();
+  // Re-render card preservando stato open
+  const card = document.getElementById('guide-card-' + exId);
+  const wasOpen = card?.classList.contains('open');
+  const tmp = document.createElement('div');
+  tmp.innerHTML = buildGuideCard(ex);
+  const newCard = tmp.firstElementChild;
+  if (wasOpen) newCard.classList.add('open');
+  card?.replaceWith(newCard);
+}
+
+function setGuideDirty() {
+  _guideDirty = true;
+  document.getElementById('guide-dirty-banner').classList.add('show');
+}
+
+function salvaGuide() {
+  _guideDirty = false;
+  document.getElementById('guide-dirty-banner').classList.remove('show');
+  salvasuGitHub();
+}
+
+function filterGuide() {
+  const q = document.getElementById('guide-search').value.toLowerCase().trim();
+  document.querySelectorAll('.guide-card').forEach(card => {
+    const name = card.querySelector('.guide-card-name')?.textContent.toLowerCase() || '';
+    card.style.display = (!q || name.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.guide-cat-section').forEach(sect => {
+    const hasVisible = [...sect.querySelectorAll('.guide-card')].some(c => c.style.display !== 'none');
+    sect.style.display = hasVisible ? '' : 'none';
+  });
 }
 
 // =====================
