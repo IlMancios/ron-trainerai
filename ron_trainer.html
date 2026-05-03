@@ -307,16 +307,18 @@
   .guide-drag-handle:active { cursor:grabbing; }
   .guide-link-btn { flex:1; min-width:0; padding:7px 12px; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text2); font-size:13px; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:background 0.15s, color 0.15s, border-color 0.15s; display:block; }
   .guide-link-btn:hover { background:var(--bg4); color:var(--orange); border-color:var(--orange); }
-  .guide-link-edit-btn { background:none; border:none; color:var(--text3); cursor:pointer; font-size:13px; padding:0 3px; transition:color 0.15s; flex-shrink:0; }
-  .guide-link-edit-btn:hover { color:var(--orange); }
-  .guide-link-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:15px; padding:0 3px; transition:color 0.15s; flex-shrink:0; }
-  .guide-link-del:hover { color:#ff4444; }
+  .guide-action-btn { background:none; border:1px solid transparent; border-radius:4px; cursor:pointer; padding:4px 7px; font-size:13px; transition:all 0.15s; flex-shrink:0; line-height:1; }
+  .guide-link-edit-btn { color:var(--text3); margin-left:6px; }
+  .guide-link-edit-btn:hover { color:var(--orange); border-color:var(--orange); background:rgba(255,107,0,0.08); }
+  .guide-link-del { color:var(--text3); margin-left:12px; }
+  .guide-link-del:hover { color:#ff4444; border-color:#ff4444; background:rgba(255,68,68,0.08); }
+  .guide-link-confirm-btn { color:#4caf50; margin-left:12px; padding:5px 12px; font-size:15px; font-weight:700; }
+  .guide-link-confirm-btn:hover { border-color:#4caf50; background:rgba(76,175,80,0.1); }
+  .guide-del-confirm { display:inline-flex; align-items:center; gap:4px; margin-left:12px; flex-shrink:0; }
   .guide-link-item.edit-mode .guide-link-inputs { display:flex; flex:1; gap:6px; flex-direction:column; min-width:0; }
   .guide-link-title-inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
   .guide-link-url-inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:4px; color:var(--text); padding:6px 10px; font-size:13px; font-family:'Barlow',sans-serif; }
   .guide-link-title-inp:focus, .guide-link-url-inp:focus { outline:none; border-color:var(--orange); }
-  .guide-link-confirm-btn { background:none; border:none; color:#4caf50; cursor:pointer; font-size:16px; padding:0 3px; transition:color 0.15s; flex-shrink:0; }
-  .guide-link-confirm-btn:hover { color:#81c784; }
   .guide-link-item.dragging { opacity:0.4; }
   .guide-link-item.drag-over { border-top:2px solid var(--orange); }
   .guide-add-btn { margin-top:10px; background:none; border:1px dashed var(--border); border-radius:4px; color:var(--text3); font-size:12px; padding:6px 12px; cursor:pointer; width:100%; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.5px; transition:color 0.15s, border-color 0.15s; }
@@ -1310,6 +1312,16 @@
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="modal-guide-dirty" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Modifiche non salvate</div>
+    <ul class="modal-warnings" style="margin:12px 0 20px"><li>Hai modifiche non salvate nella tab Guide.</li></ul>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="guideDirtyDiscard()">ESCI SENZA SALVARE</button>
+      <button class="btn" onclick="guideDirtySave()">SALVA E CONTINUA</button>
+    </div>
+  </div>
+</div>
 <div class="pending-banner" id="pending-banner">
   ⚠️ Salvataggio GitHub non completato
   <button class="btn btn-ghost btn-sm" onclick="ritentaSalvaggio()">RIPROVA</button>
@@ -1387,17 +1399,38 @@ function inizializza() {
 // =====================
 // TABS
 // =====================
+let _pendingTab = null;
+
+function _switchTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('panel-' + t.dataset.tab).classList.add('active');
+  if (t.dataset.tab === 'guide') renderGuide();
+}
+
+function guideDirtyDiscard() {
+  _guideDirty = false;
+  document.getElementById('guide-dirty-banner').classList.remove('show');
+  document.getElementById('modal-guide-dirty').style.display = 'none';
+  if (_pendingTab) { _switchTab(_pendingTab); _pendingTab = null; }
+}
+
+function guideDirtySave() {
+  document.getElementById('modal-guide-dirty').style.display = 'none';
+  salvaGuide();
+  if (_pendingTab) { _switchTab(_pendingTab); _pendingTab = null; }
+}
+
 document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
     const leavingGuide = document.querySelector('.tab[data-tab="guide"]')?.classList.contains('active');
     if (leavingGuide && _guideDirty) {
-      showToast('⚠ Hai modifiche non salvate in Guide!', 'error', 4000);
+      _pendingTab = t;
+      document.getElementById('modal-guide-dirty').style.display = 'flex';
+      return;
     }
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('panel-' + t.dataset.tab).classList.add('active');
-    if (t.dataset.tab === 'guide') renderGuide();
+    _switchTab(t);
   });
 });
 
@@ -4573,8 +4606,8 @@ function buildGuideLinkRow(exId, idx, link, editMode = false) {
       ondragend="guideLinkDragEnd(event)">
     <span class="guide-drag-handle" title="Trascina per riordinare">⋮⋮</span>
     <a href="${u || '#'}" target="_blank" class="guide-link-btn" title="${u}">${label}</a>
-    <button class="guide-link-edit-btn" onclick="editLinkGuide('${exId}',${idx})" title="Modifica">✏</button>
-    <button class="guide-link-del" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Rimuovi">✕</button>
+    <button class="guide-link-edit-btn guide-action-btn" onclick="editLinkGuide('${exId}',${idx})" title="Modifica"><span style="display:inline-block;transform:rotate(-35deg)">✏</span></button>
+    <button class="guide-link-del guide-action-btn" id="guide-delbtn-${exId}-${idx}" onclick="chiediConfermaLink('${exId}',${idx})" title="Rimuovi">✕</button>
   </div>`;
 }
 
@@ -4627,6 +4660,22 @@ function _aggiornaCountGuide(exId, cnt) {
   const el = document.getElementById('guide-count-' + exId);
   if (!el) return;
   el.textContent = cnt === 0 ? 'nessun link' : cnt === 1 ? '1 link' : `${cnt} link`;
+}
+
+function chiediConfermaLink(exId, idx) {
+  const btn = document.getElementById(`guide-delbtn-${exId}-${idx}`);
+  if (!btn) return;
+  btn.outerHTML = `<span class="guide-del-confirm" id="guide-del-confirm-${exId}-${idx}">
+    <span style="color:var(--text3);font-size:11px;white-space:nowrap">Elimina?</span>
+    <button class="guide-action-btn guide-link-confirm-btn" style="margin-left:4px;padding:4px 9px" onclick="rimuoviLinkGuide('${exId}',${idx})" title="Sì, elimina">✓</button>
+    <button class="guide-action-btn" style="color:var(--text3);margin-left:4px" onclick="annullaConfermaLink('${exId}',${idx})" title="Annulla">✕</button>
+  </span>`;
+}
+
+function annullaConfermaLink(exId, idx) {
+  const widget = document.getElementById(`guide-del-confirm-${exId}-${idx}`);
+  if (!widget) return;
+  widget.outerHTML = `<button class="guide-link-del guide-action-btn" id="guide-delbtn-${exId}-${idx}" onclick="chiediConfermaLink('${exId}',${idx})" title="Rimuovi">✕</button>`;
 }
 
 function rimuoviLinkGuide(exId, idx) {
@@ -4700,8 +4749,11 @@ function salvaGuide() {
 function filterGuide() {
   const q = document.getElementById('guide-search').value.toLowerCase().trim();
   document.querySelectorAll('.guide-card').forEach(card => {
+    const exId = card.id.replace('guide-card-', '');
     const name = card.querySelector('.guide-card-name')?.textContent.toLowerCase() || '';
-    card.style.display = (!q || name.includes(q)) ? '' : 'none';
+    const ex = DATA?.esercizi_canonici?.find(e => e.id === exId);
+    const linkTitles = (ex?.link_tecnica || []).map(l => (l.titolo || '').toLowerCase()).join(' ');
+    card.style.display = (!q || name.includes(q) || linkTitles.includes(q)) ? '' : 'none';
   });
   document.querySelectorAll('.guide-cat-section').forEach(sect => {
     const hasVisible = [...sect.querySelectorAll('.guide-card')].some(c => c.style.display !== 'none');
