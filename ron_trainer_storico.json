@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 418,
-    "totale_righe_esercizio": 1142,
+    "totale_sessioni": 419,
+    "totale_righe_esercizio": 1145,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -357,6 +357,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-03_manuale.json",
+      "title": "Training 03/05/2026 TE - Casa",
+      "data": "2026-05-03",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "panca_incl_man",
+          "schema": "6x12",
+          "peso_kg": 16,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Si può aumentare un po peso o serie",
+          "data": "2026-05-03",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_man",
+          "schema": "5x14",
+          "peso_kg": 6.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-03",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_sopra_testa",
+          "schema": "6x8",
+          "peso_kg": 15,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-03",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-05-02_manuale.json",
       "title": "Training 02/05/2026 TE - Casa",
