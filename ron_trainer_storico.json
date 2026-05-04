@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 419,
-    "totale_righe_esercizio": 1145,
+    "totale_sessioni": 420,
+    "totale_righe_esercizio": 1146,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -357,6 +357,28 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-04_manuale.json",
+      "title": "Training 04/05/2026 MI - Palestra Ibis Centro",
+      "data": "2026-05-04",
+      "luogo": "MI - Palestra Ibis Centro",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "0%",
+          "peso_kg": 6.42,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "4.2km — Respiro con naso fino agli ultimi 600mt di sprint finale, ottimo",
+          "data": "2026-05-04",
+          "luogo": "MI - Palestra Ibis Centro",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-05-03_manuale.json",
       "title": "Training 03/05/2026 TE - Casa",
