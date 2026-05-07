@@ -854,6 +854,18 @@
   .modal-warnings li:last-child { border-bottom: none; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 
+  /* CORSA TOGGLE */
+  .corsa-toggle-btn { background:none; border:1px solid var(--border); border-radius:4px; color:var(--text3); font-size:12px; padding:4px 12px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.5px; transition:all 0.15s; }
+  .corsa-toggle-btn.active { background:rgba(255,107,0,0.15); border-color:var(--orange); color:var(--orange); }
+  .corsa-toggle-btn:hover:not(.active) { border-color:var(--text2); color:var(--text2); }
+  .ins-passo-calc { background:var(--bg3); color:var(--text3); border:1px solid var(--border); border-radius:var(--radius); padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box; font-family:'Barlow Condensed',sans-serif; }
+
+  /* TOKEN MISSING BANNER */
+  .token-banner { background:rgba(255,107,0,0.1); border-bottom:1px solid rgba(255,107,0,0.4); color:var(--orange); font-size:13px; padding:8px 14px; display:flex; align-items:center; gap:8px; font-weight:600; }
+  .token-banner button { background:none; border:none; color:var(--orange); cursor:pointer; font-size:16px; line-height:1; padding:0; margin-left:auto; opacity:0.7; }
+  .token-banner button:hover { opacity:1; }
+  .token-banner a { color:var(--orange); text-decoration:underline; cursor:pointer; }
+
   /* PENDING SAVE BANNER */
   .pending-banner {
     position: fixed; bottom: 70px; left: 50%;
@@ -1033,6 +1045,12 @@
     <div class="tab" data-tab="guide">Guide</div>
   </div>
 </nav>
+
+<div id="token-missing-banner" class="token-banner" style="display:none">
+  ⚠️ Token GitHub non configurato — il salvataggio non funzionerà.
+  <a onclick="document.querySelector('.tab[data-tab=\'inserimento\']')?.click();setTimeout(()=>document.querySelector('details')?.setAttribute('open',''),200)">Impostalo in Train → ⚙</a>
+  <button onclick="document.getElementById('token-missing-banner').style.display='none'" title="Chiudi">×</button>
+</div>
 
 <main>
 
@@ -1385,6 +1403,9 @@ async function caricaDati() {
 }
 
 function inizializza() {
+  if (!localStorage.getItem('gh_token')) {
+    document.getElementById('token-missing-banner').style.display = 'flex';
+  }
   inizializzaOverview();
   inizializzaProgressione();
   inizializzaStorico();
@@ -1735,7 +1756,7 @@ function toggleGraficoOverview(tipo) {
     const mesi = [];
     for (let i = 17; i >= 0; i--) {
       const d = new Date(oggi.getFullYear(), oggi.getMonth() - i, 1);
-      mesi.push(d.toISOString().slice(0,7));
+      mesi.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
     }
     const counts = mesi.map(m => DATA.sessioni.filter(s => s.data.startsWith(m)).length);
     const labels = mesi.map(m => { const [y,mo] = m.split('-'); return `${mo}/${y.slice(2)}`; });
@@ -3083,13 +3104,23 @@ function serializzaBozza() {
       const tipo = riga.dataset.tipo;
       const notaRiga = riga.querySelector('.ins-nota-riga')?.value || '';
       if (tipo === 'corsa') {
-        righe.push({
-          tipo,
-          inclinazione: riga.querySelector('.ins-inclinazione')?.value || '',
-          peso: riga.querySelector('.ins-passo')?.value || '',
-          km:   riga.querySelector('.ins-km')?.value  || '',
-          notaRiga
-        });
+        const corsaMode = riga.dataset.corsaMode || 'esterno';
+        if (corsaMode === 'tapis') {
+          righe.push({
+            tipo, corsaMode: 'tapis',
+            tempo: riga.querySelector('.ins-tempo-corsa')?.value || '',
+            km:    riga.querySelector('.ins-km-tapis')?.value  || '',
+            notaRiga
+          });
+        } else {
+          righe.push({
+            tipo, corsaMode: 'esterno',
+            inclinazione: riga.querySelector('.ins-inclinazione')?.value || '',
+            peso: riga.querySelector('.ins-passo')?.value || '',
+            km:   riga.querySelector('.ins-km-esterno')?.value  || '',
+            notaRiga
+          });
+        }
       } else if (tipo === 'vigneto') {
         const row = {
           tipo,
@@ -3215,12 +3246,14 @@ function salvaToken() {
   if (!val) return;
   localStorage.setItem('gh_token', val);
   document.getElementById('gh-token-input').value = '';
+  document.getElementById('token-missing-banner').style.display = 'none';
   aggiornaTokenStatus();
   showToast('Token salvato', 'success');
 }
 
 function cancellaToken() {
   localStorage.removeItem('gh_token');
+  document.getElementById('token-missing-banner').style.display = 'flex';
   aggiornaTokenStatus();
   showToast('Token rimosso', 'success');
 }
@@ -3494,14 +3527,25 @@ function aggiornaPreviewAllenamento() {
       const notaStr = nota ? ` — ${nota}` : '';
 
       if (tipo === 'corsa') {
-        const incl  = riga.querySelector('.ins-inclinazione')?.value || '0%';
-        const passo = riga.querySelector('.ins-passo')?.value || '';
-        const km    = riga.querySelector('.ins-km')?.value || '';
-        if (!passo && !km) return;
-        const inclStr = incl ? `Inclinazione ${incl.includes('%')?incl:incl+'%'}` : '';
-        const passoStr = passo ? `${passo} min/km` : '';
-        const kmStr   = km ? `${km} km` : '';
-        linee.push([inclStr, passoStr, kmStr].filter(Boolean).join(' · ') + ` ${ex.nome}${notaStr}`);
+        const corsaMode = riga.dataset.corsaMode || 'esterno';
+        if (corsaMode === 'tapis') {
+          const tempo = riga.querySelector('.ins-tempo-corsa')?.value || '';
+          const km    = riga.querySelector('.ins-km-tapis')?.value || '';
+          const passo = calcolaPassoFromTempo(tempo, parseFloat(km));
+          if (!tempo && !km) return;
+          const kmhStr = passo ? ` [${(60/passo).toFixed(1)} km/h]` : '';
+          const passoStr = passo ? ` · ${passo} min/km${kmhStr}` : '';
+          linee.push([`Tapis`, tempo||'', km?`${km}km`:''].filter(Boolean).join(' · ') + passoStr + ` Corsa${notaStr}`);
+        } else {
+          const incl  = riga.querySelector('.ins-inclinazione')?.value || '0%';
+          const passo = riga.querySelector('.ins-passo')?.value || '';
+          const km    = riga.querySelector('.ins-km-esterno')?.value || '';
+          if (!passo && !km) return;
+          const inclStr = incl ? `Inclinazione ${incl.includes('%')?incl:incl+'%'}` : '';
+          const passoStr = passo ? `${passo} min/km` : '';
+          const kmStr   = km ? `${km} km` : '';
+          linee.push([inclStr, passoStr, kmStr].filter(Boolean).join(' · ') + ` Corsa${notaStr}`);
+        }
         return;
       }
 
@@ -3624,17 +3668,35 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
   const sepX = `<div style="align-self:flex-end;padding-bottom:7px;color:var(--text3);font-size:12px;flex-shrink:0;user-select:none">×</div>`;
 
   if (isCorsa) {
+    const modoDefault = precompila.corsaMode || 'esterno';
+    const isTapis = modoDefault === 'tapis';
     const rimuoviCorsa = `<button class="btn-rimuovi-riga"
       style="display:none;align-self:flex-end;margin-bottom:2px;margin-left:auto;flex-shrink:0"
       onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>`;
-    return `<div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
-      <div style="flex:0 0 36px"><div class="form-label">Incl.(%)</div>
-        <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()"></div>
-      <div style="flex:0 0 46px"><div class="form-label">Passo min/km</div>
-        <input type="number" class="ins-passo" placeholder="8.5" step="0.1" min="0" value="${precompila.peso||''}" oninput="aggiornaPreviewAllenamento()"></div>
-      <div style="flex:0 0 38px"><div class="form-label">km</div>
-        <input type="number" class="ins-km" placeholder="3.0" step="0.1" min="0" value="${precompila.km||''}" oninput="aggiornaPreviewAllenamento()"></div>
-      ${notaInline}${rimuoviCorsa}
+    return `<div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;gap:4px">
+        <button class="corsa-toggle-btn${!isTapis?' active':''}" id="${rigaId}-btn-esterno" onclick="setCorsaMode('${rigaId}','esterno')">🏃 Esterno</button>
+        <button class="corsa-toggle-btn${isTapis?' active':''}" id="${rigaId}-btn-tapis" onclick="setCorsaMode('${rigaId}','tapis')">⚙ Tapis</button>
+      </div>
+      <div class="corsa-esterno-fields" style="display:${isTapis?'none':'flex'};gap:6px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:0 0 36px"><div class="form-label">Incl.(%)</div>
+          <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()"></div>
+        <div style="flex:0 0 46px"><div class="form-label">Passo min/km</div>
+          <input type="number" class="ins-passo" placeholder="8.5" step="0.1" min="0" value="${!isTapis?(precompila.peso||''):''}" oninput="aggiornaPreviewAllenamento()"></div>
+        <div style="flex:0 0 38px"><div class="form-label">km</div>
+          <input type="number" class="ins-km-esterno" placeholder="3.0" step="0.1" min="0" value="${!isTapis?(precompila.km||''):''}" oninput="aggiornaPreviewAllenamento()"></div>
+        ${notaInline}${rimuoviCorsa}
+      </div>
+      <div class="corsa-tapis-fields" style="display:${isTapis?'flex':'none'};gap:6px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:0 0 56px"><div class="form-label">Tempo mm:ss</div>
+          <input type="text" class="ins-tempo-corsa" placeholder="35:00" value="${precompila.tempo||''}"
+            oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%"></div>
+        <div style="flex:0 0 38px"><div class="form-label">km</div>
+          <input type="number" class="ins-km-tapis" placeholder="5.0" step="0.1" min="0" value="${isTapis?(precompila.km||''):''}" oninput="aggiornaPassoCalc('${rigaId}')"></div>
+        <div style="flex:0 0 90px"><div class="form-label">Passo calcolato</div>
+          <input type="text" class="ins-passo-calc" readonly value="${isTapis&&precompila.peso?precompila.peso+' min/km':''}" placeholder="—" tabindex="-1"></div>
+        ${notaInline}${rimuoviCorsa}
+      </div>
     </div>`;
   }
 
@@ -3710,11 +3772,47 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
     <div style="flex:0 0 48px"><div class="form-label">Serie</div>
       <input type="number" class="ins-serie" placeholder="6" value="${precompila.serie||''}" min="1" max="20" oninput="aggiornaPreviewAllenamento()"></div>
     ${sepX}
-    <div style="flex:0 0 48px"><div class="form-label">Rip</div>
-      <input type="number" class="ins-rep" placeholder="6" value="${precompila.rep||''}" min="1" max="50" oninput="aggiornaPreviewAllenamento()"></div>
+    <div style="flex:0 0 48px"><div class="form-label">${exId==='verticale'?'Sec':'Rip'}</div>
+      <input type="number" class="ins-rep" placeholder="${exId==='verticale'?'10':'6'}" value="${precompila.rep||''}" min="1" max="${exId==='verticale'?9999:50}" oninput="aggiornaPreviewAllenamento()"></div>
     <div style="flex:0 0 10px"></div>
     ${pesoField}${notaInline}${rimuoviStd}
   </div>`;
+}
+
+function calcolaPassoFromTempo(tempoStr, km) {
+  if (!tempoStr || !km || km <= 0) return null;
+  const parts = tempoStr.match(/^(\d+):(\d{1,2})$/);
+  if (!parts) return null;
+  const totalMin = parseInt(parts[1]) + parseInt(parts[2]) / 60;
+  return Math.round((totalMin / km) * 100) / 100;
+}
+
+function aggiornaPassoCalc(rigaId) {
+  const riga = document.getElementById(rigaId);
+  if (!riga) return;
+  const tempo = riga.querySelector('.ins-tempo-corsa')?.value || '';
+  const km = parseFloat(riga.querySelector('.ins-km-tapis')?.value) || 0;
+  const passo = calcolaPassoFromTempo(tempo, km);
+  const calcEl = riga.querySelector('.ins-passo-calc');
+  if (calcEl) {
+    calcEl.value = passo ? `${passo} min/km · ${(60/passo).toFixed(1)} km/h` : '';
+  }
+  aggiornaPreviewAllenamento();
+}
+
+function setCorsaMode(rigaId, mode) {
+  const riga = document.getElementById(rigaId);
+  if (!riga) return;
+  riga.dataset.corsaMode = mode;
+  const esternoDiv = riga.querySelector('.corsa-esterno-fields');
+  const tapisDiv   = riga.querySelector('.corsa-tapis-fields');
+  if (esternoDiv) esternoDiv.style.display = mode === 'esterno' ? 'flex' : 'none';
+  if (tapisDiv)   tapisDiv.style.display   = mode === 'tapis'   ? 'flex' : 'none';
+  const btnE = document.getElementById(rigaId + '-btn-esterno');
+  const btnT = document.getElementById(rigaId + '-btn-tapis');
+  if (btnE) btnE.classList.toggle('active', mode === 'esterno');
+  if (btnT) btnT.classList.toggle('active', mode === 'tapis');
+  aggiornaPreviewAllenamento();
 }
 
 function toggleBWIns(btn) {
@@ -3811,6 +3909,7 @@ function aggiungiRiga(cardId, precompila = {}) {
   div.className = 'ex-riga';
   div.id = rigaId;
   div.dataset.tipo = tipo;
+  if (tipo === 'corsa') div.dataset.corsaMode = precompila.corsaMode || 'esterno';
   div.innerHTML = buildRigaHtml(rigaId, cardId, exId, precompila);
   righeDiv.appendChild(div);
   aggiornaPulsantiRiga(cardId);
@@ -3967,23 +4066,34 @@ function salvaAllenamento() {
       const nota = riga.querySelector('.ins-nota-riga')?.value.trim() || null;
 
       if (tipo === 'corsa') {
-        const incl  = riga.querySelector('.ins-inclinazione')?.value.trim() || '0%';
-        const passo = parseFloat(riga.querySelector('.ins-passo')?.value) || null;
-        const km    = parseFloat(riga.querySelector('.ins-km')?.value) || null;
-        const schema = incl.includes('%') ? incl : incl + '%';
-        // encode km into nota_riga if present
-        const notaCorsa = [km ? `${km}km` : null, nota].filter(Boolean).join(' — ') || null;
-        esercizi.push({
-          esercizio_id: exId,
-          schema,
-          peso_kg: passo,
-          unita: 'min/km',
-          bodyweight: false,
-          tipo_riga: 'standard',
-          nota_riga: notaCorsa,
-          data, luogo,
-          file_sorgente: 'manuale'
-        });
+        const corsaMode = riga.dataset.corsaMode || 'esterno';
+        if (corsaMode === 'tapis') {
+          const tempoStr = riga.querySelector('.ins-tempo-corsa')?.value.trim() || '';
+          const km       = parseFloat(riga.querySelector('.ins-km-tapis')?.value) || null;
+          const passo    = calcolaPassoFromTempo(tempoStr, km);
+          if (!tempoStr && !km) return;
+          const notaCorsa = [km ? `${km}km` : null, nota].filter(Boolean).join(' — ') || null;
+          esercizi.push({
+            esercizio_id: exId, schema: 'tapis',
+            peso_kg: passo, unita: 'min/km',
+            bodyweight: false, tipo_riga: 'standard',
+            nota_riga: notaCorsa, tempo_corsa: tempoStr || null,
+            data, luogo, file_sorgente: 'manuale'
+          });
+        } else {
+          const incl  = riga.querySelector('.ins-inclinazione')?.value.trim() || '0%';
+          const passo = parseFloat(riga.querySelector('.ins-passo')?.value) || null;
+          const km    = parseFloat(riga.querySelector('.ins-km-esterno')?.value) || null;
+          const schema = incl.includes('%') ? incl : incl + '%';
+          const notaCorsa = [km ? `${km}km` : null, nota].filter(Boolean).join(' — ') || null;
+          esercizi.push({
+            esercizio_id: exId, schema,
+            peso_kg: passo, unita: 'min/km',
+            bodyweight: false, tipo_riga: 'standard',
+            nota_riga: notaCorsa,
+            data, luogo, file_sorgente: 'manuale'
+          });
+        }
         return;
       }
 
@@ -4290,7 +4400,15 @@ function caricaSessioneInModifica(idx) {
       aggiungiEsercizio({ exId: g.id, tipo: 'vigneto' });
     } else if (riga0.unita === 'min/km') {
       // corsa
-      aggiungiEsercizio({ exId: g.id, tipo: 'corsa', peso: riga0.peso_kg });
+      const isTapisEdit = riga0.schema === 'tapis';
+      aggiungiEsercizio({
+        exId: g.id, tipo: 'corsa',
+        corsaMode: isTapisEdit ? 'tapis' : 'esterno',
+        peso: isTapisEdit ? '' : riga0.peso_kg,
+        tempo: isTapisEdit ? (riga0.tempo_corsa || '') : '',
+        km: (() => { const m = (riga0.nota_riga||'').match(/^([\d,\.]+)km/); return m ? m[1] : ''; })(),
+        inclinazione: isTapisEdit ? '' : (riga0.schema || '0%')
+      });
     } else {
       // standard — usa prima riga per la card, aggiungi righe extra
       const match = riga0.schema ? riga0.schema.match(/(\d+)x(\d+)/) : null;
@@ -4453,7 +4571,7 @@ function renderSessioneBody(s) {
       }
       return `
         <div style="display:flex;align-items:baseline;gap:12px;padding:5px 0 5px 16px;border-left:2px solid var(--orange-dim);margin-left:4px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange);min-width:52px;flex-shrink:0">${fmtSchema(e.schema, e.unita)}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange);min-width:52px;flex-shrink:0">${fmtSchema(e.schema, e.unita, g.id)}</div>
           <div style="flex:1;min-width:0">
             ${e.nota_riga ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
           </div>
@@ -4477,38 +4595,69 @@ function renderSessioneBody(s) {
 
 function renderExRow(e) {
   const nome = getExNome(e.esercizio_id);
+
+  // Caso speciale: corsa
+  if (e.esercizio_id === 'corsa') {
+    const isTapis = e.schema === 'tapis';
+    const schemaLabel = isTapis ? 'Tapis' : `Incl. ${e.schema || '0%'}`;
+    const km = kmCorsaFromNota(e.nota_riga);
+    const kmStr = km > 0 ? `<span style="color:#ddd;font-size:14px;font-weight:600"> ${km.toFixed(1)}km</span>` : '';
+    let detailStr = '';
+    if (isTapis && e.tempo_corsa) {
+      const kmhTapis = e.peso_kg > 0 ? ` <span style="color:#bbb;font-size:13px">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
+      detailStr = `<span style="color:#fff;font-size:15px;font-weight:600">${e.tempo_corsa}</span> <span style="color:#aaa;font-size:13px">${e.peso_kg ? e.peso_kg+' min/km' : ''}${kmhTapis}</span>${kmStr}`;
+    } else if (e.peso_kg) {
+      const kmh = `<span style="color:#bbb;font-size:13px"> [${(60/e.peso_kg).toFixed(1)} km/h]</span>`;
+      detailStr = `<span style="color:#fff;font-size:15px;font-weight:600">${e.peso_kg} min/km</span>${kmh}${kmStr}`;
+    }
+    const notaCorsa = e.nota_riga ? e.nota_riga.replace(/^\d[\d,\.]*km\s*—?\s*/, '').trim() : '';
+    return `
+      <div class="ex-row">
+        <div class="ex-schema" style="min-width:60px;font-size:13px">${schemaLabel}</div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px">
+          ${badgeEx(e.esercizio_id)}
+          <span class="ex-name">Corsa</span>
+        </div>
+        <div class="ex-peso" style="flex-direction:column;align-items:flex-end;gap:2px">
+          <div>${detailStr}</div>
+          ${notaCorsa ? `<div style="color:#999;font-size:12px;font-style:italic">${notaCorsa}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
   let peso;
   if (e.peso_kg) {
     const unita = e.unita === 'kg/mano' ? ' kg/mano' : e.unita === 'min/km' ? ' min/km' : e.unita === 'sec' ? ' sec' : ' kg';
-    const kmhExtra = e.unita === 'min/km' ? ` <span style="color:#bbb;font-size:14px">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
-    const kmCorsa0 = e.unita === 'min/km' ? kmCorsaFromNota(e.nota_riga) : 0;
-    const kmStr0 = kmCorsa0 > 0 ? ` <span style="color:#ddd;font-size:14px;font-weight:600">${kmCorsa0.toFixed(1)}km</span>` : '';
-    peso = `${e.peso_kg}${unita}${kmhExtra}${kmStr0}`;
+    peso = `${e.peso_kg}${unita}`;
   } else if (e.bodyweight) {
     peso = 'BW';
   } else {
     peso = '—';
   }
-  const kmCorsa = 0; // già gestito sopra
-  const kmStr = '';
   return `
     <div class="ex-row">
-      <div class="ex-schema">${fmtSchema(e.schema, e.unita)}</div>
+      <div class="ex-schema">${fmtSchema(e.schema, e.unita, e.esercizio_id)}</div>
       <div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px">
         ${badgeEx(e.esercizio_id)}
         <div style="min-width:0">
           <div class="ex-name">${nome}</div>
-          ${e.nota_riga && e.unita !== 'min/km' ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
+          ${e.nota_riga ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
         </div>
       </div>
-      <div class="ex-peso">${peso}${kmStr}</div>
+      <div class="ex-peso">${peso}</div>
     </div>
   `;
 }
 
-function fmtSchema(schema, unita) {
+function fmtSchema(schema, unita, exId) {
+  if (schema === 'tapis') return 'Tapis';
   if (unita === 'min/km' && schema && /^\d+%$/.test(schema)) {
     return `Inclinazione ${schema}`;
+  }
+  // Per verticale: "4x10" → "4×10s"
+  if (exId === 'verticale' && schema && /^\d+x\d+$/.test(schema)) {
+    return schema.replace('x', '×') + 's';
   }
   return schema || '—';
 }
