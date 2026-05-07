@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 420,
-    "totale_righe_esercizio": 1146,
+    "totale_sessioni": 421,
+    "totale_righe_esercizio": 1150,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -357,6 +357,64 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-07_manuale.json",
+      "title": "Training 07/05/2026 PG - BW Hotel Quattrotorri",
+      "data": "2026-05-07",
+      "luogo": "PG - BW Hotel Quattrotorri",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "military_bil",
+          "schema": "6x8",
+          "peso_kg": 38,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-07",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_pulley",
+          "schema": "2x8",
+          "peso_kg": 10,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-07",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_pulley",
+          "schema": "6x10",
+          "peso_kg": 10,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-07",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "verticale",
+          "schema": "4x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Handstand kickup",
+          "data": "2026-05-07",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-05-04_manuale.json",
       "title": "Training 04/05/2026 MI - Palestra Ibis Centro",
