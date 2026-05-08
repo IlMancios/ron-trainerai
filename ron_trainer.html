@@ -2875,22 +2875,22 @@ function procediStep2() {
         </div>
         <div style="margin-bottom:8px">${storicoHtml}</div>
         <div style="border-top:2px solid var(--orange);margin:10px 0 14px;opacity:0.5"></div>
-        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
           <div>
             <div class="form-label">Inclinazione (%)</div>
             <input type="text" id="piano2-corsa-incl-${i}" value="${incrDef}" placeholder="0%"
               style="width:70px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
           </div>
-          <div style="position:relative;padding-bottom:16px">
+          <div style="position:relative">
             <div class="form-label">Tempo mm:ss</div>
             <input type="text" id="piano2-corsa-tempo-${i}" value="${tempoDef}" placeholder="35:00"
               style="width:100px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
-            <div id="piano2-corsa-tempo-err-${i}" style="display:none;position:absolute;bottom:0;left:0;color:#ff4444;font-size:10px;white-space:nowrap">Formato: mm:ss</div>
+            <div id="piano2-corsa-tempo-err-${i}" style="display:none;position:absolute;top:100%;left:0;color:#ff4444;font-size:10px;white-space:nowrap">Formato: mm:ss</div>
           </div>
           <div>
             <div class="form-label">km</div>
             <input type="number" id="piano2-corsa-km-${i}" value="${kmDef}" placeholder="5.0" step="0.1" min="0"
-              style="width:70px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
+              style="width:90px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
           </div>
           <div>
             <div class="form-label">Passo · km/h</div>
@@ -3717,16 +3717,16 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
       onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>`;
     const passoPrec = precompila.peso ? `${precompila.peso} min/km · ${(60/precompila.peso).toFixed(1)} km/h` : '';
     return `<div style="display:flex;flex-direction:column;gap:6px">
-      <div style="display:flex;gap:6px;align-items:flex-end">
+      <div style="display:flex;gap:6px;align-items:flex-start">
         <div style="flex:0 0 46px"><div class="form-label">Incl.(%)</div>
           <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()" style="width:100%"></div>
-        <div style="flex:0 0 90px;position:relative;padding-bottom:16px">
+        <div style="flex:0 0 90px;position:relative">
           <div class="form-label">Tempo mm:ss</div>
           <input type="text" class="ins-tempo-corsa" placeholder="35:00" value="${precompila.tempo||''}"
             oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%">
-          <div class="tempo-format-err" style="display:none;position:absolute;bottom:0;left:0;color:#ff4444;font-size:10px;line-height:1.2;white-space:nowrap">Formato: mm:ss</div>
+          <div class="tempo-format-err" style="display:none;position:absolute;top:100%;left:0;color:#ff4444;font-size:10px;line-height:1.4;white-space:nowrap">Formato: mm:ss</div>
         </div>
-        <div style="flex:0 0 56px"><div class="form-label">km</div>
+        <div style="flex:0 0 72px"><div class="form-label">km</div>
           <input type="number" class="ins-km" placeholder="5.0" step="0.1" min="0" value="${precompila.km||''}" oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%"></div>
         <div style="flex:1;min-width:130px"><div class="form-label">Passo · km/h</div>
           <input type="text" class="ins-passo-calc" readonly value="${passoPrec}" placeholder="—" tabindex="-1" style="width:100%"></div>
