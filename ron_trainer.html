@@ -3717,7 +3717,7 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
       onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>`;
     const passoPrec = precompila.peso ? `${precompila.peso} min/km · ${(60/precompila.peso).toFixed(1)} km/h` : '';
     return `<div style="display:flex;flex-direction:column;gap:6px">
-      <div style="display:flex;gap:6px;align-items:flex-start">
+      <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap">
         <div style="flex:0 0 46px"><div class="form-label">Incl.(%)</div>
           <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()" style="width:100%"></div>
         <div style="flex:0 0 90px;position:relative">
@@ -3728,7 +3728,7 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
         </div>
         <div style="flex:0 0 72px"><div class="form-label">km</div>
           <input type="number" class="ins-km" placeholder="5.0" step="0.1" min="0" value="${precompila.km||''}" oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%"></div>
-        <div style="flex:1;min-width:130px"><div class="form-label">Passo · km/h</div>
+        <div style="flex:1;min-width:160px"><div class="form-label">Passo · km/h</div>
           <input type="text" class="ins-passo-calc" readonly value="${passoPrec}" placeholder="—" tabindex="-1" style="width:100%"></div>
         ${rimuoviCorsa}
       </div>
