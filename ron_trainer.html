@@ -3541,8 +3541,9 @@ function aggiornaPreviewAllenamento() {
           const passo = riga.querySelector('.ins-passo')?.value || '';
           const km    = riga.querySelector('.ins-km-esterno')?.value || '';
           if (!passo && !km) return;
-          const inclStr = incl ? `Inclinazione ${incl.includes('%')?incl:incl+'%'}` : '';
-          const passoStr = passo ? `${passo} min/km` : '';
+          const inclStr = incl && incl !== '0%' ? `Inclinazione ${incl.includes('%')?incl:incl+'%'}` : '';
+          const kmhStr  = passo ? ` [${(60/parseFloat(passo)).toFixed(1)} km/h]` : '';
+          const passoStr = passo ? `${passo} min/km${kmhStr}` : '';
           const kmStr   = km ? `${km} km` : '';
           linee.push([inclStr, passoStr, kmStr].filter(Boolean).join(' · ') + ` Corsa${notaStr}`);
         }
@@ -3688,9 +3689,12 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
         ${notaInline}${rimuoviCorsa}
       </div>
       <div class="corsa-tapis-fields" style="display:${isTapis?'flex':'none'};gap:6px;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:0 0 56px"><div class="form-label">Tempo mm:ss</div>
+        <div style="flex:0 0 82px">
+          <div class="form-label">Tempo mm:ss</div>
           <input type="text" class="ins-tempo-corsa" placeholder="35:00" value="${precompila.tempo||''}"
-            oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%"></div>
+            oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%">
+          <div class="tempo-format-err" style="display:none;color:#ff4444;font-size:10px;margin-top:2px;line-height:1.2">Formato: mm:ss</div>
+        </div>
         <div style="flex:0 0 38px"><div class="form-label">km</div>
           <input type="number" class="ins-km-tapis" placeholder="5.0" step="0.1" min="0" value="${isTapis?(precompila.km||''):''}" oninput="aggiornaPassoCalc('${rigaId}')"></div>
         <div style="flex:0 0 90px"><div class="form-label">Passo calcolato</div>
@@ -3790,8 +3794,16 @@ function calcolaPassoFromTempo(tempoStr, km) {
 function aggiornaPassoCalc(rigaId) {
   const riga = document.getElementById(rigaId);
   if (!riga) return;
-  const tempo = riga.querySelector('.ins-tempo-corsa')?.value || '';
+  const tempoEl = riga.querySelector('.ins-tempo-corsa');
+  const errEl   = riga.querySelector('.tempo-format-err');
+  const tempo = tempoEl?.value || '';
   const km = parseFloat(riga.querySelector('.ins-km-tapis')?.value) || 0;
+
+  // Validazione formato mm:ss
+  const formatOk = !tempo || /^\d{1,3}:\d{2}$/.test(tempo);
+  if (tempoEl) tempoEl.style.borderColor = (tempo && !formatOk) ? '#ff4444' : '';
+  if (errEl)   errEl.style.display       = (tempo && !formatOk) ? 'block'   : 'none';
+
   const passo = calcolaPassoFromTempo(tempo, km);
   const calcEl = riga.querySelector('.ins-passo-calc');
   if (calcEl) {
@@ -4596,32 +4608,33 @@ function renderSessioneBody(s) {
 function renderExRow(e) {
   const nome = getExNome(e.esercizio_id);
 
-  // Caso speciale: corsa
+  // Caso speciale: corsa — layout colonnare per evitare overflow
   if (e.esercizio_id === 'corsa') {
     const isTapis = e.schema === 'tapis';
     const schemaLabel = isTapis ? 'Tapis' : `Incl. ${e.schema || '0%'}`;
     const km = kmCorsaFromNota(e.nota_riga);
-    const kmStr = km > 0 ? `<span style="color:#ddd;font-size:14px;font-weight:600"> ${km.toFixed(1)}km</span>` : '';
+    const kmStr = km > 0 ? `<span style="color:#ddd;font-weight:600"> ${km.toFixed(1)}km</span>` : '';
     let detailStr = '';
     if (isTapis && e.tempo_corsa) {
-      const kmhTapis = e.peso_kg > 0 ? ` <span style="color:#bbb;font-size:13px">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
-      detailStr = `<span style="color:#fff;font-size:15px;font-weight:600">${e.tempo_corsa}</span> <span style="color:#aaa;font-size:13px">${e.peso_kg ? e.peso_kg+' min/km' : ''}${kmhTapis}</span>${kmStr}`;
+      const kmhTapis = e.peso_kg > 0 ? ` <span style="color:#bbb">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
+      detailStr = `<span style="color:#fff;font-weight:600">${e.tempo_corsa}</span>`
+        + (e.peso_kg ? ` <span style="color:#aaa">${e.peso_kg} min/km${kmhTapis}</span>` : '')
+        + kmStr;
     } else if (e.peso_kg) {
-      const kmh = `<span style="color:#bbb;font-size:13px"> [${(60/e.peso_kg).toFixed(1)} km/h]</span>`;
-      detailStr = `<span style="color:#fff;font-size:15px;font-weight:600">${e.peso_kg} min/km</span>${kmh}${kmStr}`;
+      const kmh = ` <span style="color:#bbb">[${(60/e.peso_kg).toFixed(1)} km/h]</span>`;
+      detailStr = `<span style="color:#fff;font-weight:600">${e.peso_kg} min/km</span>${kmh}${kmStr}`;
     }
-    const notaCorsa = e.nota_riga ? e.nota_riga.replace(/^\d[\d,\.]*km\s*—?\s*/, '').trim() : '';
+    // Estrai nota pulita (rimuove "Xkm — " dal prefisso)
+    const notaCorsa = e.nota_riga ? e.nota_riga.replace(/^\d[\d,\.]*km\s*(?:—\s*)?/, '').trim() : '';
     return `
-      <div class="ex-row">
-        <div class="ex-schema" style="min-width:60px;font-size:13px">${schemaLabel}</div>
-        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px">
+      <div class="ex-row" style="flex-direction:column;align-items:stretch;gap:4px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="ex-schema" style="font-size:14px;min-width:auto;flex-shrink:0">${schemaLabel}</span>
           ${badgeEx(e.esercizio_id)}
-          <span class="ex-name">Corsa</span>
+          <span class="ex-name" style="flex:1">Corsa</span>
         </div>
-        <div class="ex-peso" style="flex-direction:column;align-items:flex-end;gap:2px">
-          <div>${detailStr}</div>
-          ${notaCorsa ? `<div style="color:#999;font-size:12px;font-style:italic">${notaCorsa}</div>` : ''}
-        </div>
+        ${detailStr ? `<div style="font-size:14px;color:var(--text2);padding-left:2px;flex-wrap:wrap;word-break:break-word">${detailStr}</div>` : ''}
+        ${notaCorsa ? `<div class="ex-nota" style="padding-left:2px;white-space:normal;word-break:break-word">${notaCorsa}</div>` : ''}
       </div>
     `;
   }
