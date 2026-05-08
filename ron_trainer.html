@@ -2856,6 +2856,51 @@ function procediStep2() {
       : (ex.cat === 'cardio' && ex.id !== 'salita_vigneto')
       ? '<span style="background:rgba(80,200,120,0.15);color:#66cc88;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">CARDIO</span>'
       : '<span style="background:rgba(100,150,255,0.15);color:#7aa0ff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">ISOLATO</span>';
+    // --- Corsa: form dedicato (Incl + Tempo + km + Passo calc) ---
+    if (isCorsa) {
+      const incrDef = schemaDefault && /^\d+%$/.test(schemaDefault) ? schemaDefault : '0%';
+      const ultimaRiga = sessioniOrd[0]?.[1]?.principale?.[0];
+      const tempoDef = ultimaRiga?.tempo_corsa || '';
+      const kmDef = (() => { const m = (ultimaRiga?.nota_riga||'').match(/^([\d,\.]+)km/); return m ? m[1] : ''; })();
+      const passoDef = (() => {
+        if (!tempoDef || !kmDef) return '';
+        const p = calcolaPassoFromTempo(tempoDef, parseFloat(kmDef));
+        return p ? `${p} min/km · ${(60/p).toFixed(1)} km/h` : '';
+      })();
+      return `
+      <div style="background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          ${badgeStep2}
+          <div style="font-size:17px;font-weight:600;color:var(--text1)">${ex.nome}</div>
+        </div>
+        <div style="margin-bottom:8px">${storicoHtml}</div>
+        <div style="border-top:2px solid var(--orange);margin:10px 0 14px;opacity:0.5"></div>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <div>
+            <div class="form-label">Inclinazione (%)</div>
+            <input type="text" id="piano2-corsa-incl-${i}" value="${incrDef}" placeholder="0%"
+              style="width:70px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
+          </div>
+          <div style="position:relative;padding-bottom:16px">
+            <div class="form-label">Tempo mm:ss</div>
+            <input type="text" id="piano2-corsa-tempo-${i}" value="${tempoDef}" placeholder="35:00"
+              style="width:100px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
+            <div id="piano2-corsa-tempo-err-${i}" style="display:none;position:absolute;bottom:0;left:0;color:#ff4444;font-size:10px;white-space:nowrap">Formato: mm:ss</div>
+          </div>
+          <div>
+            <div class="form-label">km</div>
+            <input type="number" id="piano2-corsa-km-${i}" value="${kmDef}" placeholder="5.0" step="0.1" min="0"
+              style="width:70px;font-size:15px" oninput="aggiornaPianoCorsa(${i})">
+          </div>
+          <div>
+            <div class="form-label">Passo · km/h</div>
+            <input type="text" id="piano2-corsa-passo-${i}" readonly value="${passoDef}" placeholder="—" tabindex="-1"
+              style="width:180px;font-size:15px;background:var(--bg3);color:var(--text3);border:1px solid var(--border);border-radius:var(--radius);padding:6px 8px;font-family:'Barlow Condensed',sans-serif">
+          </div>
+        </div>
+      </div>`;
+    }
+
     return `
     <div style="background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
@@ -3017,6 +3062,20 @@ function getSchemaEPeso(i) {
 
 function aggiornaNuovoSchema(i) { aggiornaPesoAutomatico(i); }
 
+function aggiornaPianoCorsa(i) {
+  const tempo  = document.getElementById(`piano2-corsa-tempo-${i}`)?.value || '';
+  const km     = parseFloat(document.getElementById(`piano2-corsa-km-${i}`)?.value) || 0;
+  const tempoEl = document.getElementById(`piano2-corsa-tempo-${i}`);
+  const errEl   = document.getElementById(`piano2-corsa-tempo-err-${i}`);
+  const passoEl = document.getElementById(`piano2-corsa-passo-${i}`);
+  const formatOk = !tempo || /^\d{1,3}:\d{2}$/.test(tempo);
+  if (tempoEl) tempoEl.style.borderColor = (tempo && !formatOk) ? '#ff4444' : '';
+  if (errEl)   errEl.style.display       = (tempo && !formatOk) ? 'block'   : 'none';
+  const passo = calcolaPassoFromTempo(tempo, km);
+  if (passoEl) passoEl.value = passo ? `${passo} min/km · ${(60/passo).toFixed(1)} km/h` : '';
+  aggiornaOutputKeep();
+}
+
 function aggiornaOutputKeep() {
   const dataP = document.getElementById('piano-data').value;
   const luogoP = document.getElementById('piano-luogo').value;
@@ -3029,10 +3088,15 @@ function aggiornaOutputKeep() {
     const isBW = bwBtn?.dataset?.bw === '1' || (!peso && ex.id && ['trazioni_neutre','trazioni_polsi','trazioni_dorsi','verticale','tric_dips','sollevamento_gambe','salita_vigneto'].includes(ex.id));
     if (!schema) return;
     if (ex.cat === 'cardio' && ex.id !== 'salita_vigneto') {
-      // Corsa: schema = inclinazione, peso = passo
-      const inclKeep = schema && schema !== '0%' ? `Inclinazione ${schema}` : 'Piano';
-      const pesoStr = peso ? ` ${peso}min/km` : '';
-      linee.push(`Corsa tapis-roulant o corsa all'aperto ${inclKeep}${pesoStr}`);
+      // Corsa: legge i campi piano2-corsa-*
+      const inclKeep = (() => { const v = document.getElementById(`piano2-corsa-incl-${i}`)?.value || '0%'; return v !== '0%' ? `Inclinazione ${v}` : 'Piano'; })();
+      const tempoKeep = document.getElementById(`piano2-corsa-tempo-${i}`)?.value || '';
+      const kmKeep    = document.getElementById(`piano2-corsa-km-${i}`)?.value || '';
+      const passoVal  = calcolaPassoFromTempo(tempoKeep, parseFloat(kmKeep));
+      const passoStr  = passoVal ? ` ${passoVal}min/km [${(60/passoVal).toFixed(1)}km/h]` : '';
+      const kmStr     = kmKeep ? ` ${kmKeep}km` : '';
+      const tempoStr  = tempoKeep ? ` ${tempoKeep}` : '';
+      linee.push(`Corsa ${inclKeep}${tempoStr}${kmStr}${passoStr}`);
     } else if (ex.id === 'salita_vigneto') {
       // Salita vigneto: schema x tempo
       const tempoStr = peso ? ` ${peso}s` : '';
@@ -3649,25 +3713,37 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
 
   if (isCorsa) {
     const rimuoviCorsa = `<button class="btn-rimuovi-riga"
-      style="display:none;align-self:flex-end;margin-bottom:2px;margin-left:auto;flex-shrink:0"
+      style="display:none;align-self:flex-end;margin-bottom:2px;margin-left:4px;flex-shrink:0"
       onclick="rimuoviRiga('${cardId}','${rigaId}')">− riga</button>`;
     const passoPrec = precompila.peso ? `${precompila.peso} min/km · ${(60/precompila.peso).toFixed(1)} km/h` : '';
-    return `<div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
-      <div style="flex:0 0 36px"><div class="form-label">Incl.(%)</div>
-        <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()"></div>
-      <div style="flex:0 0 82px;position:relative;padding-bottom:16px">
-        <div class="form-label">Tempo mm:ss</div>
-        <input type="text" class="ins-tempo-corsa" placeholder="35:00" value="${precompila.tempo||''}"
-          oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%">
-        <div class="tempo-format-err" style="display:none;position:absolute;bottom:0;left:0;color:#ff4444;font-size:10px;line-height:1.2;white-space:nowrap">Formato: mm:ss</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:flex-end;flex:1;min-width:180px">
-        <div style="flex:0 0 40px"><div class="form-label">km</div>
-          <input type="number" class="ins-km" placeholder="5.0" step="0.1" min="0" value="${precompila.km||''}" oninput="aggiornaPassoCalc('${rigaId}')"></div>
-        <div style="flex:1;min-width:0"><div class="form-label">Passo · km/h</div>
+    return `<div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <div style="flex:0 0 46px"><div class="form-label">Incl.(%)</div>
+          <input type="text" class="ins-inclinazione" placeholder="0%" value="${precompila.inclinazione||''}" oninput="aggiornaPreviewAllenamento()" style="width:100%"></div>
+        <div style="flex:0 0 90px;position:relative;padding-bottom:16px">
+          <div class="form-label">Tempo mm:ss</div>
+          <input type="text" class="ins-tempo-corsa" placeholder="35:00" value="${precompila.tempo||''}"
+            oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%">
+          <div class="tempo-format-err" style="display:none;position:absolute;bottom:0;left:0;color:#ff4444;font-size:10px;line-height:1.2;white-space:nowrap">Formato: mm:ss</div>
+        </div>
+        <div style="flex:0 0 56px"><div class="form-label">km</div>
+          <input type="number" class="ins-km" placeholder="5.0" step="0.1" min="0" value="${precompila.km||''}" oninput="aggiornaPassoCalc('${rigaId}')" style="width:100%"></div>
+        <div style="flex:1;min-width:130px"><div class="form-label">Passo · km/h</div>
           <input type="text" class="ins-passo-calc" readonly value="${passoPrec}" placeholder="—" tabindex="-1" style="width:100%"></div>
+        ${rimuoviCorsa}
       </div>
-      ${notaInline}${rimuoviCorsa}
+      <div>
+        <div class="form-label">Nota riga</div>
+        <div style="position:relative">
+          <input type="text" class="ins-nota-riga" placeholder="Nota..." value="${precompila.notaRiga||''}"
+            oninput="aggiornaPreviewAllenamento()" style="width:100%;padding-right:22px">
+          <button onclick="this.previousElementSibling.value='';aggiornaPreviewAllenamento()"
+            style="position:absolute;top:5px;right:5px;background:none;border:none;
+                   color:var(--text3);cursor:pointer;font-size:14px;line-height:1;transition:color 0.2s;padding:0"
+            onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='var(--text3)'"
+            title="Cancella nota">×</button>
+        </div>
+      </div>
     </div>`;
   }
 
@@ -3999,6 +4075,20 @@ function confermaAllenamento() {
   if (luogoP) document.getElementById('ins-luogo').value = luogoP;
 
   selezionati.forEach((ex, i) => {
+    if (ex.id === 'corsa') {
+      const incl  = document.getElementById(`piano2-corsa-incl-${i}`)?.value || '0%';
+      const tempo = document.getElementById(`piano2-corsa-tempo-${i}`)?.value || '';
+      const km    = document.getElementById(`piano2-corsa-km-${i}`)?.value || '';
+      const passo = calcolaPassoFromTempo(tempo, parseFloat(km));
+      aggiungiEsercizio({
+        exId: 'corsa',
+        inclinazione: incl.includes('%') ? incl : incl + '%',
+        tempo,
+        km,
+        peso: passo || ''
+      });
+      return;
+    }
     const { schema, peso } = getSchemaEPeso(i);
     const bwBtn = document.getElementById(`piano2-bw-${i}`);
     const isBW = bwBtn?.dataset?.bw === '1';
