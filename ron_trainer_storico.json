@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 421,
-    "totale_righe_esercizio": 1150,
+    "totale_sessioni": 422,
+    "totale_righe_esercizio": 1152,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -357,6 +357,40 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-09_manuale.json",
+      "title": "Training 09/05/2026 TE - Casa",
+      "data": "2026-05-09",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "6x10",
+          "peso_kg": 132.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Difficile, ultime 3 ripetizioni non fatte per sicurezza, fare piú spesso",
+          "data": "2026-05-09",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_incl_bil",
+          "schema": "6x10",
+          "peso_kg": 45,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultima ripetizione ultima serie non riuscita",
+          "data": "2026-05-09",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-05-07_manuale.json",
       "title": "Training 07/05/2026 PG - BW Hotel Quattrotorri",
