@@ -21959,5 +21959,97 @@
       ],
       "righe_non_parsificate": []
     }
+  ],
+  "misure_corporee": [
+    {
+      "data": "2025-04-01",
+      "m": {
+        "polpaccio_dx": 40,
+        "polpaccio_sx": 40,
+        "coscia_dx": 65,
+        "coscia_sx": 64.5,
+        "cinta": 90,
+        "omb_ril": 91,
+        "omb_con": 86,
+        "petto": 96.5,
+        "collo": 39,
+        "bic_dx": 34,
+        "bic_sx": 32.5,
+        "avb_dx": 29,
+        "avb_sx": 28
+      }
+    },
+    {
+      "data": "2025-07-01",
+      "m": {
+        "polpaccio_dx": 40.5,
+        "polpaccio_sx": 40.5,
+        "coscia_dx": 65,
+        "coscia_sx": 65,
+        "cinta": 90.5,
+        "omb_ril": 88.5,
+        "omb_con": 86,
+        "petto": 97,
+        "collo": 41,
+        "bic_dx": 34.5,
+        "bic_sx": 33.5,
+        "avb_dx": 29.5,
+        "avb_sx": 29
+      }
+    },
+    {
+      "data": "2025-10-01",
+      "m": {
+        "polpaccio_dx": 40.5,
+        "polpaccio_sx": 41,
+        "coscia_dx": 66,
+        "coscia_sx": 65,
+        "cinta": 92,
+        "omb_ril": 89,
+        "omb_con": 85.5,
+        "petto": 97.5,
+        "collo": 41.5,
+        "bic_dx": 35,
+        "bic_sx": 33.5,
+        "avb_dx": 30,
+        "avb_sx": 29.5
+      }
+    },
+    {
+      "data": "2026-01-01",
+      "m": {
+        "polpaccio_dx": 40,
+        "polpaccio_sx": 40.5,
+        "coscia_dx": 66,
+        "coscia_sx": 65,
+        "cinta": 89,
+        "omb_ril": 88,
+        "omb_con": 85,
+        "petto": 98,
+        "collo": 40,
+        "bic_dx": 35.5,
+        "bic_sx": 34,
+        "avb_dx": 30,
+        "avb_sx": 30
+      }
+    },
+    {
+      "data": "2026-04-01",
+      "m": {
+        "collo": 41,
+        "petto": 199,
+        "cinta": 89.5,
+        "omb_ril": 89.5,
+        "omb_con": 86.5,
+        "bic_dx": 35.5,
+        "bic_sx": 34,
+        "avb_dx": 30.5,
+        "avb_sx": 30,
+        "coscia_dx": 65,
+        "coscia_sx": 64,
+        "polpaccio_dx": 40,
+        "polpaccio_sx": 40.5
+      }
+    }
   ]
 }
