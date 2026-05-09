@@ -1084,6 +1084,13 @@
 .mm-input:focus { outline:none; border-color:var(--orange); }
 .mm-unit { font-size:12px; color:#555; }
 .mm-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+.mm-actions-top { display:flex; gap:10px; justify-content:flex-end; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #222; }
+.mm-confirm-bar { display:none; background:#1e0e00; border:1px solid #cc5500; border-radius:7px; padding:14px 16px; margin-bottom:16px; }
+.mm-confirm-bar.show { display:block; }
+.mm-confirm-bar-text { font-size:13px; color:#ffaa55; margin-bottom:12px; line-height:1.5; }
+.mm-confirm-bar-btns { display:flex; gap:10px; justify-content:flex-end; }
+.mm-delete-btn { background:none; border:none; color:#3a3a3a; cursor:pointer; font-size:12px; padding:2px 5px; margin-left:10px; font-family:inherit; transition:color 0.15s; }
+.mm-delete-btn:hover { color:#cc2200; }
 </style>
 </head>
 <body>
@@ -1360,7 +1367,7 @@
     </div>
     <div class="body-layout">
       <div class="body-wrap" id="body-wrap">
-        <img src="human-body-muscular-system-anatomy-front-view-back-silhouette-272062758-3697091154-removebg-preview.png"
+        <img src="body_silhouette.png"
              class="body-silhouette" alt="Body silhouette"
              onerror="this.outerHTML='<div class=\'body-img-err\'>⚠ Immagine non trovata<br><small>Aggiungi il file PNG nella stessa cartella</small></div>'">
         <div class="hs" data-zone="collo"      style="left:50%;top:16%"><div class="hs-dot"></div><span class="hs-txt">COLLO</span></div>
@@ -1427,9 +1434,20 @@
 </div>
 <!-- MODAL AGGIUNGI/MODIFICA MISURAZIONE -->
 <div class="modal-misure" id="modal-misure">
-  <div class="modal-misure-box">
+  <div class="modal-misure-box" id="modal-misure-box">
     <div class="modal-misure-title" id="mm-title">+ Aggiungi Misurazione</div>
     <div class="modal-misure-sub">Lascia vuoti i campi non misurati</div>
+    <div class="mm-actions-top">
+      <button class="btn btn-ghost" onclick="chiudiModalMisure()">ANNULLA</button>
+      <button class="btn" onclick="salvaMisurazione()">SALVA</button>
+    </div>
+    <div class="mm-confirm-bar" id="mm-confirm-bar">
+      <div class="mm-confirm-bar-text">⚠️ Stai modificando una misurazione passata.<br>I dati originali verranno <strong>sovrascritti</strong> e non potranno essere recuperati.</div>
+      <div class="mm-confirm-bar-btns">
+        <button class="btn btn-ghost btn-sm" onclick="annullaConfermaModifica()">INDIETRO</button>
+        <button class="btn btn-sm" style="background:#cc4400" onclick="confermaSalvaMisurazione()">CONFERMA MODIFICA</button>
+      </div>
+    </div>
     <div class="mm-group">
       <div class="mm-group-title">📅 Data</div>
       <div class="mm-row">
@@ -1474,6 +1492,21 @@
     <div class="mm-actions">
       <button class="btn btn-ghost" onclick="chiudiModalMisure()">ANNULLA</button>
       <button class="btn" onclick="salvaMisurazione()">SALVA</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-elimina-misura" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">🗑️ Elimina misurazione</div>
+    <div style="color:#a0a0a0;font-size:13px;margin:14px 0 22px;line-height:1.6">
+      Stai eliminando la misurazione del <strong id="elimina-data-label" style="color:#e8e8e8"></strong>.<br>
+      <span style="color:#ff5555;font-weight:600">Questa azione è irreversibile.</span><br>
+      <span style="font-size:12px;color:#555">Tutti i dati di quella sessione verranno cancellati.</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-elimina-misura').style.display='none'">ANNULLA</button>
+      <button class="btn" style="background:#cc2200;color:#fff" onclick="confermEliminaMisurazione()">ELIMINA</button>
     </div>
   </div>
 </div>
@@ -5194,7 +5227,10 @@ function renderBodyPanel(zoneId) {
     }).join('');
     return `<tr data-idx="${origIdx}">
       <td>${bodyFmtData(entry.data)}</td>${tds}
-      <td><button onclick="apriModalMisure(${origIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit" title="Modifica">✏️</button></td>
+      <td style="white-space:nowrap">
+        <button onclick="apriModalMisure(${origIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit" title="Modifica">✏️</button>
+        <button onclick="apriConfermaElimina(${origIdx})" class="mm-delete-btn" title="Elimina">🗑</button>
+      </td>
     </tr>`;
   }).join('');
 
@@ -5299,14 +5335,19 @@ function bindBodyTableRows(sess) {
 }
 
 // ---- Modal misure ----
+let _mmDeleteIdx = -1;
+
 function apriModalMisure(editIdx) {
   _mmEditIdx = (editIdx !== undefined && editIdx >= 0) ? editIdx : -1;
   const modal = document.getElementById('modal-misure');
   const title = document.getElementById('mm-title');
+
+  // Reset campi e confirm bar
   const ids = ['mm-data','mm-collo','mm-petto','mm-cinta','mm-omb-ril','mm-omb-con',
                'mm-bic-dx','mm-bic-sx','mm-avb-dx','mm-avb-sx',
                'mm-coscia-dx','mm-coscia-sx','mm-polp-dx','mm-polp-sx'];
   ids.forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('mm-confirm-bar').classList.remove('show');
 
   if (_mmEditIdx >= 0) {
     title.textContent = '✏️ Modifica Misurazione';
@@ -5331,11 +5372,17 @@ function apriModalMisure(editIdx) {
     title.textContent = '+ Aggiungi Misurazione';
     document.getElementById('mm-data').value = oggi();
   }
+
   modal.classList.add('open');
+  // Scroll to top del box
+  requestAnimationFrame(() => {
+    document.getElementById('modal-misure-box').scrollTop = 0;
+  });
 }
 
 function chiudiModalMisure() {
   document.getElementById('modal-misure').classList.remove('open');
+  document.getElementById('mm-confirm-bar').classList.remove('show');
 }
 
 function salvaMisurazione() {
@@ -5346,24 +5393,51 @@ function salvaMisurazione() {
     const val = parseFloat(document.getElementById(id).value);
     return isNaN(val) ? null : val;
   };
-
   const m = {
-    collo:        v('mm-collo'),
-    petto:        v('mm-petto'),
-    cinta:        v('mm-cinta'),
-    omb_ril:      v('mm-omb-ril'),
-    omb_con:      v('mm-omb-con'),
-    bic_dx:       v('mm-bic-dx'),
-    bic_sx:       v('mm-bic-sx'),
-    avb_dx:       v('mm-avb-dx'),
-    avb_sx:       v('mm-avb-sx'),
-    coscia_dx:    v('mm-coscia-dx'),
-    coscia_sx:    v('mm-coscia-sx'),
-    polpaccio_dx: v('mm-polp-dx'),
+    collo:        v('mm-collo'),   petto:        v('mm-petto'),
+    cinta:        v('mm-cinta'),   omb_ril:      v('mm-omb-ril'),
+    omb_con:      v('mm-omb-con'), bic_dx:       v('mm-bic-dx'),
+    bic_sx:       v('mm-bic-sx'),  avb_dx:       v('mm-avb-dx'),
+    avb_sx:       v('mm-avb-sx'),  coscia_dx:    v('mm-coscia-dx'),
+    coscia_sx:    v('mm-coscia-sx'),polpaccio_dx: v('mm-polp-dx'),
     polpaccio_sx: v('mm-polp-sx'),
   };
   Object.keys(m).forEach(k => { if (m[k] === null) delete m[k]; });
   if (!Object.keys(m).length) { showToast('Inserisci almeno una misura', 'error'); return; }
+
+  // Modifica → richiede conferma
+  if (_mmEditIdx >= 0) {
+    const bar = document.getElementById('mm-confirm-bar');
+    bar.classList.add('show');
+    document.getElementById('modal-misure-box').scrollTop = 0;
+    return;
+  }
+
+  _eseguiSalvaMisurazione();
+}
+
+function annullaConfermaModifica() {
+  document.getElementById('mm-confirm-bar').classList.remove('show');
+}
+
+function confermaSalvaMisurazione() {
+  document.getElementById('mm-confirm-bar').classList.remove('show');
+  _eseguiSalvaMisurazione();
+}
+
+function _eseguiSalvaMisurazione() {
+  const dataVal = document.getElementById('mm-data').value;
+  const v = id => { const val = parseFloat(document.getElementById(id).value); return isNaN(val) ? null : val; };
+  const m = {
+    collo:        v('mm-collo'),   petto:        v('mm-petto'),
+    cinta:        v('mm-cinta'),   omb_ril:      v('mm-omb-ril'),
+    omb_con:      v('mm-omb-con'), bic_dx:       v('mm-bic-dx'),
+    bic_sx:       v('mm-bic-sx'),  avb_dx:       v('mm-avb-dx'),
+    avb_sx:       v('mm-avb-sx'),  coscia_dx:    v('mm-coscia-dx'),
+    coscia_sx:    v('mm-coscia-sx'),polpaccio_dx: v('mm-polp-dx'),
+    polpaccio_sx: v('mm-polp-sx'),
+  };
+  Object.keys(m).forEach(k => { if (m[k] === null) delete m[k]; });
 
   if (!DATA.misure_corporee) DATA.misure_corporee = [];
 
@@ -5382,6 +5456,31 @@ function salvaMisurazione() {
   }
 
   chiudiModalMisure();
+  const activeHs = document.querySelector('#panel-body .hs.active');
+  if (activeHs) renderBodyPanel(activeHs.dataset.zone);
+  salvasuGitHub();
+}
+
+// ---- Elimina misurazione ----
+function apriConfermaElimina(idx) {
+  _mmDeleteIdx = idx;
+  const sess = bodyGetSess();
+  const entry = sess[idx];
+  document.getElementById('elimina-data-label').textContent = bodyFmtData(entry.data);
+  document.getElementById('modal-elimina-misura').style.display = 'flex';
+}
+
+function confermEliminaMisurazione() {
+  document.getElementById('modal-elimina-misura').style.display = 'none';
+  if (_mmDeleteIdx < 0) return;
+
+  const sess = bodyGetSess();
+  const origData = sess[_mmDeleteIdx].data;
+  const idx = DATA.misure_corporee.findIndex(e => e.data === origData);
+  if (idx >= 0) DATA.misure_corporee.splice(idx, 1);
+
+  _mmDeleteIdx = -1;
+
   const activeHs = document.querySelector('#panel-body .hs.active');
   if (activeHs) renderBodyPanel(activeHs.dataset.zone);
   salvasuGitHub();
