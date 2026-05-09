@@ -1022,6 +1022,68 @@
     /* TOAST non esca dai bordi */
     .toast { max-width: calc(100vw - 32px); white-space: normal; text-align: center; }
   }
+
+/* ===== BODY METRICS ===== */
+.body-layout { display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap; margin-top:8px; }
+.body-wrap { flex-shrink:0; width:190px; min-height:470px; position:relative; }
+.body-silhouette { width:100%; height:auto; display:block;
+  filter:invert(1) brightness(0.22) drop-shadow(0 0 18px rgba(255,107,0,0.22)) drop-shadow(0 0 6px rgba(255,107,0,0.12)); }
+.body-img-err { width:100%; height:470px; background:#1a1a1a; border:1px dashed #333; border-radius:8px;
+  display:flex; align-items:center; justify-content:center; color:#444; font-size:11px; text-align:center; padding:12px; }
+.hs { position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; cursor:pointer; gap:3px; }
+.hs-dot { width:20px; height:20px; border-radius:50%; background:rgba(255,107,0,0.28); border:2px solid rgba(255,107,0,0.50);
+  box-shadow:0 0 10px rgba(255,107,0,0.28),inset 0 0 6px rgba(255,107,0,0.15); transition:all 0.15s; flex-shrink:0; }
+.hs-txt { font-size:9.5px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#888;
+  white-space:nowrap; transition:color 0.15s; pointer-events:none; text-shadow:0 1px 4px rgba(0,0,0,0.9); }
+.hs:hover .hs-dot { background:rgba(255,107,0,0.52); border-color:rgba(255,107,0,0.85); box-shadow:0 0 16px rgba(255,107,0,0.55); }
+.hs:hover .hs-txt { color:#aaa; }
+.hs.active .hs-dot { background:rgba(255,107,0,0.80); border-color:#ff6b00; box-shadow:0 0 22px rgba(255,107,0,0.85),0 0 8px rgba(255,107,0,1); }
+.hs.active .hs-txt { color:#ff9940; }
+.body-panel { flex:1; min-width:260px; background:#1a1a1a; border-radius:8px; padding:20px; min-height:340px; display:flex; flex-direction:column; }
+.body-panel-empty { flex:1; display:flex; align-items:center; justify-content:center; color:#555; font-size:14px; font-style:italic; }
+.bz-title { font-size:22px; font-weight:700; color:var(--orange); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+.bz-desc { font-size:12px; font-weight:400; color:#555; letter-spacing:0; text-transform:none; font-style:italic; }
+.bz-date { color:#555; font-size:12px; margin-bottom:12px; }
+.bz-last-vals { display:flex; gap:22px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end; }
+.bz-lv-num { font-size:28px; font-weight:700; font-family:'Barlow Condensed',sans-serif; line-height:1; }
+.bz-lv-unit { font-size:14px; color:#555; font-weight:400; }
+.bz-lv-lab { font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-top:2px; }
+.bz-delta { font-size:12px; font-weight:600; margin-top:3px; }
+.bz-delta.up { color:#44cc88; } .bz-delta.dn { color:#ff5555; } .bz-delta.eq { color:#777; }
+.bz-chart-box { background:#1d1d1d; border-radius:6px; padding:10px 8px 6px; margin-bottom:14px; position:relative; }
+.bz-legend { display:flex; gap:14px; margin-bottom:8px; flex-wrap:wrap; }
+.bz-legend-item { display:flex; align-items:center; gap:5px; font-size:12px; }
+.bz-legend-line { width:20px; height:3px; border-radius:2px; }
+.bz-chart-svg { width:100%; display:block; overflow:visible; }
+.bz-tooltip { position:absolute; background:#111; border:1px solid #333; border-radius:5px; padding:5px 9px;
+  font-size:12px; font-weight:600; color:#fff; pointer-events:none; display:none; white-space:nowrap; z-index:10; transform:translate(-50%,-110%); }
+.bz-hist-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:14px; }
+.bz-hist-table th { color:#555; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-weight:600;
+  padding:5px 10px; text-align:left; border-bottom:1px solid #2a2a2a; }
+.bz-hist-table td { padding:7px 10px; border-bottom:1px solid #181818; color:#a0a0a0; }
+.bz-hist-table td:first-child { color:#555; font-size:12px; min-width:80px; }
+.bz-hist-table tr { cursor:pointer; transition:background 0.1s; }
+.bz-hist-table tr:hover { background:rgba(255,107,0,0.07); }
+.bz-hist-table tr.row-hl { background:rgba(255,107,0,0.12); }
+.bz-top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+/* Modal misure */
+.modal-misure { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200;
+  align-items:center; justify-content:center; padding:16px; }
+.modal-misure.open { display:flex; }
+.modal-misure-box { background:#1a1a1a; border:1px solid #2a2a2a; border-radius:10px;
+  width:100%; max-width:500px; max-height:90vh; overflow-y:auto; padding:24px; }
+.modal-misure-title { font-size:16px; font-weight:700; color:var(--orange); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.modal-misure-sub { font-size:12px; color:#555; margin-bottom:20px; }
+.mm-group { margin-bottom:18px; }
+.mm-group-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#555;
+  margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid #222; }
+.mm-row { display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+.mm-label { font-size:12px; color:#a0a0a0; width:110px; flex-shrink:0; }
+.mm-input { background:#111; border:1px solid #2a2a2a; border-radius:5px; color:#e8e8e8;
+  font-size:14px; padding:6px 10px; width:90px; font-family:inherit; }
+.mm-input:focus { outline:none; border-color:var(--orange); }
+.mm-unit { font-size:12px; color:#555; }
+.mm-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
 </style>
 </head>
 <body>
@@ -1292,8 +1354,31 @@
 
   <!-- BODY METRICS -->
   <div class="panel" id="panel-body">
-    <div class="section-title">Body Metrics</div>
-    <div style="color:var(--text3);font-size:14px;margin-top:20px">Coming soon — misure corporee e progressione.</div>
+    <div class="bz-top-bar">
+      <div class="section-title" style="margin-bottom:0">Body Metrics</div>
+      <button class="btn btn-sm" onclick="apriModalMisure()">+ AGGIUNGI</button>
+    </div>
+    <div class="body-layout">
+      <div class="body-wrap" id="body-wrap">
+        <img src="human-body-muscular-system-anatomy-front-view-back-silhouette-272062758-3697091154-removebg-preview.png"
+             class="body-silhouette" alt="Body silhouette"
+             onerror="this.outerHTML='<div class=\'body-img-err\'>⚠ Immagine non trovata<br><small>Aggiungi il file PNG nella stessa cartella</small></div>'">
+        <div class="hs" data-zone="collo"      style="left:50%;top:16%"><div class="hs-dot"></div><span class="hs-txt">COLLO</span></div>
+        <div class="hs" data-zone="petto"      style="left:50%;top:28%"><div class="hs-dot"></div><span class="hs-txt">PETTO</span></div>
+        <div class="hs" data-zone="vita"       style="left:50%;top:46%"><div class="hs-dot"></div><span class="hs-txt">VITA</span></div>
+        <div class="hs" data-zone="bicipiti"   style="left:13%;top:33%"><div class="hs-dot"></div><span class="hs-txt">BIC DX</span></div>
+        <div class="hs" data-zone="bicipiti"   style="left:87%;top:33%"><div class="hs-dot"></div><span class="hs-txt">BIC SX</span></div>
+        <div class="hs" data-zone="avambracci" style="left:9%;top:45%"><div class="hs-dot"></div><span class="hs-txt">AVB DX</span></div>
+        <div class="hs" data-zone="avambracci" style="left:91%;top:45%"><div class="hs-dot"></div><span class="hs-txt">AVB SX</span></div>
+        <div class="hs" data-zone="cosce"      style="left:35%;top:63%"><div class="hs-dot"></div><span class="hs-txt">COSCIA DX</span></div>
+        <div class="hs" data-zone="cosce"      style="left:65%;top:63%"><div class="hs-dot"></div><span class="hs-txt">COSCIA SX</span></div>
+        <div class="hs" data-zone="polpacci"   style="left:33%;top:80%"><div class="hs-dot"></div><span class="hs-txt">POLP DX</span></div>
+        <div class="hs" data-zone="polpacci"   style="left:67%;top:80%"><div class="hs-dot"></div><span class="hs-txt">POLP SX</span></div>
+      </div>
+      <div class="body-panel" id="body-panel">
+        <div class="body-panel-empty">← Clicca un punto sul corpo</div>
+      </div>
+    </div>
   </div>
 
   <!-- GUIDE / LINK TECNICA -->
@@ -1340,6 +1425,59 @@
     </div>
   </div>
 </div>
+<!-- MODAL AGGIUNGI/MODIFICA MISURAZIONE -->
+<div class="modal-misure" id="modal-misure">
+  <div class="modal-misure-box">
+    <div class="modal-misure-title" id="mm-title">+ Aggiungi Misurazione</div>
+    <div class="modal-misure-sub">Lascia vuoti i campi non misurati</div>
+    <div class="mm-group">
+      <div class="mm-group-title">📅 Data</div>
+      <div class="mm-row">
+        <label class="mm-label">Data misura</label>
+        <input type="date" id="mm-data" class="mm-input" style="width:150px">
+      </div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Collo</div>
+      <div class="mm-row"><label class="mm-label">Collo</label><input type="number" id="mm-collo" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Petto</div>
+      <div class="mm-row"><label class="mm-label">Petto</label><input type="number" id="mm-petto" class="mm-input" step="0.5" min="50" max="150" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Vita</div>
+      <div class="mm-row"><label class="mm-label">Cinta ril.</label><input type="number" id="mm-cinta" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Ombelico ril.</label><input type="number" id="mm-omb-ril" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Ombelico contr.</label><input type="number" id="mm-omb-con" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Bicipiti</div>
+      <div class="mm-row"><label class="mm-label">Bic DX</label><input type="number" id="mm-bic-dx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Bic SX</label><input type="number" id="mm-bic-sx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Avambracci</div>
+      <div class="mm-row"><label class="mm-label">Avb DX</label><input type="number" id="mm-avb-dx" class="mm-input" step="0.5" min="15" max="50" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Avb SX</label><input type="number" id="mm-avb-sx" class="mm-input" step="0.5" min="15" max="50" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Cosce</div>
+      <div class="mm-row"><label class="mm-label">Coscia DX</label><input type="number" id="mm-coscia-dx" class="mm-input" step="0.5" min="30" max="90" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Coscia SX</label><input type="number" id="mm-coscia-sx" class="mm-input" step="0.5" min="30" max="90" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">Polpacci</div>
+      <div class="mm-row"><label class="mm-label">Polpaccio DX</label><input type="number" id="mm-polp-dx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Polpaccio SX</label><input type="number" id="mm-polp-sx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
+    </div>
+    <div class="mm-actions">
+      <button class="btn btn-ghost" onclick="chiudiModalMisure()">ANNULLA</button>
+      <button class="btn" onclick="salvaMisurazione()">SALVA</button>
+    </div>
+  </div>
+</div>
+
 <div class="pending-banner" id="pending-banner">
   ⚠️ Salvataggio GitHub non completato
   <button class="btn btn-ghost btn-sm" onclick="ritentaSalvaggio()">RIPROVA</button>
@@ -1412,6 +1550,7 @@ function inizializza() {
   inizializzaPR();
   inizializzaPianificatore();
   inizializzaInserimento();
+  inizializzaBody();
   aggiornaIndicatoreDimensione();
   verificaPendingSave();
   verificaToken(); // async, non blocca
@@ -4965,6 +5104,287 @@ function filterGuide() {
     const hasVisible = [...sect.querySelectorAll('.guide-card')].some(c => c.style.display !== 'none');
     sect.style.display = hasVisible ? '' : 'none';
   });
+}
+
+// =====================
+// BODY METRICS
+// =====================
+const BODY_SEED = [
+  { data:'2025-04-01', m:{ polpaccio_dx:40,   polpaccio_sx:40,   coscia_dx:65,  coscia_sx:64.5, cinta:90,   omb_ril:91,   omb_con:86,   petto:96.5, collo:39,   bic_dx:34,   bic_sx:32.5, avb_dx:29,   avb_sx:28   }},
+  { data:'2025-07-01', m:{ polpaccio_dx:40.5, polpaccio_sx:40.5, coscia_dx:65,  coscia_sx:65,   cinta:90.5, omb_ril:88.5, omb_con:86,   petto:97,   collo:41,   bic_dx:34.5, bic_sx:33.5, avb_dx:29.5, avb_sx:29   }},
+  { data:'2025-10-01', m:{ polpaccio_dx:40.5, polpaccio_sx:41,   coscia_dx:66,  coscia_sx:65,   cinta:92,   omb_ril:89,   omb_con:85.5, petto:97.5, collo:41.5, bic_dx:35,   bic_sx:33.5, avb_dx:30,   avb_sx:29.5 }},
+  { data:'2026-01-01', m:{ polpaccio_dx:40,   polpaccio_sx:40.5, coscia_dx:66,  coscia_sx:65,   cinta:89,   omb_ril:88,   omb_con:85,   petto:98,   collo:40,   bic_dx:35.5, bic_sx:34,   avb_dx:30,   avb_sx:30   }},
+  { data:'2026-04-01', m:{ polpaccio_dx:40,   polpaccio_sx:40.5, coscia_dx:65,  coscia_sx:64,   cinta:89.5, omb_ril:89.5, omb_con:86.5, petto:99,   collo:41,   bic_dx:35.5, bic_sx:34,   avb_dx:30.5, avb_sx:30   }},
+];
+
+const BODY_ZONE_CFG = {
+  collo:      { label:'COLLO',      desc:"pomo d'adamo, contratto",                    serie:[{ key:'collo',        lab:'Collo', col:'#ff6b00' }] },
+  petto:      { label:'PETTO',      desc:"all'altezza delle aureole, contratto",       serie:[{ key:'petto',        lab:'Petto', col:'#ff6b00' }] },
+  vita:       { label:'VITA',       desc:"3 misure: cinta, ombelico ril., ombelico contr.", serie:[
+                  { key:'cinta',    lab:'Cinta ril.',      col:'#ff6b00' },
+                  { key:'omb_ril',  lab:'Ombelico ril.',   col:'#4da6ff' },
+                  { key:'omb_con',  lab:'Ombelico contr.', col:'#44cc88' }] },
+  bicipiti:   { label:'BICIPITI',   desc:'punto max, contratto',                       serie:[{ key:'bic_dx', lab:'DX', col:'#ff6b00' }, { key:'bic_sx', lab:'SX', col:'#4da6ff' }] },
+  avambracci: { label:'AVAMBRACCI', desc:'punto max, contratto',                       serie:[{ key:'avb_dx', lab:'DX', col:'#ff6b00' }, { key:'avb_sx', lab:'SX', col:'#4da6ff' }] },
+  cosce:      { label:'COSCE',      desc:'contratta, appena sotto il cavallo',         serie:[{ key:'coscia_dx', lab:'DX', col:'#ff6b00' }, { key:'coscia_sx', lab:'SX', col:'#4da6ff' }] },
+  polpacci:   { label:'POLPACCI',   desc:'contratto, 4 dita sotto la piega',           serie:[{ key:'polpaccio_dx', lab:'DX', col:'#ff6b00' }, { key:'polpaccio_sx', lab:'SX', col:'#4da6ff' }] },
+};
+
+let _mmEditIdx = -1;
+
+function bodyGetSess() {
+  if (!DATA.misure_corporee) DATA.misure_corporee = [];
+  return [...DATA.misure_corporee].sort((a,b) => a.data.localeCompare(b.data));
+}
+
+function bodyFmtData(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('it-IT', { month:'short', year:'numeric' })
+          .replace(/^\w/, c => c.toUpperCase());
+}
+
+function inizializzaBody() {
+  if (!DATA.misure_corporee || DATA.misure_corporee.length === 0) {
+    DATA.misure_corporee = JSON.parse(JSON.stringify(BODY_SEED));
+  }
+  document.querySelectorAll('#panel-body .hs').forEach(el => {
+    el.addEventListener('click', function() {
+      const z = this.dataset.zone;
+      document.querySelectorAll('#panel-body .hs').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll(`#panel-body .hs[data-zone="${z}"]`).forEach(x => x.classList.add('active'));
+      renderBodyPanel(z);
+    });
+  });
+}
+
+function renderBodyPanel(zoneId) {
+  const cfg = BODY_ZONE_CFG[zoneId];
+  if (!cfg) return;
+  const sess = bodyGetSess();
+  if (!sess.length) {
+    document.getElementById('body-panel').innerHTML = '<div class="body-panel-empty">Nessuna misurazione</div>';
+    return;
+  }
+  const last = sess[sess.length - 1];
+  const prev = sess.length >= 2 ? sess[sess.length - 2] : null;
+
+  const lastValsHtml = cfg.serie.map((s, i) => {
+    const v = last.m[s.key];
+    const p = prev ? prev.m[s.key] : null;
+    const diff = (v != null && p != null) ? +(v - p).toFixed(1) : null;
+    const dCls = diff === null ? '' : diff > 0 ? 'up' : diff < 0 ? 'dn' : 'eq';
+    const dStr = diff !== null ? `<div class="bz-delta ${dCls}">${diff > 0 ? '+' : ''}${diff} cm</div>` : '';
+    return `<div>
+      <div class="bz-lv-num" style="color:${s.col}">${v != null ? v : '—'}<span class="bz-lv-unit"> cm</span></div>
+      <div class="bz-lv-lab" style="color:${s.col}">${s.lab}</div>
+      ${dStr}
+    </div>`;
+  }).join('');
+
+  const legendHtml = cfg.serie.map(s =>
+    `<div class="bz-legend-item"><div class="bz-legend-line" style="background:${s.col}"></div><span style="color:${s.col}">${s.lab}</span></div>`
+  ).join('');
+
+  const thHtml = `<th>Data</th>` + cfg.serie.map((s,i) => `<th class="c${i}">${s.lab}</th>`).join('') + `<th></th>`;
+  const trHtml = [...sess].reverse().map((entry, ri) => {
+    const origIdx = sess.length - 1 - ri;
+    const tds = cfg.serie.map((s, i) => {
+      const val = entry.m[s.key];
+      return `<td class="c${i}">${val != null ? val + ' cm' : '—'}</td>`;
+    }).join('');
+    return `<tr data-idx="${origIdx}">
+      <td>${bodyFmtData(entry.data)}</td>${tds}
+      <td><button onclick="apriModalMisure(${origIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit" title="Modifica">✏️</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('body-panel').innerHTML = `
+    <div class="bz-title">${cfg.label} <span class="bz-desc">— ${cfg.desc}</span></div>
+    <div class="bz-date">Ultima: ${bodyFmtData(last.data)}</div>
+    <div class="bz-last-vals">${lastValsHtml}</div>
+    <div class="bz-chart-box">
+      <div class="bz-legend">${legendHtml}</div>
+      <div id="bz-chart-container" style="position:relative">
+        <svg class="bz-chart-svg" id="bz-main-chart" viewBox="0 0 380 130" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="bz-tooltip" id="bz-tt"></div>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid #2a2a2a;margin:12px 0">
+    <table class="bz-hist-table">
+      <thead><tr>${thHtml}</tr></thead>
+      <tbody id="bz-hist-body">${trHtml}</tbody>
+    </table>
+  `;
+
+  buildBodyChart(cfg, sess);
+  bindBodyTableRows(sess);
+}
+
+function buildBodyChart(cfg, sess) {
+  const W=380, H=130, PX=38, PY=12, BOTTOM=20;
+  const iW=W-PX*2, iH=H-PY-BOTTOM, n=sess.length;
+  if (n < 2) return;
+  const allVals = cfg.serie.flatMap(s => sess.map(ss => ss.m[s.key])).filter(v => v != null);
+  if (!allVals.length) return;
+  const minV = Math.min(...allVals) - 1;
+  const maxV = Math.max(...allVals) + 1;
+  const xOf = i => PX + (i / (n-1)) * iW;
+  const yOf = v => PY + iH - ((v - minV) / (maxV - minV)) * iH;
+
+  let svg = '';
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    const v = minV + (maxV - minV) * t, y = yOf(v);
+    svg += `<line x1="${PX}" y1="${y}" x2="${W-PX}" y2="${y}" stroke="#262626" stroke-width="1"/>`;
+    svg += `<text x="${PX-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#484848">${v.toFixed(1)}</text>`;
+  });
+  svg += `<text x="10" y="${PY+iH/2}" text-anchor="middle" font-size="8" fill="#555" transform="rotate(-90,10,${PY+iH/2})">cm</text>`;
+  sess.forEach((s, i) => {
+    svg += `<text x="${xOf(i)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#484848">${bodyFmtData(s.data)}</text>`;
+  });
+
+  cfg.serie.forEach((s, si) => {
+    const pts = sess.map((ss, i) => ({ x:xOf(i), y:yOf(ss.m[s.key]), v:ss.m[s.key], idx:i }))
+                    .filter(p => p.v != null);
+    if (pts.length < 2) return;
+    const ptStr = pts.map(p => `${p.x},${p.y}`).join(' ');
+    svg += `<path d="M ${pts[0].x},${yOf(minV)} L ${ptStr} L ${pts[pts.length-1].x},${yOf(minV)} Z" fill="${s.col}" fill-opacity="0.07"/>`;
+    svg += `<polyline points="${ptStr}" fill="none" stroke="${s.col}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(p => {
+      svg += `<circle class="bz-dot" data-si="${si}" data-idx="${p.idx}" data-val="${p.v}" data-lab="${s.lab}" data-col="${s.col}"
+        cx="${p.x}" cy="${p.y}" r="4" fill="${s.col}" stroke="#1a1a1a" stroke-width="1.8" style="cursor:pointer"/>`;
+    });
+  });
+
+  document.getElementById('bz-main-chart').innerHTML = svg;
+
+  const tt = document.getElementById('bz-tt');
+  document.querySelectorAll('.bz-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', function() {
+      this.setAttribute('r', '6');
+      tt.style.display = 'block';
+      tt.style.color = this.dataset.col;
+      tt.textContent = `${this.dataset.lab}: ${this.dataset.val} cm`;
+      const svgEl = document.getElementById('bz-main-chart');
+      const svgRect = svgEl.getBoundingClientRect();
+      const cRect  = document.getElementById('bz-chart-container').getBoundingClientRect();
+      const scX = svgRect.width / 380, scY = svgRect.height / 130;
+      tt.style.left = (svgRect.left - cRect.left + parseFloat(this.getAttribute('cx')) * scX) + 'px';
+      tt.style.top  = (svgRect.top  - cRect.top  + parseFloat(this.getAttribute('cy')) * scY - 8) + 'px';
+    });
+    dot.addEventListener('mouseleave', function() {
+      this.setAttribute('r', '4');
+      tt.style.display = 'none';
+    });
+  });
+}
+
+function bindBodyTableRows(sess) {
+  document.querySelectorAll('#bz-hist-body tr').forEach(tr => {
+    tr.addEventListener('mouseenter', function() {
+      document.querySelectorAll('#bz-hist-body tr').forEach(x => x.classList.remove('row-hl'));
+      this.classList.add('row-hl');
+      const idx = parseInt(this.dataset.idx);
+      document.querySelectorAll('.bz-dot').forEach(d => {
+        if (parseInt(d.dataset.idx) === idx) { d.setAttribute('r','7'); d.style.strokeWidth='2.5'; }
+        else { d.setAttribute('r','3'); d.style.opacity='0.3'; }
+      });
+    });
+    tr.addEventListener('mouseleave', function() {
+      this.classList.remove('row-hl');
+      document.querySelectorAll('.bz-dot').forEach(d => {
+        d.setAttribute('r','4'); d.style.opacity='1'; d.style.strokeWidth='1.8';
+      });
+    });
+  });
+}
+
+// ---- Modal misure ----
+function apriModalMisure(editIdx) {
+  _mmEditIdx = (editIdx !== undefined && editIdx >= 0) ? editIdx : -1;
+  const modal = document.getElementById('modal-misure');
+  const title = document.getElementById('mm-title');
+  const ids = ['mm-data','mm-collo','mm-petto','mm-cinta','mm-omb-ril','mm-omb-con',
+               'mm-bic-dx','mm-bic-sx','mm-avb-dx','mm-avb-sx',
+               'mm-coscia-dx','mm-coscia-sx','mm-polp-dx','mm-polp-sx'];
+  ids.forEach(id => { document.getElementById(id).value = ''; });
+
+  if (_mmEditIdx >= 0) {
+    title.textContent = '✏️ Modifica Misurazione';
+    const sess = bodyGetSess();
+    const entry = sess[_mmEditIdx];
+    document.getElementById('mm-data').value = entry.data;
+    const m = entry.m;
+    if (m.collo        != null) document.getElementById('mm-collo').value      = m.collo;
+    if (m.petto        != null) document.getElementById('mm-petto').value      = m.petto;
+    if (m.cinta        != null) document.getElementById('mm-cinta').value      = m.cinta;
+    if (m.omb_ril      != null) document.getElementById('mm-omb-ril').value    = m.omb_ril;
+    if (m.omb_con      != null) document.getElementById('mm-omb-con').value    = m.omb_con;
+    if (m.bic_dx       != null) document.getElementById('mm-bic-dx').value     = m.bic_dx;
+    if (m.bic_sx       != null) document.getElementById('mm-bic-sx').value     = m.bic_sx;
+    if (m.avb_dx       != null) document.getElementById('mm-avb-dx').value     = m.avb_dx;
+    if (m.avb_sx       != null) document.getElementById('mm-avb-sx').value     = m.avb_sx;
+    if (m.coscia_dx    != null) document.getElementById('mm-coscia-dx').value  = m.coscia_dx;
+    if (m.coscia_sx    != null) document.getElementById('mm-coscia-sx').value  = m.coscia_sx;
+    if (m.polpaccio_dx != null) document.getElementById('mm-polp-dx').value    = m.polpaccio_dx;
+    if (m.polpaccio_sx != null) document.getElementById('mm-polp-sx').value    = m.polpaccio_sx;
+  } else {
+    title.textContent = '+ Aggiungi Misurazione';
+    document.getElementById('mm-data').value = oggi();
+  }
+  modal.classList.add('open');
+}
+
+function chiudiModalMisure() {
+  document.getElementById('modal-misure').classList.remove('open');
+}
+
+function salvaMisurazione() {
+  const dataVal = document.getElementById('mm-data').value;
+  if (!dataVal) { showToast('Inserisci la data', 'error'); return; }
+
+  const v = id => {
+    const val = parseFloat(document.getElementById(id).value);
+    return isNaN(val) ? null : val;
+  };
+
+  const m = {
+    collo:        v('mm-collo'),
+    petto:        v('mm-petto'),
+    cinta:        v('mm-cinta'),
+    omb_ril:      v('mm-omb-ril'),
+    omb_con:      v('mm-omb-con'),
+    bic_dx:       v('mm-bic-dx'),
+    bic_sx:       v('mm-bic-sx'),
+    avb_dx:       v('mm-avb-dx'),
+    avb_sx:       v('mm-avb-sx'),
+    coscia_dx:    v('mm-coscia-dx'),
+    coscia_sx:    v('mm-coscia-sx'),
+    polpaccio_dx: v('mm-polp-dx'),
+    polpaccio_sx: v('mm-polp-sx'),
+  };
+  Object.keys(m).forEach(k => { if (m[k] === null) delete m[k]; });
+  if (!Object.keys(m).length) { showToast('Inserisci almeno una misura', 'error'); return; }
+
+  if (!DATA.misure_corporee) DATA.misure_corporee = [];
+
+  if (_mmEditIdx >= 0) {
+    const sess = bodyGetSess();
+    const origData = sess[_mmEditIdx].data;
+    const idx = DATA.misure_corporee.findIndex(e => e.data === origData);
+    if (idx >= 0) DATA.misure_corporee[idx] = { data: dataVal, m };
+  } else {
+    const existing = DATA.misure_corporee.findIndex(e => e.data === dataVal);
+    if (existing >= 0) {
+      DATA.misure_corporee[existing].m = Object.assign({}, DATA.misure_corporee[existing].m, m);
+    } else {
+      DATA.misure_corporee.push({ data: dataVal, m });
+    }
+  }
+
+  chiudiModalMisure();
+  const activeHs = document.querySelector('#panel-body .hs.active');
+  if (activeHs) renderBodyPanel(activeHs.dataset.zone);
+  salvasuGitHub();
 }
 
 // =====================
