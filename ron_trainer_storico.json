@@ -60,6 +60,14 @@
       "link_tecnica": []
     },
     {
+      "id": "lancio_del_martello",
+      "nome": "Lancio del martello",
+      "categoria": "isolato",
+      "unita": "kg",
+      "bodyweight": false,
+      "stato": "archivio"
+    },
+    {
       "id": "panca_incl_man",
       "nome": "Panca inclinata con manubri",
       "categoria": "isolato",
