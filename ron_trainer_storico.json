@@ -640,12 +640,12 @@
         },
         {
           "esercizio_id": "lancio_del_martello",
-          "schema": "1x12",
-          "peso_kg": 7.26,
+          "schema": "7x12",
+          "peso_kg": 49,
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "49mt PB",
+          "nota_riga": "49mt PB 7,26kg",
           "data": "2026-04-30",
           "luogo": "AP",
           "file_sorgente": "manuale"
