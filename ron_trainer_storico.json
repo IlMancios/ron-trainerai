@@ -293,8 +293,10 @@
     {
       "id": "balzi_gradoni",
       "nome": "Balzi a due gambe sui gradoni",
-      "categoria": "pliometrico",
-      "stato": "attivo"
+      "categoria": "isolato",
+      "stato": "attivo",
+      "unita": "nessuna",
+      "bodyweight": false
     },
     {
       "id": "squat_jump",
