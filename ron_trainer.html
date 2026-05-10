@@ -3226,7 +3226,7 @@ function procediStep2() {
     const ultimoPesoSchema = pesoPerSchema[ex.id]?.[schemaDefault];
     const pesoDefault = ex.id === 'salita_vigneto' ? '' : (ultimoPesoSchema?.peso || '');
     const eraBW = !pesoDefault && (isBW || ex.id === 'salita_vigneto');
-    const unitaLabel = isCorsa ? 'min/km' : ex.id === 'salita_vigneto' ? 'bw' : (pesoPerSchema[ex.id]?.[schemaDefault]?.unita || 'kg');
+    const unitaLabel = isCorsa ? 'min/km' : ex.id === 'salita_vigneto' ? 'bw' : (ex.unita || pesoPerSchema[ex.id]?.[schemaDefault]?.unita || 'kg');
 
     const schemaOptions = tuttiSchemi.map(([s, count]) => {
       const label = isCorsa && /^\d+%$/.test(s) ? `Inclinazione ${s}` : s;
@@ -5018,7 +5018,8 @@ function renderSessioneBody(s) {
     const righe = g.righe.map(e => {
       let peso;
       if (e.peso_kg) {
-        const unita = e.unita === 'kg/mano' ? ' kg/mano' : e.unita === 'min/km' ? ' min/km' : e.unita === 'sec' ? ' sec' : ' kg';
+        const unitaEff = e.unita || (DATA.esercizi_canonici.find(cx => cx.id === e.esercizio_id)?.unita) || 'kg';
+        const unita = unitaEff === 'min/km' ? ' min/km' : unitaEff === 'sec' ? ' sec' : ' ' + unitaEff;
         const kmhExtra = e.unita === 'min/km' ? ` <span style="color:#bbb;font-size:14px">[${(60/e.peso_kg).toFixed(1)} km/h]</span>` : '';
         const kmRiga = kmCorsaFromNota(e.nota_riga);
         const kmRigaStr = kmRiga > 0 && g.righe.length > 1 ? ` <span style="color:#ddd;font-size:14px;font-weight:600">${kmRiga.toFixed(1)}km</span>` : '';
@@ -5086,7 +5087,8 @@ function renderExRow(e) {
 
   let peso;
   if (e.peso_kg) {
-    const unita = e.unita === 'kg/mano' ? ' kg/mano' : e.unita === 'min/km' ? ' min/km' : e.unita === 'sec' ? ' sec' : ' kg';
+    const unitaEff2 = e.unita || (DATA.esercizi_canonici.find(cx => cx.id === e.esercizio_id)?.unita) || 'kg';
+    const unita = unitaEff2 === 'min/km' ? ' min/km' : unitaEff2 === 'sec' ? ' sec' : ' ' + unitaEff2;
     peso = `${e.peso_kg}${unita}`;
   } else if (e.bodyweight) {
     peso = 'BW';
@@ -5530,7 +5532,7 @@ function salvaEsercizio() {
       DATA.esercizi_canonici[idx].unita     = unita;
       DATA.esercizi_canonici[idx].bodyweight = bw;
       // Propaga la nuova unità a tutte le righe di sessione esistenti
-      if (unita && unita !== vecchiaUnita) {
+      if (unita) {
         DATA.sessioni.forEach(s => s.esercizi.forEach(r => {
           if (r.esercizio_id === _geEditId) r.unita = unita;
         }));
