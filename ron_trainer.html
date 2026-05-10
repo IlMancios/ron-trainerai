@@ -890,6 +890,19 @@
     margin-left: auto;
     flex-shrink: 0;
   }
+  .piano-stats-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #444;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .piano-stats-btn:hover { color: var(--orange); }
 
   /* ===== MOBILE RESPONSIVENESS ===== */
   html { overflow-x: hidden; }
@@ -1535,12 +1548,18 @@
       </div>
       <div class="ge-form-group">
         <label class="ge-label">Unità di misura</label>
-        <select id="ge-unita" class="ins-input" style="width:100%">
-          <option value="kg" selected>kg — peso standard (bilanciere, macchine)</option>
+        <input id="ge-unita" class="ins-input" list="ge-unita-opts" placeholder="es. kg, m, mt, sec…" autocomplete="off" style="width:100%">
+        <datalist id="ge-unita-opts">
+          <option value="kg">kg — peso standard (bilanciere, macchine)</option>
           <option value="kg/mano">kg/mano — manubri unilaterali</option>
           <option value="sec">sec — tempo (es. isometrici, sprints)</option>
           <option value="nessuna">nessuna — bodyweight / skill</option>
-        </select>
+          <option value="m">m — distanza in metri</option>
+          <option value="mt">mt — metri (alternativo)</option>
+          <option value="km">km — distanza in chilometri</option>
+          <option value="rep">rep — solo ripetizioni, nessun peso</option>
+        </datalist>
+        <div style="font-size:11px;color:#555;margin-top:4px">Scegli dalla lista o scrivi un'unità custom</div>
       </div>
       <div class="ge-form-group" style="display:flex;align-items:center;gap:12px">
         <label class="ge-label" style="margin-bottom:0">Bodyweight (BW)</label>
@@ -3148,6 +3167,8 @@ function procediStep2() {
 
       const luogoSess = Object.entries(storicoPerSessione).find(([d])=>d===data)?.[1]?.principale?.[0]?.luogo || '';
       const notaSess = !isCorsa && ex.id !== 'salita_vigneto' ? (righe[0]?.nota_riga || '') : '';
+      const rawSchema = righe[0]?.schema || null;
+      const statsBtnSchema = rawSchema ? rawSchema.replace(/'/g,"\\'") : null;
       return `
       <div style="padding:7px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -3156,6 +3177,7 @@ function procediStep2() {
           ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}
           ${notaSess ? `<span style="color:#999;font-size:12px;font-style:italic"> · ${notaSess}</span>` : ''}
           ${luogoSess ? `<span class="piano-storico-luogo">${luogoSess}</span>` : ''}
+          ${statsBtnSchema ? `<button class="piano-stats-btn" onclick="apriStatsByExSchema('${ex.id}','${statsBtnSchema}')" title="Apri grafico — ${ex.nome} ${rawSchema}">📈</button>` : ''}
         </div>
       </div>`;
     };
@@ -5569,6 +5591,22 @@ function confermEliminaEsercizio() {
 function switchToTab(name) {
   const t = document.querySelector(`.tab[data-tab="${name}"]`);
   if (t) _switchTab(t);
+}
+
+// ---- Apri Stats preselezionando esercizio + schema ----
+function apriStatsByExSchema(exId, schema) {
+  switchToTab('progressione');
+  // Trova l'esercizio nel menu Stats e selezionalo
+  const idx = (window._progVociMenu || []).findIndex(v => v.val === exId);
+  if (idx >= 0) selezionaProgEx(idx); // aggiorna UI + popola prog-schema (sincrono)
+  // Imposta lo schema nel select
+  if (schema) {
+    const sel = document.getElementById('prog-schema');
+    if (sel) sel.value = schema;
+  }
+  // Renderizza
+  renderProgressione(exId, schema || '__generale__');
+  window.scrollTo(0, 0);
 }
 
 // ---- getUnitaForDisplay ----
