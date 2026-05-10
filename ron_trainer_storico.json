@@ -63,7 +63,7 @@
       "id": "lancio_del_martello",
       "nome": "Lancio del martello",
       "categoria": "isolato",
-      "unita": "kg",
+      "unita": "mt",
       "bodyweight": false,
       "stato": "attivo"
     },
