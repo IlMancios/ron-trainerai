@@ -2470,10 +2470,11 @@ function renderProgressione(exId, schemaFiltro) {
   }
 
   const records = [];
+  const _canonicalUnita = DATA.esercizi_canonici.find(c => c.id === exId)?.unita || null;
   DATA.sessioni.forEach(s => {
     s.esercizi.forEach(e => {
       if (e.esercizio_id !== exId) return;
-  
+
   if (schemaFiltro !== '__generale__' && schemaFiltro !== '__media__' && schemaFiltro !== '__tempi__' && schemaFiltro !== '__distanza__' && e.schema !== schemaFiltro) return;
       // Filtro media: solo record con tipo != 'tempo' (quelli con la media)
       if (schemaFiltro === '__media__' && e.tipo_riga === 'tempo') return;
@@ -2484,7 +2485,7 @@ function renderProgressione(exId, schemaFiltro) {
         if (e.tipo_riga === 'cardio_distanza' && schemaFiltro !== '__media__') return;
         records.push({
           data: e.data, peso: e.peso_kg, schema: e.schema,
-          bw: false, unita: e.unita || 'kg'
+          bw: false, unita: e.unita && e.unita !== 'kg' ? e.unita : (_canonicalUnita || e.unita || 'kg')
         });
       } else if (e.bodyweight === true && e.tipo_riga !== 'cardio_distanza') {
         // Solo veri bodyweight (trazioni, wall walks, ecc.)
@@ -2507,7 +2508,7 @@ function renderProgressione(exId, schemaFiltro) {
         <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
         ${ultime.map(r => {
           const kmhProg = r.unita === 'min/km' && r.peso ? ` [${(60/r.peso).toFixed(1)} km/h]` : '';
-          const pesoLabel = r.bw ? 'BW' : `${r.peso} ${r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg'}${kmhProg}`;
+          const pesoLabel = r.bw ? 'BW' : `${r.peso} ${r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : (r.unita || 'kg')}${kmhProg}`;
           return `
             <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
               <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
@@ -2527,7 +2528,7 @@ function renderProgressione(exId, schemaFiltro) {
   const recordConPeso = records.filter(r => !r.bw);
   const maxPeso = recordConPeso.length ? Math.max(...recordConPeso.map(r=>r.peso)) : 0;
   const maxRec = recordConPeso.find(r => r.peso === maxPeso);
-  const unitaLabel = maxRec?.unita === 'kg/mano' ? 'kg/mano' : maxRec?.unita === 'min/km' ? 'min/km' : maxRec?.unita === 'sec' ? 'sec' : 'kg';
+  const unitaLabel = maxRec?.unita === 'min/km' ? 'min/km' : maxRec?.unita === 'sec' ? 'sec' : (maxRec?.unita || 'kg');
 
   document.getElementById('chart-info').innerHTML = records.length ? `
     ${maxPeso ? `<div class="chart-stat">Record: <strong>${maxPeso} ${unitaLabel}</strong></div>` : ''}
@@ -2786,7 +2787,7 @@ function renderPR() {
     : null;
 
   document.getElementById('pr-grid').innerHTML = sorted.map(([id, r]) => {
-    const unitaLabel = r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg';
+    const unitaLabel = r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : (r.unita || 'kg');
     const isCorsa = r.unita === 'min/km';
     const schemaDisplayPR = isCorsa ? 'Passo minimo' : (r.schema || '1x1');
     const inclNota = isCorsa && r.schema ? `Inclinazione ${r.schema}` : null;
@@ -3317,7 +3318,7 @@ function procediStep2() {
           </div>
         </div>
         <div>
-          <div class="form-label">${unitaLabel==='bw' ? 'Bodyweight' : unitaLabel==='min/km' ? 'Passo (min/km)' : unitaLabel==='sec' ? 'Tempo (sec)' : 'Peso (' + unitaLabel + ')'}</div>
+          <div class="form-label">${unitaLabel==='bw' ? 'Bodyweight' : unitaLabel==='min/km' ? 'Passo (min/km)' : unitaLabel==='sec' ? 'Tempo (sec)' : (unitaLabel==='kg'||unitaLabel==='kg/mano') ? 'Peso (' + unitaLabel + ')' : unitaLabel.toUpperCase()}</div>
           ${campoBody}
         </div>
       </div>
