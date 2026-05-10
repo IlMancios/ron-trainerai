@@ -324,7 +324,7 @@
       "id": "bicipiti_manubri_alternati",
       "nome": "Bicipiti manubri alternati",
       "categoria": "isolato",
-      "unita": "kg/mano",
+      "unita": "kg",
       "bodyweight": false,
       "stato": "attivo",
       "link_tecnica": []
