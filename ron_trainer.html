@@ -1084,13 +1084,22 @@
 .mm-input:focus { outline:none; border-color:var(--orange); }
 .mm-unit { font-size:12px; color:#555; }
 .mm-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
-.mm-actions-top { display:flex; gap:10px; justify-content:flex-end; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #222; }
+.mm-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #222; }
+.mm-header-btns { display:flex; gap:8px; flex-shrink:0; margin-top:3px; }
 .mm-confirm-bar { display:none; background:#1e0e00; border:1px solid #cc5500; border-radius:7px; padding:14px 16px; margin-bottom:16px; }
 .mm-confirm-bar.show { display:block; }
 .mm-confirm-bar-text { font-size:13px; color:#ffaa55; margin-bottom:12px; line-height:1.5; }
-.mm-confirm-bar-btns { display:flex; gap:10px; justify-content:flex-end; }
+.mm-confirm-bar-btns { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+.mm-warn-bar { display:none; background:#1a1500; border:1px solid #886600; border-radius:7px; padding:14px 16px; margin-bottom:16px; }
+.mm-warn-bar.show { display:block; }
+.mm-warn-bar-text { font-size:13px; color:#ffcc44; margin-bottom:12px; line-height:1.5; }
+.mm-hint { display:block; font-size:11px; color:#484848; font-style:italic; margin-top:3px; margin-bottom:6px; }
 .mm-delete-btn { background:none; border:none; color:#3a3a3a; cursor:pointer; font-size:12px; padding:2px 5px; margin-left:10px; font-family:inherit; transition:color 0.15s; }
 .mm-delete-btn:hover { color:#cc2200; }
+@media (max-width:620px) {
+  .body-layout { justify-content:center; }
+  .body-wrap { margin:0 auto; }
+}
 </style>
 </head>
 <body>
@@ -1435,17 +1444,28 @@
 <!-- MODAL AGGIUNGI/MODIFICA MISURAZIONE -->
 <div class="modal-misure" id="modal-misure">
   <div class="modal-misure-box" id="modal-misure-box">
-    <div class="modal-misure-title" id="mm-title">+ Aggiungi Misurazione</div>
-    <div class="modal-misure-sub">Lascia vuoti i campi non misurati</div>
-    <div class="mm-actions-top">
-      <button class="btn btn-ghost" onclick="chiudiModalMisure()">ANNULLA</button>
-      <button class="btn" onclick="salvaMisurazione()">SALVA</button>
+    <div class="mm-header">
+      <div>
+        <div class="modal-misure-title" id="mm-title">+ Aggiungi Misurazione</div>
+        <div class="modal-misure-sub" style="margin-bottom:0" id="mm-sub">Valori pre-compilati dall'ultima sessione — modifica quelli cambiati</div>
+      </div>
+      <div class="mm-header-btns">
+        <button class="btn btn-ghost btn-sm" onclick="chiudiModalMisure()">ANNULLA</button>
+        <button class="btn btn-sm" onclick="salvaMisurazione()">SALVA</button>
+      </div>
     </div>
     <div class="mm-confirm-bar" id="mm-confirm-bar">
       <div class="mm-confirm-bar-text">⚠️ Stai modificando una misurazione passata.<br>I dati originali verranno <strong>sovrascritti</strong> e non potranno essere recuperati.</div>
       <div class="mm-confirm-bar-btns">
         <button class="btn btn-ghost btn-sm" onclick="annullaConfermaModifica()">INDIETRO</button>
         <button class="btn btn-sm" style="background:#cc4400" onclick="confermaSalvaMisurazione()">CONFERMA MODIFICA</button>
+      </div>
+    </div>
+    <div class="mm-warn-bar" id="mm-warn-bar">
+      <div class="mm-warn-bar-text" id="mm-warn-text">⚠️ Hai lasciato alcuni campi vuoti.</div>
+      <div class="mm-confirm-bar-btns">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('mm-warn-bar').classList.remove('show')">VERIFICA</button>
+        <button class="btn btn-sm" onclick="document.getElementById('mm-warn-bar').classList.remove('show');_eseguiSalvaMisurazione()">SALVA COMUNQUE</button>
       </div>
     </div>
     <div class="mm-group">
@@ -1456,36 +1476,36 @@
       </div>
     </div>
     <div class="mm-group">
-      <div class="mm-group-title">Collo</div>
+      <div class="mm-group-title">Collo <span class="mm-hint">pomo d'adamo, contratto</span></div>
       <div class="mm-row"><label class="mm-label">Collo</label><input type="number" id="mm-collo" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
     <div class="mm-group">
-      <div class="mm-group-title">Petto</div>
+      <div class="mm-group-title">Petto <span class="mm-hint">all'altezza delle aureole, contratto</span></div>
       <div class="mm-row"><label class="mm-label">Petto</label><input type="number" id="mm-petto" class="mm-input" step="0.5" min="50" max="150" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
     <div class="mm-group">
       <div class="mm-group-title">Vita</div>
-      <div class="mm-row"><label class="mm-label">Cinta ril.</label><input type="number" id="mm-cinta" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
-      <div class="mm-row"><label class="mm-label">Ombelico ril.</label><input type="number" id="mm-omb-ril" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
-      <div class="mm-row"><label class="mm-label">Ombelico contr.</label><input type="number" id="mm-omb-con" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Cinta ril. <span class="mm-hint" style="display:inline">a riposo</span></label><input type="number" id="mm-cinta" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Ombelico ril. <span class="mm-hint" style="display:inline">a riposo</span></label><input type="number" id="mm-omb-ril" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
+      <div class="mm-row"><label class="mm-label">Ombelico contr. <span class="mm-hint" style="display:inline">contratto</span></label><input type="number" id="mm-omb-con" class="mm-input" step="0.5" min="50" max="140" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
     <div class="mm-group">
-      <div class="mm-group-title">Bicipiti</div>
+      <div class="mm-group-title">Bicipiti <span class="mm-hint">punto max, contratto</span></div>
       <div class="mm-row"><label class="mm-label">Bic DX</label><input type="number" id="mm-bic-dx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
       <div class="mm-row"><label class="mm-label">Bic SX</label><input type="number" id="mm-bic-sx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
     <div class="mm-group">
-      <div class="mm-group-title">Avambracci</div>
+      <div class="mm-group-title">Avambracci <span class="mm-hint">punto max, contratto</span></div>
       <div class="mm-row"><label class="mm-label">Avb DX</label><input type="number" id="mm-avb-dx" class="mm-input" step="0.5" min="15" max="50" placeholder="—"><span class="mm-unit">cm</span></div>
       <div class="mm-row"><label class="mm-label">Avb SX</label><input type="number" id="mm-avb-sx" class="mm-input" step="0.5" min="15" max="50" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
     <div class="mm-group">
-      <div class="mm-group-title">Cosce</div>
+      <div class="mm-group-title">Cosce <span class="mm-hint">contratta, appena sotto il cavallo</span></div>
       <div class="mm-row"><label class="mm-label">Coscia DX</label><input type="number" id="mm-coscia-dx" class="mm-input" step="0.5" min="30" max="90" placeholder="—"><span class="mm-unit">cm</span></div>
       <div class="mm-row"><label class="mm-label">Coscia SX</label><input type="number" id="mm-coscia-sx" class="mm-input" step="0.5" min="30" max="90" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
     <div class="mm-group">
-      <div class="mm-group-title">Polpacci</div>
+      <div class="mm-group-title">Polpacci <span class="mm-hint">contratto, 4 dita sotto la piega</span></div>
       <div class="mm-row"><label class="mm-label">Polpaccio DX</label><input type="number" id="mm-polp-dx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
       <div class="mm-row"><label class="mm-label">Polpaccio SX</label><input type="number" id="mm-polp-sx" class="mm-input" step="0.5" min="20" max="60" placeholder="—"><span class="mm-unit">cm</span></div>
     </div>
@@ -5342,19 +5362,15 @@ function apriModalMisure(editIdx) {
   const modal = document.getElementById('modal-misure');
   const title = document.getElementById('mm-title');
 
-  // Reset campi e confirm bar
+  // Reset campi e barre
   const ids = ['mm-data','mm-collo','mm-petto','mm-cinta','mm-omb-ril','mm-omb-con',
                'mm-bic-dx','mm-bic-sx','mm-avb-dx','mm-avb-sx',
                'mm-coscia-dx','mm-coscia-sx','mm-polp-dx','mm-polp-sx'];
   ids.forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('mm-confirm-bar').classList.remove('show');
+  document.getElementById('mm-warn-bar').classList.remove('show');
 
-  if (_mmEditIdx >= 0) {
-    title.textContent = '✏️ Modifica Misurazione';
-    const sess = bodyGetSess();
-    const entry = sess[_mmEditIdx];
-    document.getElementById('mm-data').value = entry.data;
-    const m = entry.m;
+  const fillM = m => {
     if (m.collo        != null) document.getElementById('mm-collo').value      = m.collo;
     if (m.petto        != null) document.getElementById('mm-petto').value      = m.petto;
     if (m.cinta        != null) document.getElementById('mm-cinta').value      = m.cinta;
@@ -5368,9 +5384,22 @@ function apriModalMisure(editIdx) {
     if (m.coscia_sx    != null) document.getElementById('mm-coscia-sx').value  = m.coscia_sx;
     if (m.polpaccio_dx != null) document.getElementById('mm-polp-dx').value    = m.polpaccio_dx;
     if (m.polpaccio_sx != null) document.getElementById('mm-polp-sx').value    = m.polpaccio_sx;
+  };
+
+  if (_mmEditIdx >= 0) {
+    title.textContent = '✏️ Modifica Misurazione';
+    document.getElementById('mm-sub').textContent = 'Lascia vuoti i campi non misurati';
+    const sess = bodyGetSess();
+    const entry = sess[_mmEditIdx];
+    document.getElementById('mm-data').value = entry.data;
+    fillM(entry.m);
   } else {
     title.textContent = '+ Aggiungi Misurazione';
+    document.getElementById('mm-sub').textContent = 'Valori pre-compilati dall\'ultima sessione — modifica quelli cambiati';
     document.getElementById('mm-data').value = oggi();
+    // Pre-fill con ultima sessione
+    const sess = bodyGetSess();
+    if (sess.length > 0) fillM(sess[sess.length - 1].m);
   }
 
   modal.classList.add('open');
@@ -5383,6 +5412,7 @@ function apriModalMisure(editIdx) {
 function chiudiModalMisure() {
   document.getElementById('modal-misure').classList.remove('open');
   document.getElementById('mm-confirm-bar').classList.remove('show');
+  document.getElementById('mm-warn-bar').classList.remove('show');
 }
 
 function salvaMisurazione() {
@@ -5407,8 +5437,20 @@ function salvaMisurazione() {
 
   // Modifica → richiede conferma
   if (_mmEditIdx >= 0) {
-    const bar = document.getElementById('mm-confirm-bar');
-    bar.classList.add('show');
+    document.getElementById('mm-confirm-bar').classList.add('show');
+    document.getElementById('modal-misure-box').scrollTop = 0;
+    return;
+  }
+
+  // Nuovo inserimento → avvisa se campi vuoti
+  const allInputIds = ['mm-collo','mm-petto','mm-cinta','mm-omb-ril','mm-omb-con',
+                       'mm-bic-dx','mm-bic-sx','mm-avb-dx','mm-avb-sx',
+                       'mm-coscia-dx','mm-coscia-sx','mm-polp-dx','mm-polp-sx'];
+  const missing = allInputIds.filter(id => document.getElementById(id).value === '').length;
+  if (missing > 0) {
+    document.getElementById('mm-warn-text').innerHTML =
+      `⚠️ Hai lasciato <strong>${missing} ${missing === 1 ? 'campo vuoto' : 'campi vuoti'}</strong>.<br>I dati mancanti non verranno salvati. Vuoi continuare?`;
+    document.getElementById('mm-warn-bar').classList.add('show');
     document.getElementById('modal-misure-box').scrollTop = 0;
     return;
   }
