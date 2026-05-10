@@ -578,9 +578,7 @@
       "title": "Training 30/04/2026 AP",
       "data": "2026-04-30",
       "luogo": "AP",
-      "note_sessione": [
-        "Circa 12 lanci con il martello da 7kg 49mt PB"
-      ],
+      "note_sessione": [],
       "esercizi": [
         {
           "esercizio_id": "stacchi",
@@ -590,6 +588,18 @@
           "bodyweight": false,
           "tipo_riga": "standard",
           "nota_riga": null,
+          "data": "2026-04-30",
+          "luogo": "AP",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "lancio_del_martello",
+          "schema": "1x12",
+          "peso_kg": 7.26,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "49mt PB",
           "data": "2026-04-30",
           "luogo": "AP",
           "file_sorgente": "manuale"
