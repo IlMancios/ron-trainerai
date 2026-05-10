@@ -642,7 +642,7 @@
           "esercizio_id": "lancio_del_martello",
           "schema": "7x12",
           "peso_kg": 49,
-          "unita": "kg",
+          "unita": "mt",
           "bodyweight": false,
           "tipo_riga": "standard",
           "nota_riga": "49mt PB 7,26kg",
