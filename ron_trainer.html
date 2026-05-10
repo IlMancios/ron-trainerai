@@ -3730,7 +3730,7 @@ function aggiornaIndicatoreDimensione() {
   const kb = Math.round(bytes / 1024);
   const pct = Math.round(bytes / 750000 * 100); // 750KB = limite pratico GitHub API
   const el = document.getElementById('gh-size-indicator');
-  if (el) el.textContent = `Storico: ~${kb} KB (${pct}% del limite GitHub API)`;
+  if (el) el.textContent = `File: ~${kb} KB (${pct}% del limite GitHub API)`;
   const warn = document.getElementById('size-warning');
   if (!warn) return;
   if (bytes > 700000) {
