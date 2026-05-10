@@ -319,15 +319,6 @@
       "nome": "Tricipiti in casa (bottiglie/zaino)",
       "categoria": "isolato",
       "stato": "archivio"
-    },
-    {
-      "id": "bicipiti_manubri_alternati",
-      "nome": "Bicipiti manubri alternati",
-      "categoria": "isolato",
-      "unita": "kg/mano",
-      "bodyweight": false,
-      "stato": "archivio",
-      "link_tecnica": []
     }
   ],
   "schemi_globali": [
