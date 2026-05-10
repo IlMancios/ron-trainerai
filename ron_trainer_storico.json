@@ -326,7 +326,7 @@
       "categoria": "isolato",
       "unita": "kg/mano",
       "bodyweight": false,
-      "stato": "attivo",
+      "stato": "archivio",
       "link_tecnica": []
     }
   ],
