@@ -1116,7 +1116,25 @@
 @media (max-width:620px) {
   .body-layout { justify-content:center; }
   .body-wrap { margin:0 auto; }
+  .tab[data-tab="esercizi"] { display:none; }
+  .header-settings-btn { display:flex !important; }
 }
+.header-settings-btn {
+  display:none;
+  background:none; border:none; color:var(--text3); cursor:pointer;
+  font-size:18px; padding:4px 8px; line-height:1; transition:color 0.15s;
+}
+.header-settings-btn:hover { color:var(--orange); }
+/* Sezione impostazioni */
+.imp-section { margin-bottom:28px; }
+.imp-section-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  color:#555; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid #1e1e1e; }
+.imp-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:#161616;
+  border:1px solid #1e1e1e; border-radius:6px; margin-bottom:8px; flex-wrap:wrap; }
+.imp-row-label { font-size:13px; color:#d8d8d8; flex:1; min-width:100px; }
+.imp-row-sub { font-size:11px; color:#484848; display:block; margin-top:2px; }
+/* Modali conferma esercizi */
+.ge-confirm-nome { color:#e8e8e8; font-weight:700; }
 </style>
 </head>
 <body>
@@ -1124,7 +1142,10 @@
 <header>
   <div class="header-inner">
     <div class="logo" onclick="document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.querySelector('.tab[data-tab=overview]').classList.add('active');document.getElementById('panel-overview').classList.add('active');" style="cursor:pointer">RON<span>.</span>TRAINER<span>AI</span></div>
-    <div style="font-size:12px;color:var(--text3)" id="status-indicator"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:12px;color:var(--text3)" id="status-indicator"></div>
+      <button class="header-settings-btn" onclick="switchToTab('esercizi')" title="Impostazioni">⚙</button>
+    </div>
   </div>
 </header>
 
@@ -1134,10 +1155,10 @@
     <div class="tab" data-tab="progressione">Stats</div>
     <div class="tab" data-tab="storico">Log</div>
     <div class="tab" data-tab="pr">PR</div>
-    <div class="tab" data-tab="pianificatore">Plan</div>
-    <div class="tab" data-tab="inserimento">Train</div>
     <div class="tab" data-tab="body">Body</div>
     <div class="tab" data-tab="guide">Guide</div>
+    <div class="tab" data-tab="pianificatore">Plan</div>
+    <div class="tab" data-tab="inserimento">Train</div>
     <div class="tab" data-tab="esercizi">⚙</div>
   </div>
 </nav>
@@ -1362,19 +1383,9 @@
       <button class="btn btn-ghost" onclick="resetInserimento()">RESET</button>
     </div>
 
-    <details class="gh-token-details" id="gh-token-details">
-      <summary>⚙ GitHub API — token <span id="gh-token-indicator" style="margin-left:6px;font-size:13px"></span></summary>
-      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:1;min-width:160px">
-          <div class="form-label">Personal Access Token (PAT)</div>
-          <input type="password" id="gh-token-input" placeholder="ghp_..." style="width:100%">
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="salvaToken()">SALVA</button>
-        <button class="btn btn-ghost btn-sm" onclick="cancellaToken()">RIMUOVI</button>
-      </div>
-      <div id="gh-token-status" style="margin-top:6px;font-size:12px;color:var(--text2)"></div>
-      <div id="gh-size-indicator" style="margin-top:4px;font-size:11px;color:var(--text3)"></div>
-    </details>
+    <div style="margin-top:10px;font-size:12px;color:#444">
+      Token GitHub e impostazioni → <a onclick="switchToTab('esercizi')" style="color:var(--orange);cursor:pointer;text-decoration:underline">⚙ Impostazioni</a>
+    </div>
     <div class="size-warning" id="size-warning"></div>
 
     <div style="margin-top:20px">
@@ -1432,14 +1443,48 @@
     </div>
   </div>
 
-  <!-- GESTIONE ESERCIZI -->
+  <!-- IMPOSTAZIONI + GESTIONE ESERCIZI -->
   <div class="panel" id="panel-esercizi">
-    <div class="bz-top-bar">
-      <div class="section-title" style="margin-bottom:0">Gestione Esercizi</div>
-      <button class="btn btn-sm" onclick="apriModalNuovoEx()">+ NUOVO</button>
+    <div class="section-title">Impostazioni</div>
+
+    <!-- SEZIONE: CONFIGURAZIONE -->
+    <div class="imp-section">
+      <div class="imp-section-title">Configurazione</div>
+
+      <!-- GitHub Token -->
+      <div class="imp-row" style="flex-direction:column;align-items:flex-start">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;flex-wrap:wrap">
+          <div>
+            <span class="imp-row-label">GitHub API Token <span id="gh-token-indicator" style="margin-left:6px;font-size:13px"></span></span>
+            <span class="imp-row-sub">Necessario per il salvataggio automatico su GitHub</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button class="btn btn-ghost btn-sm" onclick="cancellaToken()">RIMUOVI</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:10px;width:100%">
+          <div style="flex:1;min-width:180px">
+            <div class="form-label">Personal Access Token (PAT)</div>
+            <input type="password" id="gh-token-input" placeholder="ghp_..." style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:5px;color:#e8e8e8;padding:7px 10px;font-family:inherit;font-size:13px">
+          </div>
+          <button class="btn btn-sm" onclick="salvaToken()">SALVA TOKEN</button>
+        </div>
+        <div id="gh-token-status" style="margin-top:6px;font-size:12px;color:var(--text2)"></div>
+        <div id="gh-size-indicator" style="margin-top:4px;font-size:11px;color:var(--text3)"></div>
+      </div>
+
     </div>
-    <div id="ge-attivi-section"></div>
-    <div id="ge-archiviati-section" style="margin-top:24px"></div>
+
+    <!-- SEZIONE: GESTIONE ESERCIZI -->
+    <div class="imp-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="imp-section-title" style="margin-bottom:0">Gestione Esercizi</div>
+        <button class="btn btn-sm" onclick="apriModalNuovoEx()">+ NUOVO</button>
+      </div>
+      <div id="ge-attivi-section"></div>
+      <div id="ge-archiviati-section" style="margin-top:16px"></div>
+    </div>
+
   </div>
 
 </main>
@@ -1514,6 +1559,47 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="chiudiModalNuovoEx()">ANNULLA</button>
       <button class="btn" onclick="salvaEsercizio()">SALVA</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALI CONFERMA AZIONI ESERCIZI -->
+<div class="modal-overlay" id="modal-confirm-modifica-ex" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Modifica esercizio</div>
+    <div style="color:#a0a0a0;font-size:13px;margin:14px 0 22px;line-height:1.6">
+      Stai modificando <span class="ge-confirm-nome" id="confirm-mod-nome"></span>.<br>
+      Le modifiche verranno salvate su GitHub.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-confirm-modifica-ex').style.display='none'">ANNULLA</button>
+      <button class="btn" onclick="confermModificaEsercizio()">CONFERMA</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-confirm-archivia-ex" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">📦 Archivia esercizio</div>
+    <div style="color:#a0a0a0;font-size:13px;margin:14px 0 22px;line-height:1.6">
+      Stai archiviando <span class="ge-confirm-nome" id="confirm-arch-nome"></span>.<br>
+      Non comparirà più nel pianificatore, ma resterà selezionabile nel Train e nello storico.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-confirm-archivia-ex').style.display='none'">ANNULLA</button>
+      <button class="btn" onclick="confermArchiviaEsercizio()">ARCHIVIA</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-confirm-riattiva-ex" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">🔄 Riattiva esercizio</div>
+    <div style="color:#a0a0a0;font-size:13px;margin:14px 0 22px;line-height:1.6">
+      Stai riattivando <span class="ge-confirm-nome" id="confirm-riatt-nome"></span>.<br>
+      Comparirà di nuovo nel pianificatore e nelle proposte.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-confirm-riattiva-ex').style.display='none'">ANNULLA</button>
+      <button class="btn" onclick="confermRiattiviaEsercizio()">RIATTIVA</button>
     </div>
   </div>
 </div>
@@ -5270,12 +5356,23 @@ let _geEditId   = null; // null = nuovo, stringa = modifica
 let _geDeleteId = null;
 let _geStato    = 'attivo';
 let _geArchivioOpen = false;
+let _gePendingModificaId  = null;
+let _gePendingArchiviaId  = null;
+let _gePendingRiativaId   = null;
 
 function inizializzaEsercizi() { /* nessuna init necessaria, tutto lazy */ }
 
+const GE_ORDER = { compound:0, isolato:1, skill:1, corpo_libero:1, isometrico:1, pliometrico:1, addominali:2, cardio:3 };
+function geSortEx(arr) {
+  return [...arr].sort((a, b) => {
+    const oa = GE_ORDER[a.categoria] ?? 1, ob = GE_ORDER[b.categoria] ?? 1;
+    return oa !== ob ? oa - ob : a.nome.localeCompare(b.nome, 'it');
+  });
+}
+
 function renderEsercizi() {
-  const attivi     = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
-  const archiviati = DATA.esercizi_canonici.filter(e => e.stato !== 'attivo');
+  const attivi     = geSortEx(DATA.esercizi_canonici.filter(e => e.stato === 'attivo'));
+  const archiviati = geSortEx(DATA.esercizi_canonici.filter(e => e.stato !== 'attivo'));
 
   // --- ATTIVI ---
   const attiviHtml = attivi.length
@@ -5308,12 +5405,13 @@ function renderEsercizi() {
 
 function geItemHtml(e, isArchiviato) {
   const sessCount = DATA.sessioni.filter(s => s.esercizi.some(r => r.esercizio_id === e.id)).length;
-  const unitLabel = e.unita ? `<span class="ge-item-unit">${e.unita}</span>` : '';
+  const u = getUnitaForDisplay(e.id);
+  const unitLabel = u ? `<span class="ge-item-unit">${u}</span>` : '';
   const actions = isArchiviato
-    ? `<button class="ge-btn" onclick="riattiviaEsercizio('${e.id}')" title="Riattiva">🔄 Riattiva</button>
-       <button class="ge-btn danger" onclick="apriConfermaEliminaEx('${e.id}')" title="Elimina" ${sessCount > 0 ? `style="opacity:0.35" title="Usato in ${sessCount} sessioni — non eliminabile"` : ''}>🗑</button>`
+    ? `<button class="ge-btn" onclick="apriConfirmRiattiva('${e.id}')" title="Riattiva">🔄 Riattiva</button>
+       <button class="ge-btn danger" onclick="apriConfermaEliminaEx('${e.id}')" ${sessCount > 0 ? `style="opacity:0.35" title="Usato in ${sessCount} sessioni — non eliminabile"` : 'title="Elimina"'}>🗑</button>`
     : `<button class="ge-btn" onclick="apriModalNuovoEx('${e.id}')" title="Modifica">✏️</button>
-       <button class="ge-btn" onclick="archiviaEsercizio('${e.id}')" title="Archivia">📦</button>`;
+       <button class="ge-btn" onclick="apriConfirmArchivia('${e.id}')" title="Archivia">📦</button>`;
   return `
     <div class="ge-item">
       ${badgeEx(e.id)}
@@ -5416,7 +5514,16 @@ function salvaEsercizio() {
     if (DATA.esercizi_canonici.find(e => e.id === id)) {
       showToast(`ID "${id}" già esistente — cambia il nome`, 'error'); return;
     }
-    DATA.esercizi_canonici.push({ id, nome, categoria, unita, bodyweight: bw, stato: _geStato });
+    const newEx = { id, nome, categoria, unita, bodyweight: bw, stato: _geStato };
+    const newOrd = GE_ORDER[categoria] ?? 1;
+    let insertIdx = DATA.esercizi_canonici.length;
+    for (let i = 0; i < DATA.esercizi_canonici.length; i++) {
+      const eOrd = GE_ORDER[DATA.esercizi_canonici[i].categoria] ?? 1;
+      if (eOrd > newOrd || (eOrd === newOrd && DATA.esercizi_canonici[i].nome.localeCompare(nome, 'it') > 0)) {
+        insertIdx = i; break;
+      }
+    }
+    DATA.esercizi_canonici.splice(insertIdx, 0, newEx);
   }
 
   chiudiModalNuovoEx();
@@ -5456,6 +5563,63 @@ function confermEliminaEsercizio() {
   _geDeleteId = null;
   renderEsercizi();
   salvasuGitHub();
+}
+
+// ---- switchToTab (wrapper pubblico) ----
+function switchToTab(name) {
+  const t = document.querySelector(`.tab[data-tab="${name}"]`);
+  if (t) _switchTab(t);
+}
+
+// ---- getUnitaForDisplay ----
+function getUnitaForDisplay(exId) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === exId);
+  if (ex && ex.unita) return ex.unita;
+  // fallback: legge dalla sessione più recente che contiene l'esercizio
+  for (let i = DATA.sessioni.length - 1; i >= 0; i--) {
+    const row = DATA.sessioni[i].esercizi.find(r => r.esercizio_id === exId && r.unita);
+    if (row) return row.unita;
+  }
+  return null;
+}
+
+// ---- Confirm opener: Modifica ----
+function apriConfirmModifica(id) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === id);
+  if (!ex) return;
+  _gePendingModificaId = id;
+  document.getElementById('confirm-mod-nome').textContent = ex.nome;
+  document.getElementById('modal-confirm-modifica-ex').style.display = 'flex';
+}
+function confermModificaEsercizio() {
+  document.getElementById('modal-confirm-modifica-ex').style.display = 'none';
+  if (_gePendingModificaId) { apriModalNuovoEx(_gePendingModificaId); _gePendingModificaId = null; }
+}
+
+// ---- Confirm opener: Archivia ----
+function apriConfirmArchivia(id) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === id);
+  if (!ex) return;
+  _gePendingArchiviaId = id;
+  document.getElementById('confirm-arch-nome').textContent = ex.nome;
+  document.getElementById('modal-confirm-archivia-ex').style.display = 'flex';
+}
+function confermArchiviaEsercizio() {
+  document.getElementById('modal-confirm-archivia-ex').style.display = 'none';
+  if (_gePendingArchiviaId) { archiviaEsercizio(_gePendingArchiviaId); _gePendingArchiviaId = null; }
+}
+
+// ---- Confirm opener: Riattiva ----
+function apriConfirmRiattiva(id) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === id);
+  if (!ex) return;
+  _gePendingRiativaId = id;
+  document.getElementById('confirm-riatt-nome').textContent = ex.nome;
+  document.getElementById('modal-confirm-riattiva-ex').style.display = 'flex';
+}
+function confermRiattiviaEsercizio() {
+  document.getElementById('modal-confirm-riattiva-ex').style.display = 'none';
+  if (_gePendingRiativaId) { riattiviaEsercizio(_gePendingRiativaId); _gePendingRiativaId = null; }
 }
 
 // =====================
