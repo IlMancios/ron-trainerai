@@ -5524,10 +5524,17 @@ function salvaEsercizio() {
     // MODIFICA
     const idx = DATA.esercizi_canonici.findIndex(e => e.id === _geEditId);
     if (idx >= 0) {
+      const vecchiaUnita = DATA.esercizi_canonici[idx].unita;
       DATA.esercizi_canonici[idx].nome      = nome;
       DATA.esercizi_canonici[idx].categoria = categoria;
       DATA.esercizi_canonici[idx].unita     = unita;
       DATA.esercizi_canonici[idx].bodyweight = bw;
+      // Propaga la nuova unità a tutte le righe di sessione esistenti
+      if (unita && unita !== vecchiaUnita) {
+        DATA.sessioni.forEach(s => s.esercizi.forEach(r => {
+          if (r.esercizio_id === _geEditId) r.unita = unita;
+        }));
+      }
     }
   } else {
     // NUOVO
