@@ -5362,7 +5362,7 @@ let _gePendingRiativaId   = null;
 
 function inizializzaEsercizi() { /* nessuna init necessaria, tutto lazy */ }
 
-const GE_ORDER = { compound:0, isolato:1, skill:1, corpo_libero:1, isometrico:1, pliometrico:1, addominali:2, cardio:3 };
+const GE_ORDER = { compound:0, isolato:1, skill:1, corpo_libero:1, isometrico:1, pliometrico:1, addominali:1, cardio:3 };
 function geSortEx(arr) {
   return [...arr].sort((a, b) => {
     const oa = GE_ORDER[a.categoria] ?? 1, ob = GE_ORDER[b.categoria] ?? 1;
