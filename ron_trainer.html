@@ -1023,6 +1023,23 @@
     .toast { max-width: calc(100vw - 32px); white-space: normal; text-align: center; }
   }
 
+/* ===== GESTIONE ESERCIZI ===== */
+.ge-section-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.ge-section-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#555; }
+.ge-count { font-size:11px; color:#444; margin-left:6px; }
+.ge-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:6px; border:1px solid #1e1e1e; margin-bottom:6px; background:#161616; transition:background 0.1s; }
+.ge-item:hover { background:#1e1e1e; }
+.ge-item-name { flex:1; font-size:13px; color:#d8d8d8; }
+.ge-item-unit { font-size:11px; color:#444; flex-shrink:0; }
+.ge-item-actions { display:flex; gap:6px; flex-shrink:0; }
+.ge-btn { background:none; border:none; cursor:pointer; font-size:12px; padding:3px 7px; border-radius:4px; font-family:inherit; color:#555; transition:color 0.15s, background 0.15s; }
+.ge-btn:hover { color:#e8e8e8; background:#2a2a2a; }
+.ge-btn.danger:hover { color:#ff5555; background:#2a0000; }
+.ge-archive-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; padding:6px 0; color:#444; font-size:12px; user-select:none; }
+.ge-archive-toggle:hover { color:#666; }
+.ge-form-group { margin-bottom:14px; }
+.ge-label { display:block; font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#666; margin-bottom:5px; }
+
 /* ===== BODY METRICS ===== */
 .body-layout { display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap; margin-top:8px; }
 .body-wrap { flex-shrink:0; width:190px; min-height:470px; position:relative; }
@@ -1121,6 +1138,7 @@
     <div class="tab" data-tab="inserimento">Train</div>
     <div class="tab" data-tab="body">Body</div>
     <div class="tab" data-tab="guide">Guide</div>
+    <div class="tab" data-tab="esercizi">⚙</div>
   </div>
 </nav>
 
@@ -1414,6 +1432,16 @@
     </div>
   </div>
 
+  <!-- GESTIONE ESERCIZI -->
+  <div class="panel" id="panel-esercizi">
+    <div class="bz-top-bar">
+      <div class="section-title" style="margin-bottom:0">Gestione Esercizi</div>
+      <button class="btn btn-sm" onclick="apriModalNuovoEx()">+ NUOVO</button>
+    </div>
+    <div id="ge-attivi-section"></div>
+    <div id="ge-archiviati-section" style="margin-top:24px"></div>
+  </div>
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -1441,6 +1469,70 @@
     </div>
   </div>
 </div>
+<!-- MODAL NUOVO/MODIFICA ESERCIZIO -->
+<div class="modal-overlay" id="modal-nuovo-ex" style="display:none">
+  <div class="modal-box" style="max-width:460px;width:100%">
+    <div class="modal-title" id="ge-modal-title">+ Nuovo Esercizio</div>
+    <div style="margin-top:16px">
+      <div class="ge-form-group">
+        <label class="ge-label">Nome esercizio *</label>
+        <input id="ge-nome" type="text" class="ins-input" style="width:100%" placeholder="es. Curl manubri alternati" oninput="aggiornaIdPreview()">
+        <div id="ge-id-preview" style="font-size:11px;color:#484848;margin-top:4px;font-style:italic">ID: —</div>
+      </div>
+      <div class="ge-form-group">
+        <label class="ge-label">Categoria</label>
+        <select id="ge-categoria" class="ins-input" style="width:100%">
+          <option value="compound">CORE — compound (squat, stacchi, panca…)</option>
+          <option value="isolato" selected>ISOLATO — isolato / skill / abs</option>
+          <option value="addominali">ADDOMINALI</option>
+          <option value="cardio">CARDIO</option>
+        </select>
+      </div>
+      <div class="ge-form-group">
+        <label class="ge-label">Unità di misura</label>
+        <select id="ge-unita" class="ins-input" style="width:100%">
+          <option value="kg" selected>kg — peso standard (bilanciere, macchine)</option>
+          <option value="kg/mano">kg/mano — manubri unilaterali</option>
+          <option value="sec">sec — tempo (es. isometrici, sprints)</option>
+          <option value="nessuna">nessuna — bodyweight / skill</option>
+        </select>
+      </div>
+      <div class="ge-form-group" style="display:flex;align-items:center;gap:12px">
+        <label class="ge-label" style="margin-bottom:0">Bodyweight (BW)</label>
+        <input id="ge-bw" type="checkbox" style="width:16px;height:16px;accent-color:var(--orange)">
+        <span style="font-size:12px;color:#555">il peso è il tuo corpo</span>
+      </div>
+      <div class="ge-form-group" id="ge-stato-group">
+        <label class="ge-label">Stato iniziale</label>
+        <div style="display:flex;gap:10px">
+          <button id="ge-stato-attivo" class="btn btn-sm" onclick="geSetStato('attivo')" style="flex:1">✅ ATTIVO</button>
+          <button id="ge-stato-archivio" class="btn btn-ghost btn-sm" onclick="geSetStato('archivio')" style="flex:1">📦 ARCHIVIATO</button>
+        </div>
+        <div id="ge-stato-hint" style="font-size:11px;color:#555;margin-top:5px;font-style:italic">Attivo: compare nel pianificatore e nel Train. Archiviato: usabile solo nel Train, non proposto.</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="chiudiModalNuovoEx()">ANNULLA</button>
+      <button class="btn" onclick="salvaEsercizio()">SALVA</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFERMA ELIMINA ESERCIZIO -->
+<div class="modal-overlay" id="modal-elimina-ex" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">🗑️ Elimina esercizio</div>
+    <div style="color:#a0a0a0;font-size:13px;margin:14px 0 22px;line-height:1.6">
+      Stai eliminando <strong id="ge-elimina-nome" style="color:#e8e8e8"></strong>.<br>
+      <span style="color:#ff5555;font-weight:600">Questa azione è irreversibile.</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-elimina-ex').style.display='none'">ANNULLA</button>
+      <button class="btn" style="background:#cc2200" onclick="confermEliminaEsercizio()">ELIMINA</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL AGGIUNGI/MODIFICA MISURAZIONE -->
 <div class="modal-misure" id="modal-misure">
   <div class="modal-misure-box" id="modal-misure-box">
@@ -1604,6 +1696,7 @@ function inizializza() {
   inizializzaPianificatore();
   inizializzaInserimento();
   inizializzaBody();
+  inizializzaEsercizi();
   aggiornaIndicatoreDimensione();
   verificaPendingSave();
   verificaToken(); // async, non blocca
@@ -1620,6 +1713,7 @@ function _switchTab(t) {
   t.classList.add('active');
   document.getElementById('panel-' + t.dataset.tab).classList.add('active');
   if (t.dataset.tab === 'guide') renderGuide();
+  if (t.dataset.tab === 'esercizi') renderEsercizi();
 }
 
 function guideDirtyDiscard() {
@@ -3863,9 +3957,19 @@ function getUnitaEx(exId) {
 }
 
 function buildDropdownOpts(esercizi, selectedId) {
-  return esercizi.map(e =>
+  const attivi     = esercizi.filter(e => e.stato === 'attivo');
+  const archiviati = esercizi.filter(e => e.stato !== 'attivo');
+  let html = attivi.map(e =>
     `<option value="${e.id}"${e.id===selectedId?' selected':''}>${e.nome}</option>`
   ).join('');
+  if (archiviati.length) {
+    html += `<optgroup label="── Archiviati ──">`;
+    html += archiviati.map(e =>
+      `<option value="${e.id}"${e.id===selectedId?' selected':''}>${e.nome}</option>`
+    ).join('');
+    html += `</optgroup>`;
+  }
+  return html;
 }
 
 function buildTempoField(t, val) {
@@ -4113,7 +4217,7 @@ function aggiornaRigheCard(cardId) {
 function aggiungiEsercizio(precompila = {}) {
   EX_COUNT++;
   const cardId = 'ex-' + EX_COUNT;
-  const esercizi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+  const esercizi = DATA.esercizi_canonici; // attivi + archiviati (optgroup separato)
   const badgeHtml = precompila.exId ? badgeEx(precompila.exId) : '';
   const div = document.createElement('div');
   div.className = 'ex-builder-row';
@@ -5157,6 +5261,201 @@ function filterGuide() {
     const hasVisible = [...sect.querySelectorAll('.guide-card')].some(c => c.style.display !== 'none');
     sect.style.display = hasVisible ? '' : 'none';
   });
+}
+
+// =====================
+// GESTIONE ESERCIZI
+// =====================
+let _geEditId   = null; // null = nuovo, stringa = modifica
+let _geDeleteId = null;
+let _geStato    = 'attivo';
+let _geArchivioOpen = false;
+
+function inizializzaEsercizi() { /* nessuna init necessaria, tutto lazy */ }
+
+function renderEsercizi() {
+  const attivi     = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+  const archiviati = DATA.esercizi_canonici.filter(e => e.stato !== 'attivo');
+
+  // --- ATTIVI ---
+  const attiviHtml = attivi.length
+    ? attivi.map(e => geItemHtml(e, false)).join('')
+    : '<div style="color:#444;font-size:13px;font-style:italic;padding:8px 0">Nessun esercizio attivo</div>';
+
+  document.getElementById('ge-attivi-section').innerHTML = `
+    <div class="ge-section-hdr">
+      <div><span class="ge-section-label">Attivi</span><span class="ge-count">(${attivi.length})</span></div>
+    </div>
+    ${attiviHtml}
+  `;
+
+  // --- ARCHIVIATI ---
+  const archHtml = archiviati.length
+    ? archiviati.map(e => geItemHtml(e, true)).join('')
+    : '<div style="color:#444;font-size:13px;font-style:italic;padding:8px 0">Nessun esercizio archiviato</div>';
+
+  document.getElementById('ge-archiviati-section').innerHTML = `
+    <div class="ge-section-hdr">
+      <div class="ge-archive-toggle" onclick="toggleArchivioGe()">
+        <span id="ge-arch-arrow">${_geArchivioOpen ? '▼' : '▶'}</span>
+        <span class="ge-section-label">Archiviati</span>
+        <span class="ge-count">(${archiviati.length})</span>
+      </div>
+    </div>
+    <div id="ge-arch-list" style="display:${_geArchivioOpen ? 'block' : 'none'}">${archHtml}</div>
+  `;
+}
+
+function geItemHtml(e, isArchiviato) {
+  const sessCount = DATA.sessioni.filter(s => s.esercizi.some(r => r.esercizio_id === e.id)).length;
+  const unitLabel = e.unita ? `<span class="ge-item-unit">${e.unita}</span>` : '';
+  const actions = isArchiviato
+    ? `<button class="ge-btn" onclick="riattiviaEsercizio('${e.id}')" title="Riattiva">🔄 Riattiva</button>
+       <button class="ge-btn danger" onclick="apriConfermaEliminaEx('${e.id}')" title="Elimina" ${sessCount > 0 ? `style="opacity:0.35" title="Usato in ${sessCount} sessioni — non eliminabile"` : ''}>🗑</button>`
+    : `<button class="ge-btn" onclick="apriModalNuovoEx('${e.id}')" title="Modifica">✏️</button>
+       <button class="ge-btn" onclick="archiviaEsercizio('${e.id}')" title="Archivia">📦</button>`;
+  return `
+    <div class="ge-item">
+      ${badgeEx(e.id)}
+      <span class="ge-item-name">${e.nome}</span>
+      ${unitLabel}
+      <div class="ge-item-actions">${actions}</div>
+    </div>`;
+}
+
+function toggleArchivioGe() {
+  _geArchivioOpen = !_geArchivioOpen;
+  document.getElementById('ge-arch-list').style.display = _geArchivioOpen ? 'block' : 'none';
+  document.getElementById('ge-arch-arrow').textContent = _geArchivioOpen ? '▼' : '▶';
+}
+
+// ---- Stato toggle nel modal ----
+function geSetStato(v) {
+  _geStato = v;
+  document.getElementById('ge-stato-attivo').className   = v === 'attivo'   ? 'btn btn-sm'       : 'btn btn-ghost btn-sm';
+  document.getElementById('ge-stato-archivio').className = v === 'archivio' ? 'btn btn-sm'       : 'btn btn-ghost btn-sm';
+  document.getElementById('ge-stato-hint').textContent   = v === 'attivo'
+    ? 'Attivo: compare nel pianificatore e nel Train. Archiviato: usabile solo nel Train, non proposto.'
+    : 'Archiviato: non proposto nel pianificatore, ma selezionabile nel Train per sessioni una tantum.';
+}
+
+// ---- Auto-ID ----
+function geAutoId(nome) {
+  const map = {'à':'a','á':'a','â':'a','ã':'a','ä':'a','è':'e','é':'e','ê':'e','ë':'e',
+               'ì':'i','í':'i','î':'i','ï':'i','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o',
+               'ù':'u','ú':'u','û':'u','ü':'u','ñ':'n','ç':'c'};
+  return nome.toLowerCase()
+    .replace(/[àáâãäèéêëìíîïòóôõöùúûüñç]/g, c => map[c] || c)
+    .replace(/[^a-z0-9\s_]/g, '')
+    .trim().replace(/\s+/g, '_')
+    .slice(0, 30);
+}
+
+function aggiornaIdPreview() {
+  const id = geAutoId(document.getElementById('ge-nome').value);
+  document.getElementById('ge-id-preview').textContent = id ? `ID: ${id}` : 'ID: —';
+}
+
+// ---- Modal nuovo/modifica ----
+function apriModalNuovoEx(editId) {
+  _geEditId = editId || null;
+  const title = document.getElementById('ge-modal-title');
+  const statoGroup = document.getElementById('ge-stato-group');
+
+  // Reset form
+  document.getElementById('ge-nome').value = '';
+  document.getElementById('ge-id-preview').textContent = 'ID: —';
+  document.getElementById('ge-categoria').value = 'isolato';
+  document.getElementById('ge-unita').value = 'kg';
+  document.getElementById('ge-bw').checked = false;
+  geSetStato('attivo');
+
+  if (_geEditId) {
+    const ex = DATA.esercizi_canonici.find(e => e.id === _geEditId);
+    if (!ex) return;
+    title.textContent = '✏️ Modifica Esercizio';
+    statoGroup.style.display = 'none';
+    document.getElementById('ge-nome').value = ex.nome;
+    document.getElementById('ge-id-preview').textContent = `ID: ${ex.id} (non modificabile)`;
+    document.getElementById('ge-categoria').value = ex.categoria || 'isolato';
+    document.getElementById('ge-unita').value = ex.unita || 'kg';
+    document.getElementById('ge-bw').checked = !!ex.bodyweight;
+  } else {
+    title.textContent = '+ Nuovo Esercizio';
+    statoGroup.style.display = 'block';
+  }
+
+  document.getElementById('modal-nuovo-ex').style.display = 'flex';
+}
+
+function chiudiModalNuovoEx() {
+  document.getElementById('modal-nuovo-ex').style.display = 'none';
+}
+
+function salvaEsercizio() {
+  const nome = document.getElementById('ge-nome').value.trim();
+  if (!nome) { showToast('Inserisci il nome', 'error'); return; }
+
+  const categoria = document.getElementById('ge-categoria').value;
+  const unita     = document.getElementById('ge-unita').value;
+  const bw        = document.getElementById('ge-bw').checked;
+
+  if (_geEditId) {
+    // MODIFICA
+    const idx = DATA.esercizi_canonici.findIndex(e => e.id === _geEditId);
+    if (idx >= 0) {
+      DATA.esercizi_canonici[idx].nome      = nome;
+      DATA.esercizi_canonici[idx].categoria = categoria;
+      DATA.esercizi_canonici[idx].unita     = unita;
+      DATA.esercizi_canonici[idx].bodyweight = bw;
+    }
+  } else {
+    // NUOVO
+    const id = geAutoId(nome);
+    if (!id) { showToast('Nome non valido per generare un ID', 'error'); return; }
+    if (DATA.esercizi_canonici.find(e => e.id === id)) {
+      showToast(`ID "${id}" già esistente — cambia il nome`, 'error'); return;
+    }
+    DATA.esercizi_canonici.push({ id, nome, categoria, unita, bodyweight: bw, stato: _geStato });
+  }
+
+  chiudiModalNuovoEx();
+  renderEsercizi();
+  salvasuGitHub();
+}
+
+// ---- Archivia / Riattiva ----
+function archiviaEsercizio(id) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === id);
+  if (ex) { ex.stato = 'archivio'; renderEsercizi(); salvasuGitHub(); }
+}
+
+function riattiviaEsercizio(id) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === id);
+  if (ex) { ex.stato = 'attivo'; renderEsercizi(); salvasuGitHub(); }
+}
+
+// ---- Elimina ----
+function apriConfermaEliminaEx(id) {
+  const ex = DATA.esercizi_canonici.find(e => e.id === id);
+  if (!ex) return;
+  const sessCount = DATA.sessioni.filter(s => s.esercizi.some(r => r.esercizio_id === id)).length;
+  if (sessCount > 0) {
+    showToast(`Usato in ${sessCount} sessioni — non eliminabile`, 'error'); return;
+  }
+  _geDeleteId = id;
+  document.getElementById('ge-elimina-nome').textContent = ex.nome;
+  document.getElementById('modal-elimina-ex').style.display = 'flex';
+}
+
+function confermEliminaEsercizio() {
+  document.getElementById('modal-elimina-ex').style.display = 'none';
+  if (!_geDeleteId) return;
+  const idx = DATA.esercizi_canonici.findIndex(e => e.id === _geDeleteId);
+  if (idx >= 0) DATA.esercizi_canonici.splice(idx, 1);
+  _geDeleteId = null;
+  renderEsercizi();
+  salvasuGitHub();
 }
 
 // =====================
