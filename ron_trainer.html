@@ -68,6 +68,35 @@
   }
   .logo span { color: var(--orange); }
 
+  /* HEADER QUOTE */
+  .header-quote {
+    flex: 1;
+    padding: 0 14px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .header-quote-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 12px;
+    color: rgba(255,107,0,0.55);
+    letter-spacing: 0.2px;
+    line-height: 1.3;
+    text-align: right;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: opacity 0.7s ease;
+  }
+  @media (max-width: 500px) {
+    .header-quote-text { font-size: 10px; }
+    .logo { font-size: 18px; }
+  }
+
   /* NAV TABS */
   nav {
     background: var(--bg2);
@@ -1154,8 +1183,9 @@
 
 <header>
   <div class="header-inner">
-    <div class="logo" onclick="document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.querySelector('.tab[data-tab=overview]').classList.add('active');document.getElementById('panel-overview').classList.add('active');" style="cursor:pointer">RON<span>.</span>TRAINER<span>AI</span></div>
-    <div style="display:flex;align-items:center;gap:8px">
+    <div class="logo" onclick="document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.querySelector('.tab[data-tab=overview]').classList.add('active');document.getElementById('panel-overview').classList.add('active');" style="cursor:pointer;flex-shrink:0">RON<span>.</span>TRAINER<span>AI</span></div>
+    <div class="header-quote"><div class="header-quote-text" id="header-quote-text"></div></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <div style="font-size:12px;color:var(--text3)" id="status-indicator"></div>
       <button class="header-settings-btn" onclick="switchToTab('esercizi')" title="Impostazioni">⚙</button>
     </div>
@@ -1805,6 +1835,7 @@ function inizializza() {
   aggiornaIndicatoreDimensione();
   verificaPendingSave();
   verificaToken(); // async, non blocca
+  mostraFraseRandom();
 }
 
 // =====================
@@ -1818,6 +1849,7 @@ function _switchTab(t) {
   t.classList.add('active');
   document.getElementById('panel-' + t.dataset.tab).classList.add('active');
   if (t.dataset.tab === 'guide') renderGuide();
+  if (t.dataset.tab === 'overview') mostraFraseRandom();
   if (t.dataset.tab === 'esercizi') renderEsercizi();
 }
 
@@ -6040,6 +6072,68 @@ function confermEliminaMisurazione() {
 }
 
 // =====================
+// =====================
+// FRASI MOTIVAZIONALI
+// =====================
+const FRASI_MOTIVAZIONALI = [
+  // — Dalle immagini —
+  "What we do in life echoes in eternity.",
+  "I ask not for a lighter burden, but for broader shoulders.",
+  "Man cannot remake himself without suffering — he is both the marble and the sculptor.",
+  "Comfort is the worst addiction.",
+  "Fortis Fortuna Adiuvat.",
+  "Hell is to meet the person you could have been, and realise you're not even his shadow.",
+  // — Jordan B. Peterson —
+  "Imagine who you could be, and then aim single-mindedly at that.",
+  "If you aim at nothing, you become plagued by everything.",
+  "Never sacrifice what you could be for what you are.",
+  "Compare yourself to who you were yesterday, not to who someone else is today.",
+  "He whose life has a why can bear almost any how.",
+  "Work as hard as you possibly can on at least one thing and see what happens.",
+  "You must determine where you are going, because you cannot get there unless you move in that direction.",
+  "The successful man keeps his promises to himself.",
+  // — James Clear —
+  "You do not rise to the level of your goals. You fall to the level of your systems.",
+  "Every action you take is a vote for the type of person you wish to become.",
+  "Never miss twice.",
+  "Professionals stick to the schedule. Amateurs let life get in the way.",
+  "Mastery requires patience. Change can take years before it happens all at once.",
+  "The greatest threat to success is not failure but boredom.",
+  // — Jocko Willink —
+  "Discipline is the root of all good qualities.",
+  "Discipline begets discipline. Will propagates more will.",
+  "Live in defiance of weakness and in rebellion against decay.",
+  "Don't count on motivation. Count on discipline.",
+  "Good. If things are hard — good. Figure out how to make them better.",
+  // — Marco Aurelio —
+  "Al mattino, quando sei riluttante ad alzarti: mi alzo per assolvere il mio dovere di uomo.",
+  "What stands in the way becomes the way.",
+  "You have power over your mind, not outside events. Realize this, and you will find strength.",
+  "Waste no more time arguing about what a good man should be. Be one.",
+  "It is not death that a man should fear — he should fear never beginning to live.",
+  // — Alex Hormozi —
+  "O stai crescendo o stai morendo.",
+  "Outwork your self-doubt.",
+  // — Seneca —
+  "Omnia aliena sunt, tempus tantum nostrum est.",
+  "Per aspera ad astra.",
+  // — Varie —
+  "The only easy day was yesterday.",
+  "Suffer now and live the rest of your life as a champion.",
+  "The iron never lies to you.",
+  "Your body can stand almost anything. It's your mind you have to convince.",
+  "Fall seven times, stand up eight.",
+  "Hard work beats talent when talent fails to work hard.",
+];
+
+function mostraFraseRandom() {
+  const el = document.getElementById('header-quote-text');
+  if (!el) return;
+  const frase = FRASI_MOTIVAZIONALI[Math.floor(Math.random() * FRASI_MOTIVAZIONALI.length)];
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = frase; el.style.opacity = '1'; }, 400);
+}
+
 // AVVIO
 // =====================
 caricaDati();
