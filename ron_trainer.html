@@ -4153,10 +4153,10 @@ function buildTempoField(t, val, rigaId) {
     <input type="text" inputmode="decimal" class="ins-tempo" placeholder="—" value="${val!=null?val:''}"
       style="width:100%;${isTnv?'color:#ff8800;font-weight:700;':''}text-align:center"
       oninput="aggiornaPreviewAllenamento();${rid?'aggiornaWarnVigneto(\''+rid+'\')':''}">
-    <button onclick="var i=this.previousElementSibling;i.value='TNV';i.style.color='#ff8800';i.style.fontWeight='700';aggiornaPreviewAllenamento();${rid?'aggiornaWarnVigneto(\''+rid+'\')':''}"
+    <button onclick="var i=this.previousElementSibling;if(i.value==='TNV'){i.value='';i.style.color='';i.style.fontWeight='';i.focus();}else{i.value='TNV';i.style.color='#ff8800';i.style.fontWeight='700';}aggiornaPreviewAllenamento();${rid?'aggiornaWarnVigneto(\''+rid+'\')':''}"
       style="background:none;border:1px solid #333;border-radius:3px;color:#666;cursor:pointer;font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.5px;padding:2px 0;margin-top:2px;width:100%;transition:color 0.15s,border-color 0.15s"
       onmouseover="this.style.color='#ff8800';this.style.borderColor='#ff8800'" onmouseout="this.style.color='#666';this.style.borderColor='#333'"
-      title="Tempo non valido — serie eseguita ma non misurata">TNV</button>
+      title="Tempo non valido — clicca di nuovo per annullare">TNV</button>
   </div>`;
 }
 
