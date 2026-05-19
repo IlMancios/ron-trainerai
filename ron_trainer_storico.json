@@ -1020,7 +1020,7 @@
       "esercizi": [
         {
           "esercizio_id": "salita_vigneto",
-          "schema": "3x100mt",
+          "schema": "4x100mt",
           "peso_kg": 23.8,
           "unita": "sec",
           "bodyweight": true,
@@ -1032,7 +1032,7 @@
         },
         {
           "esercizio_id": "salita_vigneto",
-          "schema": "3x100mt",
+          "schema": "4x100mt",
           "peso_kg": 23.5,
           "unita": "sec",
           "bodyweight": true,
@@ -1044,7 +1044,7 @@
         },
         {
           "esercizio_id": "salita_vigneto",
-          "schema": "3x100mt",
+          "schema": "4x100mt",
           "peso_kg": 24.8,
           "unita": "sec",
           "bodyweight": true,
@@ -1056,7 +1056,7 @@
         },
         {
           "esercizio_id": "salita_vigneto",
-          "schema": "3x100mt",
+          "schema": "4x100mt",
           "peso_kg": 26.2,
           "unita": "sec",
           "bodyweight": true,
@@ -1068,7 +1068,7 @@
         },
         {
           "esercizio_id": "salita_vigneto",
-          "schema": "3x100mt",
+          "schema": "4x100mt",
           "peso_kg": 24.6,
           "unita": "sec",
           "bodyweight": true,
