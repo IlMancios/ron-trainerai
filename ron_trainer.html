@@ -4047,10 +4047,12 @@ function aggiornaPreviewAllenamento() {
 
       if (tipo === 'vigneto') {
         const schema = getSchemaVigneto(riga);
-        const tempi  = [...riga.querySelectorAll('.ins-tempo')].map(i => i.value).filter(Boolean);
-        if (!tempi.length && !schema) return;
-        const tempiStr = tempi.length ? tempi.join('·') + 's' : '';
-        const mediaVal = tempi.length ? (tempi.reduce((a,v)=>a+parseFloat(v),0)/tempi.length).toFixed(1)+'s' : '';
+        const tuttiTempi = [...riga.querySelectorAll('.ins-tempo')].map(i => i.value.trim());
+        const tempiValidi = tuttiTempi.filter(v => v && v.toUpperCase() !== 'TNV' && !isNaN(parseFloat(v)));
+        const tempiDisp   = tuttiTempi.map(v => v.toUpperCase() === 'TNV' ? 'TNV' : (parseFloat(v)||'—'));
+        if (!tuttiTempi.length && !schema) return;
+        const tempiStr = tempiDisp.length ? tempiDisp.join('·') + (tempiValidi.length ? 's' : '') : '';
+        const mediaVal = tempiValidi.length ? (tempiValidi.reduce((a,v)=>a+parseFloat(v),0)/tempiValidi.length).toFixed(1)+'s' : '';
         const mediaStr = mediaVal ? ` | media ${mediaVal}` : '';
         linee.push(`${schema} ${ex.nome} — ${tempiStr}${mediaStr}${notaStr}`);
         return;
@@ -4138,16 +4140,23 @@ function buildDropdownOpts(esercizi, selectedId) {
   return html;
 }
 
-function buildTempoField(t, val) {
+function buildTempoField(t, val, rigaId) {
+  const rid = rigaId || '';
+  const isTnv = val === 'TNV' || val === null && false; // mai TNV da JSON (sono numeri)
   return `<div class="ins-tempo-wrapper" style="display:inline-flex;flex-direction:column;align-items:stretch;width:76px;flex-shrink:0">
     <div style="display:flex;align-items:center;gap:3px">
       <div class="form-label ins-tempo-label" style="font-size:9px">T${t} (s)</div>
-      <button onclick="this.closest('.ins-tempo-wrapper').remove();aggiornaPreviewAllenamento()"
+      <button onclick="this.closest('.ins-tempo-wrapper').remove();aggiornaPreviewAllenamento();${rid?'aggiornaWarnVigneto(\''+rid+'\')':''}"
         style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:10px;line-height:1;padding:0;flex-shrink:0;transition:color 0.2s"
         onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='var(--text3)'">×</button>
     </div>
-    <input type="number" class="ins-tempo" placeholder="—" value="${val||''}" step="0.1" min="0"
-      style="width:100%" oninput="aggiornaPreviewAllenamento()">
+    <input type="text" inputmode="decimal" class="ins-tempo" placeholder="—" value="${val!=null?val:''}"
+      style="width:100%;${isTnv?'color:#ff8800;font-weight:700;':''}text-align:center"
+      oninput="aggiornaPreviewAllenamento();${rid?'aggiornaWarnVigneto(\''+rid+'\')':''}">
+    <button onclick="var i=this.previousElementSibling;i.value='TNV';i.style.color='#ff8800';i.style.fontWeight='700';aggiornaPreviewAllenamento();${rid?'aggiornaWarnVigneto(\''+rid+'\')':''}"
+      style="background:none;border:1px solid #333;border-radius:3px;color:#666;cursor:pointer;font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.5px;padding:2px 0;margin-top:2px;width:100%;transition:color 0.15s,border-color 0.15s"
+      onmouseover="this.style.color='#ff8800';this.style.borderColor='#ff8800'" onmouseout="this.style.color='#666';this.style.borderColor='#333'"
+      title="Tempo non valido — serie eseguita ma non misurata">TNV</button>
   </div>`;
 }
 
@@ -4222,12 +4231,12 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
     while (precompila['t' + (savedTCount + 1)] !== undefined) savedTCount++;
     const nT = savedTCount > 0 ? Math.min(savedTCount, 10) : Math.min(parseInt(defaultN)||3, 10);
     let tHtml = '';
-    for (let t=1;t<=nT;t++) tHtml += buildTempoField(t, precompila['t'+t]);
+    for (let t=1;t<=nT;t++) tHtml += buildTempoField(t, precompila['t'+t], rigaId);
     return `<div style="display:flex;flex-direction:column;gap:8px">
       <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
         <div style="flex:0 0 48px"><div class="form-label">Serie</div>
           <input type="number" class="ins-schema-n" placeholder="3" value="${defaultN}" min="1" max="20" step="1"
-            style="width:100%" oninput="aggiornaPreviewAllenamento()"></div>
+            style="width:100%" oninput="aggiornaPreviewAllenamento();aggiornaWarnVigneto('${rigaId}')"></div>
         ${sepX}
         <div style="flex:0 0 58px"><div class="form-label">Dist.</div>
           <input type="text" class="ins-schema-m" placeholder="100mt" value="${defaultM}"
@@ -4237,6 +4246,7 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
         <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:5px 8px;align-self:flex-end;flex-shrink:0"
           onclick="aggiungiTempoVigneto('${rigaId}')">+T</button>
       </div>
+      <div id="${rigaId}-warn-vig" style="display:none;font-size:11px;color:#ffaa00;padding:3px 6px;background:rgba(255,170,0,0.08);border-radius:4px;border:1px solid rgba(255,170,0,0.25)"></div>
       <div style="display:flex;gap:6px;align-items:flex-end">
         <div style="flex:1">
           <div class="form-label">Nota riga</div>
@@ -4365,8 +4375,30 @@ function aggiungiTempoVigneto(rigaId) {
   const tempiDiv = document.getElementById(rigaId + '-tempi');
   if (!tempiDiv) return;
   const n = tempiDiv.querySelectorAll('.ins-tempo-wrapper').length + 1;
-  tempiDiv.insertAdjacentHTML('beforeend', buildTempoField(n, ''));
+  tempiDiv.insertAdjacentHTML('beforeend', buildTempoField(n, '', rigaId));
   aggiornaPreviewAllenamento();
+  aggiornaWarnVigneto(rigaId);
+}
+
+function aggiornaWarnVigneto(rigaId) {
+  const riga = document.getElementById(rigaId);
+  if (!riga) return;
+  const warnEl = document.getElementById(rigaId + '-warn-vig');
+  if (!warnEl) return;
+  const nSerie = parseInt(riga.querySelector('.ins-schema-n')?.value) || 0;
+  const nCampi = riga.querySelectorAll('.ins-tempo-wrapper').length;
+  const nTnv   = [...riga.querySelectorAll('.ins-tempo')].filter(i => i.value === 'TNV').length;
+  const nValidi = nCampi - nTnv;
+  if (nSerie > 0 && nCampi !== nSerie) {
+    warnEl.textContent = `⚠ Serie impostate: ${nSerie}, campi T presenti: ${nCampi} — devono corrispondere`;
+    warnEl.style.display = 'block';
+  } else if (nTnv > 0) {
+    warnEl.textContent = `ℹ ${nTnv} tempo${nTnv>1?'i':''} TNV — la media verrà calcolata su ${nValidi} misurazion${nValidi===1?'e':'i'}`;
+    warnEl.style.color = 'rgba(255,107,0,0.7)';
+    warnEl.style.display = 'block';
+  } else {
+    warnEl.style.display = 'none';
+  }
 }
 
 function aggiornaRigheCard(cardId) {
@@ -4551,6 +4583,16 @@ function confermaAllenamento() {
       });
       return;
     }
+    if (ex.id === 'salita_vigneto') {
+      const { schema } = getSchemaEPeso(i);
+      const vigMatch = schema.match(/^(\d+)x(.+)/);
+      aggiungiEsercizio({
+        exId: ex.id,
+        n: vigMatch ? vigMatch[1] : '3',
+        m: vigMatch ? vigMatch[2] : '100mt'
+      });
+      return;
+    }
     const { schema, peso } = getSchemaEPeso(i);
     const bwBtn = document.getElementById(`piano2-bw-${i}`);
     const isBW = bwBtn?.dataset?.bw === '1';
@@ -4617,10 +4659,12 @@ function salvaAllenamento() {
       if (tipo === 'vigneto') {
         const schema = getSchemaVigneto(riga);
         const tempi  = [...riga.querySelectorAll('.ins-tempo')]
-          .map(i => parseFloat(i.value))
+          .map(i => i.value.trim())
+          .filter(v => v !== '' && v.toUpperCase() !== 'TNV')
+          .map(v => parseFloat(v))
           .filter(v => !isNaN(v) && v > 0);
         if (!tempi.length) {
-          errore = `"${ex?.nome || exId}": inserisci almeno un tempo`;
+          errore = `"${ex?.nome || exId}": inserisci almeno un tempo valido`;
           return;
         }
         tempi.forEach(t => {
@@ -4913,8 +4957,17 @@ function caricaSessioneInModifica(idx) {
     const pesoVal = isPeso ? riga0.peso_kg : (isBW ? '' : riga0.peso_kg);
 
     if (riga0.unita === 'sec') {
-      // vigneto
-      aggiungiEsercizio({ exId: g.id, tipo: 'vigneto' });
+      // vigneto — carica schema e tempi originali
+      const vigMatch = (riga0.schema || '3x100mt').match(/^(\d+)x(.+)/);
+      const tempiRows = g.righe.filter(r => r.tipo_riga === 'tempo');
+      const precompVig = {
+        exId: g.id,
+        n: vigMatch ? vigMatch[1] : String(tempiRows.length || 3),
+        m: vigMatch ? vigMatch[2] : '100mt',
+        notaRiga: riga0.nota_riga || ''
+      };
+      tempiRows.forEach((r, idx) => { precompVig['t' + (idx + 1)] = r.peso_kg; });
+      aggiungiEsercizio(precompVig);
     } else if (riga0.unita === 'min/km') {
       // corsa
       aggiungiEsercizio({
