@@ -126,7 +126,12 @@
       "nome": "Trazioni dorsi delle mani a me",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Consiglio pre-salita",
+          "url": "https://youtube.com/shorts/dvG8B2OjfWk"
+        }
+      ]
     },
     {
       "id": "pulldown",
