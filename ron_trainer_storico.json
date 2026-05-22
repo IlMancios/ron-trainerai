@@ -72,7 +72,12 @@
       "nome": "Panca inclinata con manubri",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Tecnica short",
+          "url": "https://youtube.com/shorts/ou6s32mJgjU"
+        }
+      ]
     },
     {
       "id": "military_bil",
