@@ -2338,13 +2338,21 @@ function riordinaSchemi(exId, tipo) {
   const sel = document.getElementById('prog-schema');
   const attuale = sel.value;
 
-  // Raccoglie schemi esistenti (esclude le opzioni speciali)
+  // Raccoglie schemi esistenti — conta per sessione usando schema combinato (gestisce sdoppiatura)
   const schemiCount = {};
-  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
-    if (e.esercizio_id === exId && e.schema) {
-      schemiCount[e.schema] = (schemiCount[e.schema] || 0) + 1;
-    }
-  }));
+  const _pSch = r => ({
+    s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
+    rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+  });
+  DATA.sessioni.forEach(s => {
+    const std = s.esercizi.filter(e => e.esercizio_id === exId && (!e.tipo_riga || e.tipo_riga === 'standard'));
+    if (!std.length) return;
+    const tot = std.reduce((acc, r) => acc + _pSch(r).s, 0);
+    const fr  = _pSch(std[0]).rep;
+    const schema = (tot && fr) ? `${tot}x${fr}` : std[0]?.schema;
+    if (!schema) return;
+    schemiCount[schema] = (schemiCount[schema] || 0) + 1;
+  });
 
   const schemiOrdinati = Object.entries(schemiCount).sort((a, b) => {
     if (tipo === '__ordina_rep__') {
@@ -2430,13 +2438,21 @@ function aggiornaSchemiDisponibili(exId) {
   optRep.textContent = '↕ Per ripetizioni';
   sel.appendChild(optRep);
 
-  // Schemi usati per questo esercizio
+  // Schemi usati per questo esercizio — conta per sessione usando schema combinato (gestisce sdoppiatura)
   const schemiCount = {};
-  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
-    if (e.esercizio_id === exId && e.schema) {
-      schemiCount[e.schema] = (schemiCount[e.schema] || 0) + 1;
-    }
-  }));
+  const _pSch2 = r => ({
+    s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
+    rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+  });
+  DATA.sessioni.forEach(s => {
+    const std = s.esercizi.filter(e => e.esercizio_id === exId && (!e.tipo_riga || e.tipo_riga === 'standard'));
+    if (!std.length) return;
+    const tot = std.reduce((acc, r) => acc + _pSch2(r).s, 0);
+    const fr  = _pSch2(std[0]).rep;
+    const schema = (tot && fr) ? `${tot}x${fr}` : std[0]?.schema;
+    if (!schema) return;
+    schemiCount[schema] = (schemiCount[schema] || 0) + 1;
+  });
 
   // Ordine default: per frequenza
   const schemiOrdinati = Object.entries(schemiCount)
