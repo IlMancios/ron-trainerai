@@ -3125,11 +3125,17 @@ function procediStep2() {
     });
 
     Object.entries(exInSessione).forEach(([exId, righe]) => {
-      // Calcola schema totale della sessione
-      const totaleSerie = righe.reduce((acc, r) => acc + (r.serie||0), 0);
-      const reps = righe.map(r => r.rep).filter(Boolean);
-      const repUnica = reps.length && reps.every(r => r === reps[0]) ? reps[0] : null;
-      const schema = totaleSerie && repUnica ? `${totaleSerie}x${repUnica}` : righe[0]?.schema;
+      // Solo righe standard per il calcolo schema (escludi tempo/cardio_distanza)
+      const stdR = righe.filter(r => !r.tipo_riga || r.tipo_riga === 'standard');
+      if (!stdR.length) return;
+      // Calcola schema totale — fallback parsing da "NxM" per sessioni manuali senza serie/rep separati
+      const _p = r => ({
+        s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
+        rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+      });
+      const totaleSerie = stdR.reduce((acc, r) => acc + _p(r).s, 0);
+      const firstRep = _p(stdR[0]).rep;
+      const schema = totaleSerie && firstRep ? `${totaleSerie}x${firstRep}` : stdR[0]?.schema;
       if (!schema || !isSchemaValido(schema)) return;
 
       if (!schemiPerEx[exId]) schemiPerEx[exId] = {};
@@ -3154,6 +3160,31 @@ function procediStep2() {
       const cur = pesoPerSchema[e.esercizio_id][e.schema];
       if (!cur || s.data > cur.data) {
         pesoPerSchema[e.esercizio_id][e.schema] = { peso: e.peso_kg, unita: e.unita||'kg', data: s.data };
+      }
+    });
+    // Per sessioni sdoppiate: aggiungi anche la voce con lo schema combinato (es. "8x8")
+    const byEx = {};
+    s.esercizi.filter(e => !e.tipo_riga || e.tipo_riga === 'standard').forEach(e => {
+      if (!e.esercizio_id) return;
+      if (!byEx[e.esercizio_id]) byEx[e.esercizio_id] = [];
+      byEx[e.esercizio_id].push(e);
+    });
+    Object.entries(byEx).forEach(([exId, righe]) => {
+      if (righe.length < 2) return;
+      const _p = r => ({
+        s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
+        rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+      });
+      const tot = righe.reduce((acc, r) => acc + _p(r).s, 0);
+      const fr  = _p(righe[0]).rep;
+      if (!tot || !fr) return;
+      const combinedSchema = `${tot}x${fr}`;
+      const primo = righe.find(r => r.peso_kg);
+      if (!primo) return;
+      if (!pesoPerSchema[exId]) pesoPerSchema[exId] = {};
+      const cur = pesoPerSchema[exId][combinedSchema];
+      if (!cur || s.data > cur.data) {
+        pesoPerSchema[exId][combinedSchema] = { peso: primo.peso_kg, unita: primo.unita||'kg', data: s.data };
       }
     });
   });
@@ -3225,7 +3256,7 @@ function procediStep2() {
       // Sottoschemi: "(ultime N: NxM)" per righe sdoppiate successive alla prima
       const splitRighe = righe.slice(1).filter(r => _sr2(r).s && _sr2(r).rep);
       const sottoschemi = splitRighe.length > 0
-        ? ' <span style="color:var(--text3);font-size:14px;margin-left:6px">(' +
+        ? ' <span style="color:#ddd;font-size:14px;margin-left:6px">(' +
           splitRighe.map(r => `ultime ${_sr2(r).s}: ${r.schema}`).join(', ') + ')</span>'
         : '';
 
@@ -3320,7 +3351,15 @@ function procediStep2() {
 
     // Schema di default: l'ultimo usato per questo esercizio
     const ultimaSessione = sessioniOrd[0];
-    const schemaDefault = ultimaSessione?.[1]?.principale?.[0]?.schema || tuttiSchemi[0]?.[0] || '';
+    // Schema default: schema combinato dell'ultima sessione (gestisce split 2x8+6x10 → 8x8)
+    const _ultRighe = (ultimaSessione?.[1]?.principale || []).filter(r => !r.tipo_riga || r.tipo_riga === 'standard');
+    const _p2 = r => ({
+      s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
+      rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+    });
+    const _ultTot = _ultRighe.reduce((acc, r) => acc + _p2(r).s, 0);
+    const _ultFr  = _p2(_ultRighe[0] || {}).rep;
+    const schemaDefault = (_ultTot && _ultFr) ? `${_ultTot}x${_ultFr}` : (_ultRighe[0]?.schema || tuttiSchemi[0]?.[0] || '');
     const ultimoPesoSchema = pesoPerSchema[ex.id]?.[schemaDefault];
     const pesoDefault = ex.id === 'salita_vigneto' ? '' : (ultimoPesoSchema?.peso || '');
     const eraBW = !pesoDefault && (isBW || ex.id === 'salita_vigneto');
