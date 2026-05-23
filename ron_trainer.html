@@ -2339,13 +2339,14 @@ function riordinaSchemi(exId, tipo) {
   const attuale = sel.value;
 
   // Raccoglie schemi esistenti — conta per sessione usando schema combinato (gestisce sdoppiatura)
+  // Esclude solo righe vigneto (tipo_riga 'tempo'/'cardio_distanza'); include standard, inv_formato, null, ecc.
   const schemiCount = {};
   const _pSch = r => ({
     s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
     rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
   });
   DATA.sessioni.forEach(s => {
-    const std = s.esercizi.filter(e => e.esercizio_id === exId && (!e.tipo_riga || e.tipo_riga === 'standard'));
+    const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza');
     if (!std.length) return;
     const tot = std.reduce((acc, r) => acc + _pSch(r).s, 0);
     const fr  = _pSch(std[0]).rep;
@@ -2439,13 +2440,14 @@ function aggiornaSchemiDisponibili(exId) {
   sel.appendChild(optRep);
 
   // Schemi usati per questo esercizio — conta per sessione usando schema combinato (gestisce sdoppiatura)
+  // Esclude solo righe vigneto (tipo_riga 'tempo'/'cardio_distanza'); include standard, inv_formato, null, ecc.
   const schemiCount = {};
   const _pSch2 = r => ({
     s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
     rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
   });
   DATA.sessioni.forEach(s => {
-    const std = s.esercizi.filter(e => e.esercizio_id === exId && (!e.tipo_riga || e.tipo_riga === 'standard'));
+    const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza');
     if (!std.length) return;
     const tot = std.reduce((acc, r) => acc + _pSch2(r).s, 0);
     const fr  = _pSch2(std[0]).rep;
@@ -2554,7 +2556,7 @@ function renderProgressione(exId, schemaFiltro) {
   });
   const _sdoppiSchemas = {};
   DATA.sessioni.forEach(s => {
-    const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga === 'standard');
+    const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza');
     if (std.length < 2) return;
     const totS = std.reduce((acc, r) => acc + _srStats(r).s, 0);
     const fr = _srStats(std[0]).rep;
@@ -2576,8 +2578,9 @@ function renderProgressione(exId, schemaFiltro) {
       if (e.peso_kg) {
         // Escludi cardio_distanza SOLO se non stiamo cercando la media
         if (e.tipo_riga === 'cardio_distanza' && schemaFiltro !== '__media__') return;
-        // In __generale__: righe standard sdoppiate → un solo punto per sessione con schema combinato
-        if (schemaFiltro === '__generale__' && e.tipo_riga === 'standard') {
+        // In __generale__: righe sdoppiate (stessa sessione) → un solo punto con schema combinato
+        // Escludi solo vigneto (tempo/cardio_distanza); include standard, inv_formato, null, ecc.
+        if (schemaFiltro === '__generale__' && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza') {
           if (_seenStd.has(s.data)) return;
           _seenStd.add(s.data);
           records.push({
@@ -2593,7 +2596,7 @@ function renderProgressione(exId, schemaFiltro) {
         });
       } else if (e.bodyweight === true && e.tipo_riga !== 'cardio_distanza') {
         // Solo veri bodyweight (trazioni, wall walks, ecc.)
-        if (schemaFiltro === '__generale__' && e.tipo_riga === 'standard') {
+        if (schemaFiltro === '__generale__' && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza') {
           if (_seenStd.has(s.data)) return;
           _seenStd.add(s.data);
           records.push({ data: e.data, peso: 0, schema: _sdoppiSchemas[s.data] || e.schema, bw: true, unita: 'bw' });
@@ -3141,8 +3144,8 @@ function procediStep2() {
     });
 
     Object.entries(exInSessione).forEach(([exId, righe]) => {
-      // Solo righe standard per il calcolo schema (escludi tempo/cardio_distanza)
-      const stdR = righe.filter(r => !r.tipo_riga || r.tipo_riga === 'standard');
+      // Escludi solo righe vigneto (tempo/cardio_distanza); include standard, inv_formato, null, ecc.
+      const stdR = righe.filter(r => r.tipo_riga !== 'tempo' && r.tipo_riga !== 'cardio_distanza');
       if (!stdR.length) return;
       // Calcola schema totale — fallback parsing da "NxM" per sessioni manuali senza serie/rep separati
       const _p = r => ({
@@ -3180,7 +3183,7 @@ function procediStep2() {
     });
     // Per sessioni sdoppiate: aggiungi anche la voce con lo schema combinato (es. "8x8")
     const byEx = {};
-    s.esercizi.filter(e => !e.tipo_riga || e.tipo_riga === 'standard').forEach(e => {
+    s.esercizi.filter(e => e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza').forEach(e => {
       if (!e.esercizio_id) return;
       if (!byEx[e.esercizio_id]) byEx[e.esercizio_id] = [];
       byEx[e.esercizio_id].push(e);
@@ -3368,7 +3371,7 @@ function procediStep2() {
     // Schema di default: l'ultimo usato per questo esercizio
     const ultimaSessione = sessioniOrd[0];
     // Schema default: schema combinato dell'ultima sessione (gestisce split 2x8+6x10 → 8x8)
-    const _ultRighe = (ultimaSessione?.[1]?.principale || []).filter(r => !r.tipo_riga || r.tipo_riga === 'standard');
+    const _ultRighe = (ultimaSessione?.[1]?.principale || []).filter(r => r.tipo_riga !== 'tempo' && r.tipo_riga !== 'cardio_distanza');
     const _p2 = r => ({
       s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
       rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
