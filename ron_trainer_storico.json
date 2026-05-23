@@ -223,7 +223,12 @@
       "nome": "Esercizi verticale (wall walks, handstand, kick-up)",
       "categoria": "skill",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Tecnica e step by step",
+          "url": "https://youtu.be/jxlucKF-lOs"
+        }
+      ]
     },
     {
       "id": "corsa",
