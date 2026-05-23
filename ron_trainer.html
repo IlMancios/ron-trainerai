@@ -2528,6 +2528,21 @@ function renderProgressione(exId, schemaFiltro) {
 
   const records = [];
   const _canonicalUnita = DATA.esercizi_canonici.find(c => c.id === exId)?.unita || null;
+
+  // Pre-computa schema combinati per sessioni con esercizi sdoppiati (solo standard)
+  // usato in __generale__ per mostrare "6x10 (ultime 3: 3x8)" come schema unico
+  const _sdoppiSchemas = {};
+  DATA.sessioni.forEach(s => {
+    const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga === 'standard');
+    if (std.length < 2) return;
+    const totS = std.reduce((acc, r) => acc + (r.serie || 0), 0);
+    const fr = std[0]?.rep;
+    const splits = std.slice(1).filter(r => r.serie && r.rep);
+    const suffix = splits.length > 0 ? ' (' + splits.map(r => `ultime ${r.serie}: ${r.schema}`).join(', ') + ')' : '';
+    _sdoppiSchemas[s.data] = (totS && fr) ? `${totS}x${fr}${suffix}` : (std[0]?.schema || '');
+  });
+
+  const _seenStd = new Set(); // deduplicazione sessioni per righe standard in __generale__
   DATA.sessioni.forEach(s => {
     s.esercizi.forEach(e => {
       if (e.esercizio_id !== exId) return;
@@ -2540,12 +2555,29 @@ function renderProgressione(exId, schemaFiltro) {
       if (e.peso_kg) {
         // Escludi cardio_distanza SOLO se non stiamo cercando la media
         if (e.tipo_riga === 'cardio_distanza' && schemaFiltro !== '__media__') return;
+        // In __generale__: righe standard sdoppiate → un solo punto per sessione con schema combinato
+        if (schemaFiltro === '__generale__' && e.tipo_riga === 'standard') {
+          if (_seenStd.has(s.data)) return;
+          _seenStd.add(s.data);
+          records.push({
+            data: e.data, peso: e.peso_kg,
+            schema: _sdoppiSchemas[s.data] || e.schema,
+            bw: false, unita: e.unita && e.unita !== 'kg' ? e.unita : (_canonicalUnita || e.unita || 'kg')
+          });
+          return;
+        }
         records.push({
           data: e.data, peso: e.peso_kg, schema: e.schema,
           bw: false, unita: e.unita && e.unita !== 'kg' ? e.unita : (_canonicalUnita || e.unita || 'kg')
         });
       } else if (e.bodyweight === true && e.tipo_riga !== 'cardio_distanza') {
         // Solo veri bodyweight (trazioni, wall walks, ecc.)
+        if (schemaFiltro === '__generale__' && e.tipo_riga === 'standard') {
+          if (_seenStd.has(s.data)) return;
+          _seenStd.add(s.data);
+          records.push({ data: e.data, peso: 0, schema: _sdoppiSchemas[s.data] || e.schema, bw: true, unita: 'bw' });
+          return;
+        }
         records.push({
           data: e.data, peso: 0, schema: e.schema,
           bw: true, unita: 'bw'
@@ -3172,21 +3204,19 @@ function procediStep2() {
       const tempiSingoli = sess.tempi || [];
       const totaleSerie = righe.reduce((acc, r) => acc + (r.serie||0), 0);
       const reps = righe.map(r => r.rep).filter(Boolean);
-      const repUnica = reps.length && reps.every(r => r === reps[0]) ? reps[0] : null;
+      const firstRep = reps[0] || null;
       // Per corsa: schemaLabel vuoto (inclinazione già in pesoDisplay)
       const schemaLabelRaw = isCorsa
         ? ''
-        : (totaleSerie && repUnica ? `${totaleSerie}x${repUnica}` : (righe[0]?.schema || '—'));
+        : (totaleSerie && firstRep ? `${totaleSerie}x${firstRep}` : (righe[0]?.schema || '—'));
       // Per verticale: mostra sempre "verticale"
       const schemaLabel = ex.id === 'verticale' ? 'verticale' : schemaLabelRaw;
 
-      // Sottoschemi a fianco con separatore
-      const sottoschemi = righe.length > 1
+      // Sottoschemi: "(ultime N: NxM)" per righe sdoppiate successive alla prima
+      const splitRighe = righe.slice(1).filter(r => r.serie && r.rep);
+      const sottoschemi = splitRighe.length > 0
         ? ' <span style="color:var(--text3);font-size:14px;margin-left:6px">(' +
-          righe.map(r => {
-            const p = r.peso_kg ? `${r.peso_kg}${r.unita&&r.unita!=='kg'?' '+r.unita:'kg'}` : (r.bodyweight ? 'BW' : '—');
-            return `${r.schema||'—'} ${p}`;
-          }).join(' + ') + ')</span>'
+          splitRighe.map(r => `ultime ${r.serie}: ${r.schema}`).join(', ') + ')</span>'
         : '';
 
       const primoConPeso = righe.find(r => r.peso_kg);
@@ -5114,11 +5144,10 @@ function renderSessioneBody(s) {
         </div>`;
     }
 
-    // Calcola schema totale: somma serie, controlla se rep sono tutte uguali
+    // Calcola schema totale: somma serie, usa rep della prima riga (schema intenzione)
     const totSerie = g.righe.reduce((acc, e) => acc + (e.serie || 0), 0);
     const reps = g.righe.map(e => e.rep);
-    const repUguali = reps.every(r => r === reps[0]);
-    const schemaLabel = repUguali && reps[0]
+    const schemaLabel = (totSerie && reps[0])
       ? `${totSerie}x${reps[0]}`
       : null;
 
