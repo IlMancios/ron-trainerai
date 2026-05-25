@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 430,
-    "totale_righe_esercizio": 1181,
+    "totale_sessioni": 431,
+    "totale_righe_esercizio": 1183,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -390,6 +390,41 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-25_manuale.json",
+      "title": "Training 25/05/2026 AN - Hotel dei Nani",
+      "data": "2026-05-25",
+      "luogo": "AN - Hotel dei Nani",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "0%",
+          "peso_kg": 6.69,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "4.4km",
+          "tempo_corsa": "29:25",
+          "data": "2026-05-25",
+          "luogo": "AN - Hotel dei Nani",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_pulley",
+          "schema": "7x6",
+          "peso_kg": 15,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-25",
+          "luogo": "AN - Hotel dei Nani",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-05-23_manuale.json",
       "title": "Training 23/05/2026 TE - Casa",
