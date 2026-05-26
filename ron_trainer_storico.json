@@ -160,7 +160,12 @@
       "nome": "Bicipiti con manubri, seduto su panca inclinata",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Short tecnica",
+          "url": "https://youtube.com/shorts/uCUaRFlA9vE"
+        }
+      ]
     },
     {
       "id": "bicipiti_man_pip",
