@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 431,
-    "totale_righe_esercizio": 1183,
+    "totale_sessioni": 432,
+    "totale_righe_esercizio": 1186,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -395,6 +395,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-05-26_manuale.json",
+      "title": "Training 26/05/2026 TE - Casa",
+      "data": "2026-05-26",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "panca_incl_bil",
+          "schema": "6x6",
+          "peso_kg": 52.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-26",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_sed",
+          "schema": "5x5",
+          "peso_kg": 20.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Migliorare e stabilizzare tecnica",
+          "data": "2026-05-26",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_neutre",
+          "schema": "4x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-26",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-05-25_manuale.json",
       "title": "Training 25/05/2026 AN - Hotel dei Nani",
