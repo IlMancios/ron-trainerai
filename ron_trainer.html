@@ -1381,9 +1381,12 @@
           <div style="font-size:13px;color:var(--text2)">Seleziona gli esercizi che vuoi fare oggi</div>
           <div style="font-size:13px;color:var(--orange)" id="piano-sel-count">0 selezionati</div>
         </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn piano-procedi-btn" onclick="procediStep2()" disabled style="opacity:0.4">PROCEDI →</button>
+        </div>
         <div id="piano-ex-lista"></div>
         <div style="display:flex;justify-content:flex-end;margin-top:16px">
-          <button class="btn" id="piano-procedi-btn" onclick="procediStep2()" disabled style="opacity:0.4">PROCEDI →</button>
+          <button class="btn piano-procedi-btn" onclick="procediStep2()" disabled style="opacity:0.4">PROCEDI →</button>
         </div>
       </div>
     </div>
@@ -3114,9 +3117,10 @@ function toggleEsercizioPiano(i) {
 function aggiornaContatoreSelezione() {
   const n = ESERCIZI_SELEZIONATI.size;
   document.getElementById('piano-sel-count').textContent = n + ' selezionati';
-  const btn = document.getElementById('piano-procedi-btn');
-  btn.disabled = n === 0;
-  btn.style.opacity = n === 0 ? '0.4' : '1';
+  document.querySelectorAll('.piano-procedi-btn').forEach(btn => {
+    btn.disabled = n === 0;
+    btn.style.opacity = n === 0 ? '0.4' : '1';
+  });
 }
 
 function procediStep2() {
@@ -3144,6 +3148,14 @@ function procediStep2() {
     });
 
     Object.entries(exInSessione).forEach(([exId, righe]) => {
+      // Salita vigneto: tutte le righe sono tempo/cardio_distanza → schema preso direttamente dalla riga
+      if (exId === 'salita_vigneto') {
+        const schemaVig = righe[0]?.schema;
+        if (!schemaVig || !isSchemaValido(schemaVig)) return;
+        if (!schemiPerEx[exId]) schemiPerEx[exId] = {};
+        schemiPerEx[exId][schemaVig] = (schemiPerEx[exId][schemaVig] || 0) + 1;
+        return;
+      }
       // Escludi solo righe vigneto (tempo/cardio_distanza); include standard, inv_formato, null, ecc.
       const stdR = righe.filter(r => r.tipo_riga !== 'tempo' && r.tipo_riga !== 'cardio_distanza');
       if (!stdR.length) return;
@@ -3378,14 +3390,17 @@ function procediStep2() {
     });
     const _ultTot = _ultRighe.reduce((acc, r) => acc + _p2(r).s, 0);
     const _ultFr  = _p2(_ultRighe[0] || {}).rep;
-    const schemaDefault = (_ultTot && _ultFr) ? `${_ultTot}x${_ultFr}` : (_ultRighe[0]?.schema || tuttiSchemi[0]?.[0] || '');
+    const schemaDefault = ex.id === 'salita_vigneto'
+      ? (ultimaSessione?.[1]?.principale?.[0]?.schema || tuttiSchemi[0]?.[0] || '')
+      : ((_ultTot && _ultFr) ? `${_ultTot}x${_ultFr}` : (_ultRighe[0]?.schema || tuttiSchemi[0]?.[0] || ''));
     const ultimoPesoSchema = pesoPerSchema[ex.id]?.[schemaDefault];
     const pesoDefault = ex.id === 'salita_vigneto' ? '' : (ultimoPesoSchema?.peso || '');
     const eraBW = !pesoDefault && (isBW || ex.id === 'salita_vigneto');
     const unitaLabel = isCorsa ? 'min/km' : ex.id === 'salita_vigneto' ? 'bw' : (ex.unita || pesoPerSchema[ex.id]?.[schemaDefault]?.unita || 'kg');
 
     const schemaOptions = tuttiSchemi.map(([s, count]) => {
-      const label = isCorsa && /^\d+%$/.test(s) ? `Inclinazione ${s}` : s;
+      // value = schema grezzo (es. "3x100mt", serve per il match peso); label = senza "mt" per uniformità con la lista storica
+      const label = isCorsa && /^\d+%$/.test(s) ? `Inclinazione ${s}` : s.replace(/mt$/i, '');
       return `<option value="${s}" ${s===schemaDefault?'selected':''}>${label}${count>0 ? `  —  fatto ${count} ${count===1?'volta':'volte'}` : ''}</option>`;
     }).join('');
 
