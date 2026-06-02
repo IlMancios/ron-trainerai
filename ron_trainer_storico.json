@@ -179,7 +179,12 @@
       "nome": "Bicipiti con pulley basso, in piedi",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Short tecnica",
+          "url": "https://youtube.com/shorts/CrbTqNOlFgE"
+        }
+      ]
     },
     {
       "id": "pullover",
