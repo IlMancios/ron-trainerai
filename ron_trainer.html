@@ -1544,6 +1544,35 @@
         <div id="gh-size-indicator" style="margin-top:4px;font-size:11px;color:var(--text3)"></div>
       </div>
 
+      <!-- Promemoria salvataggio (ntfy) -->
+      <div class="imp-row" style="flex-direction:column;align-items:flex-start">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;flex-wrap:wrap">
+          <div>
+            <span class="imp-row-label">Promemoria salvataggio <span id="ntfy-indicator" style="margin-left:6px;font-size:13px"></span></span>
+            <span class="imp-row-sub">Notifiche push (ntfy) dopo l'inizio di un allenamento — trigger: "Conferma allenamento"</span>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;flex-shrink:0;cursor:pointer;font-size:13px;color:var(--text2)">
+            <input type="checkbox" id="ntfy-enabled" onchange="salvaNtfyConfig()"> Attivi
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:10px;width:100%">
+          <div style="flex:1;min-width:180px">
+            <div class="form-label">Topic ntfy</div>
+            <input type="text" id="ntfy-topic-input" placeholder="ron-trainer-..." style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:5px;color:#e8e8e8;padding:7px 10px;font-family:inherit;font-size:13px">
+          </div>
+          <button class="btn btn-sm" onclick="salvaNtfyConfig(true)">SALVA TOPIC</button>
+        </div>
+        <div id="ntfy-status" style="margin-top:6px;font-size:12px;color:var(--text2)"></div>
+
+        <div style="width:100%;margin-top:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div class="form-label" style="margin:0">Notifiche collegate</div>
+            <button class="btn btn-sm" onclick="addReminder()">+ AGGIUNGI</button>
+          </div>
+          <div id="ntfy-reminders-list"></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- SEZIONE: GESTIONE ESERCIZI -->
@@ -3859,6 +3888,176 @@ function vaiScheda() {
   chiudiBannerDraft();
 }
 
+// ---- Promemoria salvataggio (ntfy) ----
+const NTFY_TOPIC_DEFAULT = 'ron-trainer-7gk29xyz';
+const NTFY_MSG_DEFAULT = "Hai salvato l'allenamento di oggi? Se no, apri TrainerAI e premi Salva.";
+
+function ntfyEsc(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getNtfyTopic() {
+  return (localStorage.getItem('ntfy_topic') || NTFY_TOPIC_DEFAULT).trim();
+}
+function ntfyAttivo() {
+  return localStorage.getItem('ntfy_enabled') !== '0'; // attivo di default
+}
+
+// Lista promemoria: [{ id, enabled, delayValue, delayUnit('min'|'h'|'d'), message }]
+function setReminders(arr) {
+  localStorage.setItem('ntfy_reminders', JSON.stringify(arr));
+}
+function nextReminderId(arr) {
+  const maxId = (arr || []).reduce((m, r) => Math.max(m, r.id || 0), 0);
+  return Math.max(maxId, Date.now()) + 1; // id numerico sempre univoco
+}
+function getReminders() {
+  try {
+    const r = JSON.parse(localStorage.getItem('ntfy_reminders'));
+    if (Array.isArray(r)) return r;
+  } catch (e) {}
+  // primo avvio: crea e PERSISTE 1 promemoria di default (id stabile)
+  const def = [{ id: Date.now(), enabled: true, delayValue: 3, delayUnit: 'h', message: NTFY_MSG_DEFAULT }];
+  setReminders(def);
+  return def;
+}
+
+// Converte valore+unità nel formato ritardo accettato da ntfy
+function ntfyDelayString(value, unit) {
+  const v = Math.max(1, parseInt(value) || 1);
+  if (unit === 'min') return v + 'm';
+  if (unit === 'd')   return v + 'd';
+  return v + 'h';
+}
+
+function salvaNtfyConfig(fromBtn) {
+  const topicInput = document.getElementById('ntfy-topic-input');
+  const enabled = document.getElementById('ntfy-enabled');
+  if (topicInput && fromBtn) {
+    const v = topicInput.value.trim();
+    if (v) localStorage.setItem('ntfy_topic', v);
+  }
+  if (enabled) localStorage.setItem('ntfy_enabled', enabled.checked ? '1' : '0');
+  aggiornaNtfyStatus();
+  if (fromBtn) showToast('Topic salvato', 'success');
+}
+
+function aggiornaNtfyStatus() {
+  const topicInput = document.getElementById('ntfy-topic-input');
+  const enabled = document.getElementById('ntfy-enabled');
+  const status = document.getElementById('ntfy-status');
+  const indicator = document.getElementById('ntfy-indicator');
+  const attivo = ntfyAttivo();
+  if (topicInput && document.activeElement !== topicInput) topicInput.value = getNtfyTopic();
+  if (enabled) enabled.checked = attivo;
+  if (indicator) indicator.textContent = attivo ? '🟢' : '⚪';
+  const nAttive = getReminders().filter(r => r.enabled).length;
+  if (status) status.textContent = attivo
+    ? `Attivi · topic "${getNtfyTopic()}" · ${nAttive} notific${nAttive===1?'a':'he'} su "Conferma allenamento"`
+    : 'Disattivati';
+}
+
+// Disegna le card delle notifiche (solo su init/aggiungi/rimuovi, non mentre editi un campo)
+function renderReminders() {
+  const cont = document.getElementById('ntfy-reminders-list');
+  if (!cont) return;
+  const reminders = getReminders();
+  const inputStyle = "background:#111;border:1px solid #2a2a2a;border-radius:5px;color:#e8e8e8;padding:6px 8px;font-family:inherit;font-size:13px";
+  cont.innerHTML = reminders.map((r, idx) => `
+    <div style="border:1px solid #2a2a2a;border-radius:8px;padding:10px;margin-top:8px;background:#0e0e0e">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer">
+          <input type="checkbox" ${r.enabled ? 'checked' : ''} onchange="updateReminder(${r.id},'enabled',this.checked)"> Notifica ${idx + 1}
+        </label>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="testReminder(${r.id})" title="Invia subito come test">TEST</button>
+          <button class="btn btn-ghost btn-sm" onclick="removeReminder(${r.id})" title="Elimina" style="color:#ff6b6b">🗑</button>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="form-label">Ritardo dopo "Conferma allenamento"</div>
+        <div style="display:flex;gap:6px">
+          <input type="number" min="1" value="${ntfyEsc(r.delayValue)}" onchange="updateReminder(${r.id},'delayValue',this.value)" style="width:70px;${inputStyle}">
+          <select onchange="updateReminder(${r.id},'delayUnit',this.value)" style="${inputStyle}">
+            <option value="min" ${r.delayUnit==='min'?'selected':''}>minuti</option>
+            <option value="h" ${r.delayUnit==='h'?'selected':''}>ore</option>
+            <option value="d" ${r.delayUnit==='d'?'selected':''}>giorni</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="form-label">Testo notifica</div>
+        <textarea rows="2" onchange="updateReminder(${r.id},'message',this.value)" style="width:100%;resize:vertical;${inputStyle}">${ntfyEsc(r.message)}</textarea>
+      </div>
+    </div>`).join('') || '<div style="font-size:12px;color:var(--text3);margin-top:8px;font-style:italic">Nessuna notifica. Premi + AGGIUNGI.</div>';
+}
+
+function updateReminder(id, field, value) {
+  const arr = getReminders();
+  const r = arr.find(x => x.id === id);
+  if (!r) return;
+  if (field === 'delayValue') value = Math.max(1, parseInt(value) || 1);
+  r[field] = value;
+  setReminders(arr);
+  aggiornaNtfyStatus(); // aggiorna solo il riepilogo testuale, non ridisegna le card
+}
+
+function addReminder() {
+  const arr = getReminders();
+  arr.push({ id: nextReminderId(arr), enabled: true, delayValue: 3, delayUnit: 'h', message: NTFY_MSG_DEFAULT });
+  setReminders(arr);
+  renderReminders();
+  aggiornaNtfyStatus();
+}
+
+function removeReminder(id) {
+  setReminders(getReminders().filter(x => x.id !== id));
+  renderReminders();
+  aggiornaNtfyStatus();
+}
+
+// Invio verso ntfy.sh (JSON al root). opts: { message, delay? }
+async function inviaNtfy(opts) {
+  const body = {
+    topic: getNtfyTopic(),
+    title: 'TrainerAI — Promemoria',
+    message: opts.message || '(vuoto)',
+    tags: ['floppy_disk'],
+    click: 'https://ilmancios.github.io/ron-trainerai/ron_trainer.html'
+  };
+  if (opts.delay) body.delay = opts.delay;
+  const res = await fetch('https://ntfy.sh/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res;
+}
+
+// Programma TUTTE le notifiche attive dopo l'inizio allenamento (fire & forget, non blocca)
+function programmaPromemoria() {
+  if (!ntfyAttivo()) return;
+  const attive = getReminders().filter(r => r.enabled);
+  attive.forEach(r => {
+    inviaNtfy({ message: r.message, delay: ntfyDelayString(r.delayValue, r.delayUnit) })
+      .catch(e => console.warn('ntfy promemoria fallito:', e));
+  });
+  if (attive.length) showToast(`${attive.length} promemoria impostat${attive.length===1?'o':'i'}`, 'success');
+}
+
+// Test immediato di una singola notifica (senza ritardo)
+async function testReminder(id) {
+  const r = getReminders().find(x => x.id === id);
+  if (!r) return;
+  try {
+    await inviaNtfy({ message: r.message });
+    showToast('Test inviato: controlla il telefono', 'success');
+  } catch (e) {
+    showToast('Test fallito: ' + e.message, 'error');
+  }
+}
+
 // ---- GitHub API ----
 function salvaToken() {
   const val = document.getElementById('gh-token-input')?.value.trim();
@@ -4027,6 +4226,8 @@ function inizializzaInserimento() {
   document.getElementById('ins-data').addEventListener('change', aggiornaPreviewAllenamento);
   document.getElementById('ins-luogo').addEventListener('change', aggiornaPreviewAllenamento);
   aggiornaTokenStatus();
+  aggiornaNtfyStatus();
+  renderReminders();
   _inizializzando = true;
   ripristinaBozza(); // ripristina bozza se esiste, altrimenti aggiunge un esercizio vuoto
   _inizializzando = false;
@@ -4719,6 +4920,8 @@ function confermaAllenamento() {
       notaRiga: ''
     });
   });
+
+  programmaPromemoria(); // notifica ntfy tra 3h per ricordare di salvare
 
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
   document.querySelector('.tab[data-tab="inserimento"]').classList.add('active');
