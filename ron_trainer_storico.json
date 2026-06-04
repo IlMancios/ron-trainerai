@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 435,
-    "totale_righe_esercizio": 1199,
+    "totale_sessioni": 436,
+    "totale_righe_esercizio": 1202,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -400,6 +400,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-06-04_manuale.json",
+      "title": "Training 04/06/2026 TE - Casa",
+      "data": "2026-06-04",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "stacchi",
+          "schema": "6x6",
+          "peso_kg": 122.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-04",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pulldown",
+          "schema": "6x10",
+          "peso_kg": 50,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-04",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_dips",
+          "schema": "4x4",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-04",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-06-02_manuale.json",
       "title": "Training 02/06/2026 TE - Casa",
