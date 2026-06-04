@@ -624,10 +624,12 @@
     font-size: 14px;
     color: var(--text);
     z-index: 1000;
-    transition: transform 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
     white-space: nowrap;
   }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   .toast.success { border-color: var(--green); color: var(--green); }
   .toast.error { border-color: #ff4444; color: #ff4444; }
   .toast.loading { border-color: var(--orange); color: var(--orange); }
@@ -4023,6 +4025,7 @@ async function inviaNtfy(opts) {
     title: 'TrainerAI — Promemoria',
     message: opts.message || '(vuoto)',
     tags: ['floppy_disk'],
+    priority: 4, // alta: popup + suono su Android, difficile da ignorare
     click: 'https://ilmancios.github.io/ron-trainerai/ron_trainer.html'
   };
   if (opts.delay) body.delay = opts.delay;
