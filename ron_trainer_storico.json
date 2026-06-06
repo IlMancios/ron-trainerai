@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 436,
-    "totale_righe_esercizio": 1202,
+    "totale_sessioni": 437,
+    "totale_righe_esercizio": 1205,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -400,6 +400,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-06-06_manuale.json",
+      "title": "Training 06/06/2026 TE - Casa",
+      "data": "2026-06-06",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "5x5",
+          "peso_kg": 155,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultime 2 ripetizioni non fatte per sicurezza, stabilizzare in generale",
+          "data": "2026-06-06",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "military_man",
+          "schema": "6x8",
+          "peso_kg": 18,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-06",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_man",
+          "schema": "4x16",
+          "peso_kg": 24,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "1/5 sollevamento laterale",
+          "data": "2026-06-06",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-06-04_manuale.json",
       "title": "Training 04/06/2026 TE - Casa",
