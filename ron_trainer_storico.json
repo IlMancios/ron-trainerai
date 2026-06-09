@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 438,
-    "totale_righe_esercizio": 1208,
+    "totale_sessioni": 439,
+    "totale_righe_esercizio": 1209,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -400,6 +400,29 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-06-09_manuale.json",
+      "title": "Training 09/06/2026 PE - Office",
+      "data": "2026-06-09",
+      "luogo": "PE - Office",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "0%",
+          "peso_kg": 6.67,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "4.8km — Corsa lungomare Pescara",
+          "tempo_corsa": "32:00",
+          "data": "2026-06-09",
+          "luogo": "PE - Office",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-06-07_manuale.json",
       "title": "Training 07/06/2026 TE - Casa",
