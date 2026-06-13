@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 439,
-    "totale_righe_esercizio": 1209,
+    "totale_sessioni": 440,
+    "totale_righe_esercizio": 1212,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -823,6 +823,54 @@
           "nota_riga": null,
           "data": "2026-05-25",
           "luogo": "AN - Hotel dei Nani",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
+    {
+      "file": "Training_2026-05-23_manuale.json",
+      "title": "Training 23/05/2026 TE - Casa",
+      "data": "2026-05-23",
+      "luogo": "TE - Casa",
+      "note_sessione": [
+        "Lo squat lo sto riducendo in frequenza, e si sente sulla fatica delle serie, non è necessariamente un problema, per ora la crescita teniamola in hold, per restare in sicurezza posso anche scendere un po di peso"
+      ],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "6x6",
+          "peso_kg": 145,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultima serie assistenza stefano, praticamente non necessaria",
+          "data": "2026-05-23",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "military_bil",
+          "schema": "4x4",
+          "peso_kg": 47.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Leggermente slanciate, costruire",
+          "data": "2026-05-23",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "verticale",
+          "schema": "4x15",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-05-23",
+          "luogo": "TE - Casa",
           "file_sorgente": "manuale"
         }
       ],
