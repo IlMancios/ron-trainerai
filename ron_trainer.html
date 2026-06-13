@@ -3312,8 +3312,8 @@ function procediStep2() {
       const schemaLabelRaw = isCorsa
         ? ''
         : (totaleSerie && firstRep ? `${totaleSerie}x${firstRep}` : (righe[0]?.schema || '—'));
-      // Per verticale: mostra sempre "verticale"
-      const schemaLabel = ex.id === 'verticale' ? 'verticale' : schemaLabelRaw;
+      // schemaLabelRaw già gestisce verticale: schema reale (es. "4x10") o "verticale"/"—" se assente
+      const schemaLabel = schemaLabelRaw;
 
       // Sottoschemi: "(ultime N: NxM)" per righe sdoppiate successive alla prima
       const splitRighe = righe.slice(1).filter(r => _sr2(r).s && _sr2(r).rep);
