@@ -3259,47 +3259,32 @@ function procediStep2() {
     const isCardio = ex.cat === 'cardio';
     const isCorsa = ex.id === 'corsa';
 
-    // Storico: raggruppa per sessione
-    const storicoPerSessione = {};
+    // Storico: una voce per SESSIONE (non per data) → due sessioni con la stessa data
+    // (duplicati o sessioni diverse) restano separate e non vengono fuse
+    const storicoSessioni = []; // [{ data, principale:[], tempi:[] }]
     DATA.sessioni.forEach(s => {
+      const principale = [];
+      const tempi = [];
       s.esercizi.forEach(e => {
         if (e.esercizio_id !== ex.id) return;
         if (!e.schema && !e.peso_kg && !e.bodyweight) return;
-        // Per salita vigneto: escludi i record tempo singoli dal raggruppamento principale
-        // (vengono gestiti separatamente nel render)
-        if (ex.id === 'salita_vigneto' && e.tipo_riga === 'tempo') return;
-        if (!storicoPerSessione[s.data]) storicoPerSessione[s.data] = { principale: [], tempi: [] };
-        storicoPerSessione[s.data].principale.push(e);
+        // Per salita vigneto: i record tempo singoli vanno gestiti separatamente nel render
+        if (ex.id === 'salita_vigneto' && e.tipo_riga === 'tempo') { tempi.push(e); return; }
+        principale.push(e);
       });
-      // Aggiungi tempi singoli separatamente per salita vigneto
-      if (ex.id === 'salita_vigneto') {
-        s.esercizi.forEach(e => {
-          if (e.esercizio_id !== ex.id || e.tipo_riga !== 'tempo') return;
-          if (!storicoPerSessione[s.data]) storicoPerSessione[s.data] = { principale: [], tempi: [] };
-          storicoPerSessione[s.data].tempi.push(e);
-        });
-      }
+      if (principale.length || tempi.length) storicoSessioni.push({ data: s.data, principale, tempi });
     });
 
-    // Normalizza struttura per esercizi non-vigneto
-    if (ex.id !== 'salita_vigneto') {
-      Object.keys(storicoPerSessione).forEach(k => {
-        if (Array.isArray(storicoPerSessione[k])) {
-          storicoPerSessione[k] = { principale: storicoPerSessione[k], tempi: [] };
-        }
-      });
-    }
-
-    // Tutte le sessioni ordinate (mostra 5 + "altri")
-    const sessioniOrd = Object.entries(storicoPerSessione)
-      .filter(([, v]) => v.principale.length > 0)
-      .sort((a,b) => b[0].localeCompare(a[0]));
+    // Tutte le sessioni ordinate per data desc (mostra 5 + "altri")
+    const sessioniOrd = storicoSessioni
+      .filter(v => v.principale.length > 0)
+      .sort((a,b) => b.data.localeCompare(a.data));
 
     const prime5 = sessioniOrd.slice(0, 5);
     const altre = sessioniOrd.slice(5, 10); // max 5 in più (tot 10)
-    const buildRigaStorico = ([data, sess]) => {
-      const righe = sess.principale;
-      const tempiSingoli = sess.tempi || [];
+    const buildRigaStorico = ({ data, principale, tempi }) => {
+      const righe = principale;
+      const tempiSingoli = tempi || [];
       // Parsing di fallback da schema "NxM" quando serie/rep non sono campi separati (sessioni manuali)
       const _sr2 = r => {
         const s = r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0;
@@ -3356,7 +3341,7 @@ function procediStep2() {
         pesoDisplay = `<span style="color:#ffffff;font-size:17px;font-weight:600">${p}</span>`;
       }
 
-      const luogoSess = Object.entries(storicoPerSessione).find(([d])=>d===data)?.[1]?.principale?.[0]?.luogo || '';
+      const luogoSess = righe[0]?.luogo || '';
       const notaSess = !isCorsa && ex.id !== 'salita_vigneto' ? (righe[0]?.nota_riga || '') : '';
       const rawSchema = righe[0]?.schema || null;
       const statsBtnSchema = rawSchema ? rawSchema.replace(/'/g,"\\'") : null;
@@ -3414,7 +3399,7 @@ function procediStep2() {
     // Schema di default: l'ultimo usato per questo esercizio
     const ultimaSessione = sessioniOrd[0];
     // Schema default: schema combinato dell'ultima sessione (gestisce split 2x8+6x10 → 8x8)
-    const _ultRighe = (ultimaSessione?.[1]?.principale || []).filter(r => r.tipo_riga !== 'tempo' && r.tipo_riga !== 'cardio_distanza');
+    const _ultRighe = (ultimaSessione?.principale || []).filter(r => r.tipo_riga !== 'tempo' && r.tipo_riga !== 'cardio_distanza');
     const _p2 = r => ({
       s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
       rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
@@ -3422,7 +3407,7 @@ function procediStep2() {
     const _ultTot = _ultRighe.reduce((acc, r) => acc + _p2(r).s, 0);
     const _ultFr  = _p2(_ultRighe[0] || {}).rep;
     const schemaDefault = ex.id === 'salita_vigneto'
-      ? (ultimaSessione?.[1]?.principale?.[0]?.schema || tuttiSchemi[0]?.[0] || '')
+      ? (ultimaSessione?.principale?.[0]?.schema || tuttiSchemi[0]?.[0] || '')
       : ((_ultTot && _ultFr) ? `${_ultTot}x${_ultFr}` : (_ultRighe[0]?.schema || tuttiSchemi[0]?.[0] || ''));
     const ultimoPesoSchema = pesoPerSchema[ex.id]?.[schemaDefault];
     const pesoDefault = ex.id === 'salita_vigneto' ? '' : (ultimoPesoSchema?.peso || '');
@@ -3455,7 +3440,7 @@ function procediStep2() {
     // --- Corsa: form dedicato (Incl + Tempo + km + Passo calc) ---
     if (isCorsa) {
       const incrDef = schemaDefault && /^\d+%$/.test(schemaDefault) ? schemaDefault : '0%';
-      const ultimaRiga = sessioniOrd[0]?.[1]?.principale?.[0];
+      const ultimaRiga = sessioniOrd[0]?.principale?.[0];
       const tempoDef = ultimaRiga?.tempo_corsa || '';
       const kmDef = (() => { const m = (ultimaRiga?.nota_riga||'').match(/^([\d,\.]+)km/); return m ? m[1] : ''; })();
       const passoDef = (() => {
@@ -5075,6 +5060,11 @@ function salvaAllenamento() {
 
 function validaAllenamento(data, luogo, esercizi) {
   const avvisi = [];
+
+  // Possibile duplicato: esiste già una sessione per stessa data + luogo
+  if (data && luogo && DATA.sessioni.some(s => s.data === data && s.luogo === luogo)) {
+    avvisi.push(`Esiste già una sessione registrata per <strong>${formatData(data)}</strong> — <strong>${luogo}</strong>. Se l'hai già salvato, salvando di nuovo crei un <strong>duplicato</strong>.`);
+  }
 
   // Data nel futuro
   if (data > oggi()) {
