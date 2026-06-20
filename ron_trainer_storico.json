@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 442,
-    "totale_righe_esercizio": 1221,
+    "totale_sessioni": 443,
+    "totale_righe_esercizio": 1224,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -400,6 +400,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-06-20_manuale.json",
+      "title": "Training 20/06/2026 TE - Casa",
+      "data": "2026-06-20",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "6x12",
+          "peso_kg": 125,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Difficile ma riuscita",
+          "data": "2026-06-20",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca",
+          "schema": "6x8",
+          "peso_kg": 70,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-20",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "sollevamento_gambe",
+          "schema": "5x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-20",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-06-18_manuale.json",
       "title": "Training 18/06/2026 PE - Palestra SHotel",
