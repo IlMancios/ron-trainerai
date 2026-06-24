@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 445,
-    "totale_righe_esercizio": 1234,
+    "totale_sessioni": 446,
+    "totale_righe_esercizio": 1237,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -400,6 +400,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-06-24_manuale.json",
+      "title": "Training 24/06/2026 TE - Casa",
+      "data": "2026-06-24",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "stacchi",
+          "schema": "5x5",
+          "peso_kg": 130,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pulldown",
+          "schema": "6x5",
+          "peso_kg": 70,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Provato 5x5 con 80 ma era troppo",
+          "data": "2026-06-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_man",
+          "schema": "6x8",
+          "peso_kg": 8,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-06-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-06-22_manuale.json",
       "title": "Training 22/06/2026 TE - Casa",
