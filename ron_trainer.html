@@ -42,14 +42,43 @@
     min-height: 100vh;
   }
 
+  /* TOPBAR (header + nav): sticky, si nasconde scrollando giù e riappare scrollando su */
+  #topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: transform 0.25s ease;
+  }
+  #topbar.topbar-hidden { transform: translateY(-105%); }
+
+  /* BACK TO TOP */
+  #back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 16px;
+    z-index: 90;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg3);
+    color: var(--orange);
+    border: 1px solid var(--border);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.45);
+  }
+  #back-to-top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
   /* HEADER */
   header {
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
     padding: 0 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
   }
   .header-inner {
     max-width: 900px;
@@ -1205,6 +1234,7 @@
 </head>
 <body>
 
+<div id="topbar">
 <header>
   <div class="header-inner">
     <div class="logo" onclick="document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.querySelector('.tab[data-tab=overview]').classList.add('active');document.getElementById('panel-overview').classList.add('active');" style="cursor:pointer;flex-shrink:0">RON<span>.</span>TRAINER<span>AI</span></div>
@@ -1232,6 +1262,9 @@
     <div class="tab" data-tab="esercizi">⚙</div>
   </div>
 </nav>
+</div>
+
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Torna su">↑</button>
 
 <div id="token-missing-banner" class="token-banner" style="display:none">
   ⚠️ Token GitHub non configurato — il salvataggio non funzionerà.
@@ -1902,7 +1935,11 @@ function inizializza() {
 // =====================
 let _pendingTab = null;
 
+let tabScroll = {}; // memorizza l'altezza di scroll per ogni tab
 function _switchTab(t) {
+  // salva lo scroll del tab che sto lasciando
+  const cur = document.querySelector('.tab.active');
+  if (cur && cur !== t) tabScroll[cur.dataset.tab] = window.scrollY;
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
   t.classList.add('active');
@@ -1910,6 +1947,8 @@ function _switchTab(t) {
   if (t.dataset.tab === 'guide') renderGuide();
   if (t.dataset.tab === 'overview') mostraFraseRandom();
   if (t.dataset.tab === 'esercizi') renderEsercizi();
+  // ripristina lo scroll dove l'avevo lasciato (0 se mai visitato)
+  window.scrollTo(0, tabScroll[t.dataset.tab] || 0);
 }
 
 function guideDirtyDiscard() {
@@ -1936,6 +1975,32 @@ document.querySelectorAll('.tab').forEach(t => {
     _switchTab(t);
   });
 });
+
+// ---- Scroll: nascondi/mostra la barra in alto + bottone "torna su" ----
+(function(){
+  let lastY = window.scrollY;
+  let ticking = false;
+  function onScroll() {
+    const y = window.scrollY;
+    const topbar = document.getElementById('topbar');
+    const btt = document.getElementById('back-to-top');
+    if (topbar) {
+      if (y < 60) {
+        topbar.classList.remove('topbar-hidden');        // vicino alla cima: sempre visibile
+      } else if (y > lastY + 5) {
+        topbar.classList.add('topbar-hidden');           // scorro giù: nascondi
+      } else if (y < lastY - 5) {
+        topbar.classList.remove('topbar-hidden');         // scorro su: mostra
+      }
+    }
+    if (btt) btt.classList.toggle('show', y > 500);       // bottone torna-su sulle pagine lunghe
+    lastY = y;
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
+})();
 
 // =====================
 // OVERVIEW
@@ -4736,6 +4801,7 @@ function aggiungiEsercizio(precompila = {}) {
         </select>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <button class="piano-stats-btn" onclick="apriStatsDaTrain('${cardId}')" title="Storico/grafico esercizio">📈</button>
         <button class="btn-sdoppia-small" onclick="sdoppiaEsercizio('${cardId}')">+ sdoppia</button>
         <button class="btn-remove" onclick="rimuoviEsercizioConUndo('${cardId}')">×</button>
       </div>
@@ -6025,6 +6091,18 @@ function confermEliminaEsercizio() {
 function switchToTab(name) {
   const t = document.querySelector(`.tab[data-tab="${name}"]`);
   if (t) _switchTab(t);
+}
+
+// ---- Apri Stats dalla card di Train (schema corrente se inserito, altrimenti generale) ----
+function apriStatsDaTrain(cardId) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  const exId = card.querySelector('.ins-ex-sel')?.value;
+  if (!exId) { showToast('Seleziona prima un esercizio', 'error'); return; }
+  const serie = card.querySelector('.ins-serie')?.value;
+  const rep = card.querySelector('.ins-rep')?.value;
+  const schema = (serie && rep) ? `${serie}x${rep}` : null; // null → vista generale
+  apriStatsByExSchema(exId, schema);
 }
 
 // ---- Apri Stats preselezionando esercizio + schema ----
