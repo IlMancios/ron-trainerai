@@ -987,12 +987,13 @@
   .piano-stats-btn:hover { color: var(--orange); }
 
   /* ===== MOBILE RESPONSIVENESS ===== */
-  html { overflow-x: hidden; }
+  /* clip (non hidden): blocca lo scroll orizzontale senza rompere position:sticky su mobile */
+  html { overflow-x: clip; }
 
   @media (max-width: 599px) {
 
-    /* Evita overflow orizzontale */
-    body { overflow-x: hidden; }
+    /* Evita overflow orizzontale (clip, non hidden: non rompe lo sticky della topbar) */
+    body { overflow-x: clip; }
 
     /* Riduce padding globale */
     main { padding: 14px 10px 80px; }
@@ -6111,11 +6112,11 @@ function apriStatsByExSchema(exId, schema) {
   // Trova l'esercizio nel menu Stats e selezionalo
   const idx = (window._progVociMenu || []).findIndex(v => v.val === exId);
   if (idx >= 0) selezionaProgEx(idx); // aggiorna UI + popola prog-schema (sincrono)
+  // Se lo schema non ha storico (non è tra le opzioni del menu) → vista generale dell'esercizio
+  const sel = document.getElementById('prog-schema');
+  if (schema && sel && ![...sel.options].some(o => o.value === schema)) schema = null;
   // Imposta lo schema nel select
-  if (schema) {
-    const sel = document.getElementById('prog-schema');
-    if (sel) sel.value = schema;
-  }
+  if (sel) sel.value = schema || '__generale__';
   // Renderizza
   renderProgressione(exId, schema || '__generale__');
   window.scrollTo(0, 0);
