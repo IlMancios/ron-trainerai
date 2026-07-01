@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 450,
-    "totale_righe_esercizio": 1249,
+    "totale_sessioni": 451,
+    "totale_righe_esercizio": 1251,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -402,6 +402,40 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-01_manuale.json",
+      "title": "Training 01/07/2026 TE - Casa",
+      "data": "2026-07-01",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "4x4",
+          "peso_kg": 160,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-01",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_stretta",
+          "schema": "6x8",
+          "peso_kg": 55,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-01",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-06-28_manuale.json",
       "title": "Training 28/06/2026 TE - Casa",
