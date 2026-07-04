@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 451,
-    "totale_righe_esercizio": 1251,
+    "totale_sessioni": 452,
+    "totale_righe_esercizio": 1252,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -402,6 +402,29 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-04_manuale.json",
+      "title": "Training 04/07/2026 MI - Palestra Ibis Centro",
+      "data": "2026-07-04",
+      "luogo": "MI - Palestra Ibis Centro",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "0%",
+          "peso_kg": 6.56,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "4.6km",
+          "tempo_corsa": "30:11",
+          "data": "2026-07-04",
+          "luogo": "MI - Palestra Ibis Centro",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-01_manuale.json",
       "title": "Training 01/07/2026 TE - Casa",
