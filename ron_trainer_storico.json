@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 452,
-    "totale_righe_esercizio": 1252,
+    "totale_sessioni": 453,
+    "totale_righe_esercizio": 1255,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -402,6 +402,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-05_manuale.json",
+      "title": "Training 05/07/2026 TE - Casa",
+      "data": "2026-07-05",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "panca",
+          "schema": "6x12",
+          "peso_kg": 60,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "sollevamento_gambe",
+          "schema": "5x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Stabilizzare e migliorare tecnica",
+          "data": "2026-07-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_basso",
+          "schema": "6x15",
+          "peso_kg": 15,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-04_manuale.json",
       "title": "Training 04/07/2026 MI - Palestra Ibis Centro",
