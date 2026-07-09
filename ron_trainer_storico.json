@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 454,
-    "totale_righe_esercizio": 1258,
+    "totale_sessioni": 455,
+    "totale_righe_esercizio": 1261,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -404,6 +404,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-09_manuale.json",
+      "title": "Training 09/07/2026 BA - Vittoria Park Hotel",
+      "data": "2026-07-09",
+      "luogo": "BA - Vittoria Park Hotel",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "bicipiti_pulley",
+          "schema": "6x6",
+          "peso_kg": 27.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-09",
+          "luogo": "BA - Vittoria Park Hotel",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "military_man",
+          "schema": "6x14",
+          "peso_kg": 12,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-09",
+          "luogo": "BA - Vittoria Park Hotel",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pulldown",
+          "schema": "6x8",
+          "peso_kg": 65,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-09",
+          "luogo": "BA - Vittoria Park Hotel",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-06_manuale.json",
       "title": "Training 06/07/2026 TE - Casa",
