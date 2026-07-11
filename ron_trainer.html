@@ -2739,7 +2739,12 @@ function renderProgressione(exId, schemaFiltro) {
 
   // Stats (solo record con peso reale)
   const recordConPeso = records.filter(r => !r.bw);
-  const maxPeso = recordConPeso.length ? Math.max(...recordConPeso.map(r=>r.peso)) : 0;
+  // Per tempo (sec, es. salita vigneto) e passo (min/km, corsa) il record è il MINIMO (più basso = migliore); per i pesi è il massimo
+  const _unitaRec = recordConPeso[0]?.unita;
+  const _minoreMeglio = _unitaRec === 'sec' || _unitaRec === 'min/km';
+  const maxPeso = recordConPeso.length
+    ? (_minoreMeglio ? Math.min(...recordConPeso.map(r=>r.peso)) : Math.max(...recordConPeso.map(r=>r.peso)))
+    : 0;
   const maxRec = recordConPeso.find(r => r.peso === maxPeso);
   const unitaLabel = maxRec?.unita === 'min/km' ? 'min/km' : maxRec?.unita === 'sec' ? 'sec' : (maxRec?.unita || 'kg');
 
