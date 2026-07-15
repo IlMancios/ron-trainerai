@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 458,
-    "totale_righe_esercizio": 1274,
+    "totale_sessioni": 459,
+    "totale_righe_esercizio": 1278,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -408,6 +408,64 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-15_manuale.json",
+      "title": "Training 15/07/2026 BA - Parco dei principi",
+      "data": "2026-07-15",
+      "luogo": "BA - Parco dei principi",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "military_bil",
+          "schema": "6x12",
+          "peso_kg": 30,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-15",
+          "luogo": "BA - Parco dei principi",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_neutre",
+          "schema": "2x12",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-15",
+          "luogo": "BA - Parco dei principi",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_neutre",
+          "schema": "2x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Era 4x12 ma non riuscita",
+          "data": "2026-07-15",
+          "luogo": "BA - Parco dei principi",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_manubrio",
+          "schema": "6x14",
+          "peso_kg": 9,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-15",
+          "luogo": "BA - Parco dei principi",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-13_manuale.json",
       "title": "Training 13/07/2026 TE - Casa",
