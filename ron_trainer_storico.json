@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 459,
-    "totale_righe_esercizio": 1278,
+    "totale_sessioni": 460,
+    "totale_righe_esercizio": 1280,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -408,6 +408,41 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-16_manuale.json",
+      "title": "Training 16/07/2026 BA - Parco dei principi",
+      "data": "2026-07-16",
+      "luogo": "BA - Parco dei principi",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "0%",
+          "peso_kg": 6.49,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "4.7km",
+          "tempo_corsa": "30:30",
+          "data": "2026-07-16",
+          "luogo": "BA - Parco dei principi",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_sed",
+          "schema": "6x8",
+          "peso_kg": 16,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Migliorare stabilità e stretch prima di avanzare",
+          "data": "2026-07-16",
+          "luogo": "BA - Parco dei principi",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-15_manuale.json",
       "title": "Training 15/07/2026 BA - Parco dei principi",
