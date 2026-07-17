@@ -1152,6 +1152,12 @@
 .hs:hover .hs-txt { color:#aaa; }
 .hs.active .hs-dot { background:rgba(255,107,0,0.80); border-color:#ff6b00; box-shadow:0 0 22px rgba(255,107,0,0.85),0 0 8px rgba(255,107,0,1); }
 .hs.active .hs-txt { color:#ff9940; }
+.bw-point { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:16px;
+  background:var(--bg3); border:1px solid var(--orange); border-radius:8px; color:var(--orange);
+  font-family:'Barlow Condensed',sans-serif; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  font-size:13px; padding:10px 8px; cursor:pointer; transition:background 0.15s; }
+.bw-point:hover { background:rgba(255,107,0,0.12); }
+.bw-point.active { background:rgba(255,107,0,0.22); box-shadow:inset 0 0 0 1px var(--orange); }
 .body-panel { flex:1; min-width:260px; background:#1a1a1a; border-radius:8px; padding:20px; min-height:340px; display:flex; flex-direction:column; }
 .body-panel-empty { flex:1; display:flex; align-items:center; justify-content:center; color:#555; font-size:14px; font-style:italic; }
 .bz-title { font-size:22px; font-weight:700; color:var(--orange); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
@@ -1526,6 +1532,7 @@
         <div class="hs" data-zone="cosce"      style="left:65%;top:63%"><div class="hs-dot"></div><span class="hs-txt">COSCIA SX</span></div>
         <div class="hs" data-zone="polpacci"   style="left:33%;top:80%"><div class="hs-dot"></div><span class="hs-txt">POLP DX</span></div>
         <div class="hs" data-zone="polpacci"   style="left:67%;top:80%"><div class="hs-dot"></div><span class="hs-txt">POLP SX</span></div>
+        <button type="button" class="bw-point" id="bw-point" onclick="selezionaBodyweight()">⚖️ Bodyweight</button>
       </div>
       <div class="body-panel" id="body-panel">
         <div class="body-panel-empty">← Clicca un punto sul corpo</div>
@@ -1847,6 +1854,48 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="document.getElementById('modal-elimina-misura').style.display='none'">ANNULLA</button>
       <button class="btn" style="background:#cc2200;color:#fff" onclick="confermEliminaMisurazione()">ELIMINA</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE AGGIUNGI/MODIFICA PESO CORPOREO -->
+<div class="modal-misure" id="modal-peso">
+  <div class="modal-misure-box">
+    <div class="mm-header">
+      <div>
+        <div class="modal-misure-title" id="mp-title">+ Aggiungi Peso</div>
+        <div class="modal-misure-sub" style="margin-bottom:0">Peso corporeo</div>
+      </div>
+      <div class="mm-header-btns">
+        <button class="btn btn-ghost btn-sm" onclick="chiudiModalPeso()">ANNULLA</button>
+        <button class="btn btn-sm" onclick="salvaPeso()">SALVA</button>
+      </div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">📅 Data</div>
+      <div class="mm-row"><label class="mm-label">Data</label><input type="date" id="mp-data" class="mm-input" style="width:150px"></div>
+    </div>
+    <div class="mm-group">
+      <div class="mm-group-title">⚖️ Peso corporeo</div>
+      <div class="mm-row"><label class="mm-label">Peso</label><input type="number" id="mp-kg" class="mm-input" step="0.1" min="30" max="200" placeholder="—"><span class="mm-unit">kg</span></div>
+    </div>
+    <div class="mm-actions">
+      <button class="btn btn-ghost" onclick="chiudiModalPeso()">ANNULLA</button>
+      <button class="btn" onclick="salvaPeso()">SALVA</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-elimina-peso" style="display:none">
+  <div class="modal-box">
+    <div class="modal-title">🗑️ Elimina rilevamento peso</div>
+    <div style="color:#a0a0a0;font-size:13px;margin:14px 0 22px;line-height:1.6">
+      Stai eliminando il peso del <strong id="elimina-peso-label" style="color:#e8e8e8"></strong>.<br>
+      <span style="color:#ff5555;font-weight:600">Questa azione è irreversibile.</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('modal-elimina-peso').style.display='none'">ANNULLA</button>
+      <button class="btn" style="background:#cc2200;color:#fff" onclick="confermEliminaPeso()">ELIMINA</button>
     </div>
   </div>
 </div>
@@ -6200,11 +6249,27 @@ const BODY_ZONE_CFG = {
   avambracci: { label:'AVAMBRACCI', desc:'punto max, contratto',                       serie:[{ key:'avb_dx', lab:'DX', col:'#ff6b00' }, { key:'avb_sx', lab:'SX', col:'#4da6ff' }] },
   cosce:      { label:'COSCE',      desc:'contratta, appena sotto il cavallo',         serie:[{ key:'coscia_dx', lab:'DX', col:'#ff6b00' }, { key:'coscia_sx', lab:'SX', col:'#4da6ff' }] },
   polpacci:   { label:'POLPACCI',   desc:'contratto, 4 dita sotto la piega',           serie:[{ key:'polpaccio_dx', lab:'DX', col:'#ff6b00' }, { key:'polpaccio_sx', lab:'SX', col:'#4da6ff' }] },
+  bodyweight: { label:'BODYWEIGHT', desc:'peso corporeo', unit:'kg', source:'peso',   serie:[{ key:'kg', lab:'Peso', col:'#ff6b00' }] },
 };
 
-let _mmEditIdx = -1;
+// Peso corporeo: array separato [{ data, kg }] — non nelle misure per non sporcare i grafici cm
+const PESO_SEED = [
+  { data:'2023-05-09', kg:80.5 },
+  { data:'2025-02-01', kg:84 },
+  { data:'2025-06-21', kg:82.2 },
+  { data:'2025-11-02', kg:83.1 },
+];
 
-function bodyGetSess() {
+let _mmEditIdx = -1;
+let _mpEditIdx = -1;
+let _mpDeleteIdx = -1;
+
+function bodyGetSess(cfg) {
+  if (cfg && cfg.source === 'peso') {
+    if (!DATA.peso_corporeo) DATA.peso_corporeo = [];
+    return [...DATA.peso_corporeo].sort((a,b) => a.data.localeCompare(b.data))
+      .map(e => ({ data: e.data, m: { kg: e.kg } }));
+  }
   if (!DATA.misure_corporee) DATA.misure_corporee = [];
   return [...DATA.misure_corporee].sort((a,b) => a.data.localeCompare(b.data));
 }
@@ -6219,22 +6284,37 @@ function inizializzaBody() {
   if (!DATA.misure_corporee || DATA.misure_corporee.length === 0) {
     DATA.misure_corporee = JSON.parse(JSON.stringify(BODY_SEED));
   }
+  if (!DATA.peso_corporeo || DATA.peso_corporeo.length === 0) {
+    DATA.peso_corporeo = JSON.parse(JSON.stringify(PESO_SEED));
+  }
   document.querySelectorAll('#panel-body .hs').forEach(el => {
     el.addEventListener('click', function() {
       const z = this.dataset.zone;
       document.querySelectorAll('#panel-body .hs').forEach(x => x.classList.remove('active'));
+      document.getElementById('bw-point')?.classList.remove('active');
       document.querySelectorAll(`#panel-body .hs[data-zone="${z}"]`).forEach(x => x.classList.add('active'));
       renderBodyPanel(z);
     });
   });
 }
 
+// Seleziona il punto "Bodyweight" (fuori dalla silhouette)
+function selezionaBodyweight() {
+  document.querySelectorAll('#panel-body .hs').forEach(x => x.classList.remove('active'));
+  document.getElementById('bw-point')?.classList.add('active');
+  renderBodyPanel('bodyweight');
+}
+
 function renderBodyPanel(zoneId) {
   const cfg = BODY_ZONE_CFG[zoneId];
   if (!cfg) return;
-  const sess = bodyGetSess();
+  const U = cfg.unit || 'cm';
+  const isPeso = cfg.source === 'peso';
+  const sess = bodyGetSess(cfg);
   if (!sess.length) {
-    document.getElementById('body-panel').innerHTML = '<div class="body-panel-empty">Nessuna misurazione</div>';
+    document.getElementById('body-panel').innerHTML = isPeso
+      ? '<div class="body-panel-empty" style="display:block">Nessun peso registrato.<br><button class="btn btn-sm" onclick="apriModalPeso()" style="margin-top:12px">+ AGGIUNGI PESO</button></div>'
+      : '<div class="body-panel-empty">Nessuna misurazione</div>';
     return;
   }
   const last = sess[sess.length - 1];
@@ -6245,9 +6325,9 @@ function renderBodyPanel(zoneId) {
     const p = prev ? prev.m[s.key] : null;
     const diff = (v != null && p != null) ? +(v - p).toFixed(1) : null;
     const dCls = diff === null ? '' : diff > 0 ? 'up' : diff < 0 ? 'dn' : 'eq';
-    const dStr = diff !== null ? `<div class="bz-delta ${dCls}">${diff > 0 ? '+' : ''}${diff} cm</div>` : '';
+    const dStr = diff !== null ? `<div class="bz-delta ${dCls}">${diff > 0 ? '+' : ''}${diff} ${U}</div>` : '';
     return `<div>
-      <div class="bz-lv-num" style="color:${s.col}">${v != null ? v : '—'}<span class="bz-lv-unit"> cm</span></div>
+      <div class="bz-lv-num" style="color:${s.col}">${v != null ? v : '—'}<span class="bz-lv-unit"> ${U}</span></div>
       <div class="bz-lv-lab" style="color:${s.col}">${s.lab}</div>
       ${dStr}
     </div>`;
@@ -6262,18 +6342,21 @@ function renderBodyPanel(zoneId) {
     const origIdx = sess.length - 1 - ri;
     const tds = cfg.serie.map((s, i) => {
       const val = entry.m[s.key];
-      return `<td class="c${i}">${val != null ? val + ' cm' : '—'}</td>`;
+      return `<td class="c${i}">${val != null ? val + ' ' + U : '—'}</td>`;
     }).join('');
+    const editFn = isPeso ? 'apriModalPeso' : 'apriModalMisure';
+    const delFn  = isPeso ? 'apriConfermaEliminaPeso' : 'apriConfermaElimina';
     return `<tr data-idx="${origIdx}">
       <td>${bodyFmtData(entry.data)}</td>${tds}
       <td style="white-space:nowrap">
-        <button onclick="apriModalMisure(${origIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit" title="Modifica">✏️</button>
-        <button onclick="apriConfermaElimina(${origIdx})" class="mm-delete-btn" title="Elimina">🗑</button>
+        <button onclick="${editFn}(${origIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit" title="Modifica">✏️</button>
+        <button onclick="${delFn}(${origIdx})" class="mm-delete-btn" title="Elimina">🗑</button>
       </td>
     </tr>`;
   }).join('');
 
   document.getElementById('body-panel').innerHTML = `
+    ${isPeso ? '<button class="btn btn-sm" onclick="apriModalPeso()" style="align-self:flex-start;margin-bottom:12px">+ AGGIUNGI PESO</button>' : ''}
     <div class="bz-title">${cfg.label} <span class="bz-desc">— ${cfg.desc}</span></div>
     <div class="bz-date">Ultima: ${bodyFmtData(last.data)}</div>
     <div class="bz-last-vals">${lastValsHtml}</div>
@@ -6296,6 +6379,7 @@ function renderBodyPanel(zoneId) {
 }
 
 function buildBodyChart(cfg, sess) {
+  const U = cfg.unit || 'cm';
   const W=380, H=130, PX=38, PY=12, BOTTOM=20;
   const iW=W-PX*2, iH=H-PY-BOTTOM, n=sess.length;
   if (n < 2) return;
@@ -6312,7 +6396,7 @@ function buildBodyChart(cfg, sess) {
     svg += `<line x1="${PX}" y1="${y}" x2="${W-PX}" y2="${y}" stroke="#262626" stroke-width="1"/>`;
     svg += `<text x="${PX-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#484848">${v.toFixed(1)}</text>`;
   });
-  svg += `<text x="10" y="${PY+iH/2}" text-anchor="middle" font-size="8" fill="#555" transform="rotate(-90,10,${PY+iH/2})">cm</text>`;
+  svg += `<text x="10" y="${PY+iH/2}" text-anchor="middle" font-size="8" fill="#555" transform="rotate(-90,10,${PY+iH/2})">${U}</text>`;
   sess.forEach((s, i) => {
     svg += `<text x="${xOf(i)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#484848">${bodyFmtData(s.data)}</text>`;
   });
@@ -6338,7 +6422,7 @@ function buildBodyChart(cfg, sess) {
       this.setAttribute('r', '6');
       tt.style.display = 'block';
       tt.style.color = this.dataset.col;
-      tt.textContent = `${this.dataset.lab}: ${this.dataset.val} cm`;
+      tt.textContent = `${this.dataset.lab}: ${this.dataset.val} ${U}`;
       const svgEl = document.getElementById('bz-main-chart');
       const svgRect = svgEl.getBoundingClientRect();
       const cRect  = document.getElementById('bz-chart-container').getBoundingClientRect();
@@ -6544,6 +6628,67 @@ function confermEliminaMisurazione() {
 
   const activeHs = document.querySelector('#panel-body .hs.active');
   if (activeHs) renderBodyPanel(activeHs.dataset.zone);
+  salvasuGitHub();
+}
+
+// ---- Peso corporeo: aggiungi / modifica / elimina ----
+function apriModalPeso(editIdx) {
+  _mpEditIdx = (editIdx === undefined || editIdx === null) ? -1 : editIdx;
+  const dataEl = document.getElementById('mp-data');
+  const kgEl = document.getElementById('mp-kg');
+  const sess = bodyGetSess(BODY_ZONE_CFG.bodyweight);
+  if (_mpEditIdx >= 0) {
+    document.getElementById('mp-title').textContent = '✏️ Modifica Peso';
+    dataEl.value = sess[_mpEditIdx].data;
+    kgEl.value = sess[_mpEditIdx].m.kg;
+  } else {
+    document.getElementById('mp-title').textContent = '+ Aggiungi Peso';
+    dataEl.value = oggi();
+    kgEl.value = sess.length ? sess[sess.length - 1].m.kg : '';
+  }
+  document.getElementById('modal-peso').classList.add('open');
+}
+
+function chiudiModalPeso() {
+  document.getElementById('modal-peso').classList.remove('open');
+  _mpEditIdx = -1;
+}
+
+function salvaPeso() {
+  const dataVal = document.getElementById('mp-data').value;
+  const kg = parseFloat(document.getElementById('mp-kg').value);
+  if (!dataVal) { showToast('Inserisci la data', 'error'); return; }
+  if (isNaN(kg)) { showToast('Inserisci il peso', 'error'); return; }
+  if (!DATA.peso_corporeo) DATA.peso_corporeo = [];
+  if (_mpEditIdx >= 0) {
+    const origData = bodyGetSess(BODY_ZONE_CFG.bodyweight)[_mpEditIdx].data;
+    const idx = DATA.peso_corporeo.findIndex(e => e.data === origData);
+    if (idx >= 0) DATA.peso_corporeo[idx] = { data: dataVal, kg };
+  } else {
+    const existing = DATA.peso_corporeo.findIndex(e => e.data === dataVal);
+    if (existing >= 0) DATA.peso_corporeo[existing].kg = kg;
+    else DATA.peso_corporeo.push({ data: dataVal, kg });
+  }
+  chiudiModalPeso();
+  selezionaBodyweight();
+  salvasuGitHub();
+}
+
+function apriConfermaEliminaPeso(idx) {
+  _mpDeleteIdx = idx;
+  const sess = bodyGetSess(BODY_ZONE_CFG.bodyweight);
+  document.getElementById('elimina-peso-label').textContent = bodyFmtData(sess[idx].data);
+  document.getElementById('modal-elimina-peso').style.display = 'flex';
+}
+
+function confermEliminaPeso() {
+  document.getElementById('modal-elimina-peso').style.display = 'none';
+  if (_mpDeleteIdx < 0) return;
+  const origData = bodyGetSess(BODY_ZONE_CFG.bodyweight)[_mpDeleteIdx].data;
+  const idx = DATA.peso_corporeo.findIndex(e => e.data === origData);
+  if (idx >= 0) DATA.peso_corporeo.splice(idx, 1);
+  _mpDeleteIdx = -1;
+  selezionaBodyweight();
   salvasuGitHub();
 }
 
