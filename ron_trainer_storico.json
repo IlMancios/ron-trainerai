@@ -24275,6 +24275,24 @@
         "polpaccio_dx": 40,
         "polpaccio_sx": 40.5
       }
+    },
+    {
+      "data": "2026-07-25",
+      "m": {
+        "collo": 41,
+        "petto": 98,
+        "cinta": 86.5,
+        "omb_ril": 83.5,
+        "omb_con": 81,
+        "bic_dx": 35,
+        "bic_sx": 33.5,
+        "avb_dx": 31,
+        "avb_sx": 30.5,
+        "coscia_dx": 64,
+        "coscia_sx": 63.5,
+        "polpaccio_dx": 39.5,
+        "polpaccio_sx": 39.5
+      }
     }
   ],
   "peso_corporeo": [
