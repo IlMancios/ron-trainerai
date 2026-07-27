@@ -488,7 +488,7 @@
         {
           "esercizio_id": "salita_vigneto",
           "schema": "4x100mt",
-          "peso_kg": 24,
+          "peso_kg": 24.2,
           "unita": "sec",
           "bodyweight": true,
           "tipo_riga": "tempo",
@@ -500,7 +500,7 @@
         {
           "esercizio_id": "salita_vigneto",
           "schema": "4x100mt",
-          "peso_kg": 23,
+          "peso_kg": 23.6,
           "unita": "sec",
           "bodyweight": true,
           "tipo_riga": "tempo",
@@ -512,7 +512,7 @@
         {
           "esercizio_id": "salita_vigneto",
           "schema": "4x100mt",
-          "peso_kg": 24,
+          "peso_kg": 24.2,
           "unita": "sec",
           "bodyweight": true,
           "tipo_riga": "tempo",
@@ -524,7 +524,7 @@
         {
           "esercizio_id": "salita_vigneto",
           "schema": "4x100mt",
-          "peso_kg": 25,
+          "peso_kg": 25.9,
           "unita": "sec",
           "bodyweight": true,
           "tipo_riga": "tempo",
@@ -536,11 +536,11 @@
         {
           "esercizio_id": "salita_vigneto",
           "schema": "4x100mt",
-          "peso_kg": 24,
+          "peso_kg": 24.48,
           "unita": "sec",
           "bodyweight": true,
           "tipo_riga": "cardio_distanza",
-          "nota_riga": "media 24s — 4 ripetizioni",
+          "nota_riga": "media 24.48s — 4 ripetizioni",
           "data": "2026-07-25",
           "luogo": "TE - Casa",
           "file_sorgente": "manuale"
@@ -24248,7 +24248,8 @@
         "bic_sx": 32.5,
         "avb_dx": 29,
         "avb_sx": 28
-      }
+      },
+      "note": "Allenamento pomeriggio — misurato dopo cena"
     },
     {
       "data": "2025-07-01",
@@ -24266,7 +24267,8 @@
         "bic_sx": 33.5,
         "avb_dx": 29.5,
         "avb_sx": 29
-      }
+      },
+      "note": "Allenamento pomeriggio — misurato dopo cena"
     },
     {
       "data": "2025-10-01",
@@ -24284,7 +24286,8 @@
         "bic_sx": 33.5,
         "avb_dx": 30,
         "avb_sx": 29.5
-      }
+      },
+      "note": "Allenamento mattina — misurato dopo cena"
     },
     {
       "data": "2026-01-01",
@@ -24302,7 +24305,8 @@
         "bic_sx": 34,
         "avb_dx": 30,
         "avb_sx": 30
-      }
+      },
+      "note": "Allenamento pomeriggio — misurato prima di cena"
     },
     {
       "data": "2026-04-01",
@@ -24320,7 +24324,8 @@
         "coscia_sx": 64,
         "polpaccio_dx": 40,
         "polpaccio_sx": 40.5
-      }
+      },
+      "note": "Allenamento pomeriggio — misurato dopo cena"
     },
     {
       "data": "2026-07-25",
@@ -24338,7 +24343,8 @@
         "coscia_sx": 63.5,
         "polpaccio_dx": 39.5,
         "polpaccio_sx": 39.5
-      }
+      },
+      "note": "Allenamento pomeriggio — misurato prima di cena"
     }
   ],
   "peso_corporeo": [
