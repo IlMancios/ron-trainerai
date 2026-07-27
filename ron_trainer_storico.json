@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 465,
-    "totale_righe_esercizio": 1299,
+    "totale_sessioni": 466,
+    "totale_righe_esercizio": 1302,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -408,6 +408,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-07-27_manuale.json",
+      "title": "Training 27/07/2026 TE - Casa",
+      "data": "2026-07-27",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "panca_incl_man",
+          "schema": "6x10",
+          "peso_kg": 22.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "In totale 3 ripetizioni non fatte",
+          "data": "2026-07-27",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_dorsi",
+          "schema": "4x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-27",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_pip",
+          "schema": "6x12",
+          "peso_kg": 13.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-07-27",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-25_manuale.json",
       "title": "Training 25/07/2026 TE - Casa",
