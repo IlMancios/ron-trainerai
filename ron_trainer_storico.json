@@ -202,7 +202,12 @@
       "nome": "Tricipiti spinte sopra la testa con pulley basso",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": [],
+      "link_tecnica": [
+        {
+          "titolo": "Short tecnica",
+          "url": "https://youtube.com/shorts/VDSx0BWXuSE"
+        }
+      ],
       "unita": "kg",
       "bodyweight": false
     },
