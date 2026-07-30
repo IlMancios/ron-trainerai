@@ -29,7 +29,12 @@
       "nome": "Stacchi completi",
       "categoria": "compound",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Short tecnica",
+          "url": "https://youtube.com/shorts/8np3vKDBJfc"
+        }
+      ]
     },
     {
       "id": "panca",
