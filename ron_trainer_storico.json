@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 467,
-    "totale_righe_esercizio": 1305,
+    "totale_sessioni": 468,
+    "totale_righe_esercizio": 1308,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-08-01_manuale.json",
+      "title": "Training 01/08/2026 TE - Casa",
+      "data": "2026-08-01",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "6x10",
+          "peso_kg": 132.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Sbloccato piccolo movimento simmetrico di culo che ha aiutato nell ultima serie",
+          "data": "2026-08-01",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "military_bil",
+          "schema": "6x10",
+          "peso_kg": 32.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-01",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_neutre",
+          "schema": "4x4",
+          "peso_kg": 20,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-01",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-07-31_manuale.json",
       "title": "Training 31/07/2026 TE - Casa",
