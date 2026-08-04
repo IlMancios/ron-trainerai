@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 470,
-    "totale_righe_esercizio": 1314,
+    "totale_sessioni": 471,
+    "totale_righe_esercizio": 1316,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,40 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-08-04_manuale.json",
+      "title": "Training 04/08/2026 TE - Casa",
+      "data": "2026-08-04",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "pendlay",
+          "schema": "6x6",
+          "peso_kg": 77.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-04",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca",
+          "schema": "4x4",
+          "peso_kg": 85,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-04",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-08-03_manuale.json",
       "title": "Training 03/08/2026 TE - Casa",
