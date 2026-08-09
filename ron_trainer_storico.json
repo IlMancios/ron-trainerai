@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 471,
-    "totale_righe_esercizio": 1316,
+    "totale_sessioni": 472,
+    "totale_righe_esercizio": 1318,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,41 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-08-09_manuale.json",
+      "title": "Training 09/08/2026 MC - Palestra Best Western",
+      "data": "2026-08-09",
+      "luogo": "MC - Palestra Best Western",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "0%",
+          "peso_kg": 6.4,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "4.8km",
+          "tempo_corsa": "30:42",
+          "data": "2026-08-09",
+          "luogo": "MC - Palestra Best Western",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pulldown",
+          "schema": "5x5",
+          "peso_kg": 80,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-09",
+          "luogo": "MC - Palestra Best Western",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-08-04_manuale.json",
       "title": "Training 04/08/2026 TE - Casa",
