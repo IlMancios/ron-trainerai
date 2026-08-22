@@ -245,6 +245,13 @@
     color: var(--text3);
     margin-top: 2px;
   }
+  /* Switch on/off dentro la KPI (allenamenti ↔ esercizi) */
+  .kpi-toggle { position:absolute; top:10px; right:10px; display:inline-block; width:34px; height:18px; cursor:pointer; }
+  .kpi-toggle input { opacity:0; width:0; height:0; position:absolute; margin:0; }
+  .kpi-toggle-slider { position:absolute; inset:0; background:#333; border-radius:18px; transition:0.2s; }
+  .kpi-toggle-slider::before { content:''; position:absolute; width:14px; height:14px; left:2px; top:2px; background:#888; border-radius:50%; transition:0.2s; }
+  .kpi-toggle input:checked + .kpi-toggle-slider { background:rgba(255,107,0,0.45); }
+  .kpi-toggle input:checked + .kpi-toggle-slider::before { transform:translateX(16px); background:var(--orange); }
 
   /* CARD */
   .card {
@@ -2065,6 +2072,7 @@ document.querySelectorAll('.tab').forEach(t => {
 // =====================
 let overviewChart = null;
 let overviewGraficoAttivo = null;
+let overviewMeseMode = 'allenamenti'; // 'allenamenti' | 'esercizi' — switch nella KPI mese
 
 function inizializzaOverview() {
   const meta = DATA.meta;
@@ -2076,6 +2084,8 @@ function inizializzaOverview() {
   const anno = oggi.getFullYear().toString();
   const sessMese = sessioni.filter(s => s.data.startsWith(meseStr));
   const sessAnno = sessioni.filter(s => s.data.startsWith(anno));
+  const eserMese = sessMese.reduce((a, s) => a + s.esercizi.length, 0); // righe esercizio del mese
+  const meseIsEs = overviewMeseMode === 'esercizi';
 
   // Frequenza esercizi
   const freq = {};
@@ -2170,9 +2180,13 @@ function inizializzaOverview() {
       <div class="kpi-label">Allenamenti ${anno}</div>
       <div class="kpi-sub" style="color:#66cc88">↗ clicca per storico</div>
     </div>
-    <div class="kpi" onclick="toggleGraficoOverview('mensile')" style="cursor:pointer" title="Mostra grafico mensile">
-      <div class="kpi-value">${sessMese.length}</div>
-      <div class="kpi-label">Allenamenti mese</div>
+    <div class="kpi" id="kpi-mese" onclick="toggleGraficoOverview('mensile')" style="cursor:pointer;position:relative" title="Mostra grafico mensile">
+      <label class="kpi-toggle" onclick="event.stopPropagation()" title="Passa tra Allenamenti ed Esercizi del mese">
+        <input type="checkbox" id="kpi-mese-switch" ${meseIsEs?'checked':''} onchange="toggleMeseMode(this.checked)">
+        <span class="kpi-toggle-slider"></span>
+      </label>
+      <div class="kpi-value" id="kpi-mese-value">${meseIsEs ? eserMese : sessMese.length}</div>
+      <div class="kpi-label" id="kpi-mese-label">${meseIsEs ? 'Esercizi mese' : 'Allenamenti mese'}</div>
       <div class="kpi-sub">${meseStr.replace('-','/')} · 📊 grafico</div>
     </div>
     <div class="kpi" onclick="toggleGraficoOverview('esercizi')" style="cursor:pointer" title="Mostra grafico esercizi">
@@ -2353,42 +2367,70 @@ function toggleGraficoOverview(tipo) {
     cvs.style.height = '500px';
   }
 
-  const ctx = document.getElementById('overview-chart').getContext('2d');
-
   if (tipo === 'mensile') {
-    // Allenamenti per mese — ultimi 18 mesi
-    const oggi = new Date();
-    const mesi = [];
-    for (let i = 17; i >= 0; i--) {
-      const d = new Date(oggi.getFullYear(), oggi.getMonth() - i, 1);
-      mesi.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
-    }
-    const counts = mesi.map(m => DATA.sessioni.filter(s => s.data.startsWith(m)).length);
-    const labels = mesi.map(m => { const [y,mo] = m.split('-'); return `${mo}/${y.slice(2)}`; });
-    overviewChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{ data: counts, backgroundColor: counts.map(c => c >= 8 ? 'rgba(255,107,0,0.9)' : c >= 4 ? 'rgba(255,107,0,0.6)' : 'rgba(255,107,0,0.3)'), borderRadius: 4 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: item => `${item.raw} allenamenti` } } },
-        scales: {
-          x: { ticks: { color: '#aaa', font: { size: 13 } }, grid: { color: '#1e1e1e' } },
-          y: { ticks: { color: '#aaa', font: { size: 13 }, stepSize: 1 }, grid: { color: '#1e1e1e' }, beginAtZero: true }
-        }
-      }
-    });
+    renderGraficoMensile();
   } else {
     renderGraficoEsercizi('tutti');
   }
+}
+
+// Grafico a barre ultimi 18 mesi — allenamenti o esercizi in base a overviewMeseMode
+function renderGraficoMensile() {
+  const cvs = document.getElementById('overview-chart');
+  cvs.parentElement.style.height = '350px';
+  cvs.style.height = '350px';
+  cvs.style.display = 'block';
+  if (overviewChart) { overviewChart.destroy(); overviewChart = null; }
+  const isEs = overviewMeseMode === 'esercizi';
+  const oggi = new Date();
+  const mesi = [];
+  for (let i = 17; i >= 0; i--) {
+    const d = new Date(oggi.getFullYear(), oggi.getMonth() - i, 1);
+    mesi.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+  const counts = mesi.map(m => {
+    const sess = DATA.sessioni.filter(s => s.data.startsWith(m));
+    return isEs ? sess.reduce((a, s) => a + s.esercizi.length, 0) : sess.length;
+  });
+  const labels = mesi.map(m => { const [y,mo] = m.split('-'); return `${mo}/${y.slice(2)}`; });
+  const [sHi, sMid] = isEs ? [24, 12] : [8, 4]; // soglie colore
+  overviewChart = new Chart(cvs.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: counts, backgroundColor: counts.map(c => c >= sHi ? 'rgba(255,107,0,0.9)' : c >= sMid ? 'rgba(255,107,0,0.6)' : 'rgba(255,107,0,0.3)'), borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: item => `${item.raw} ${isEs ? 'esercizi' : 'allenamenti'}` } } },
+      scales: {
+        x: { ticks: { color: '#aaa', font: { size: 13 } }, grid: { color: '#1e1e1e' } },
+        y: { ticks: { color: '#aaa', font: { size: 13 }, stepSize: isEs ? 5 : 1, precision: 0 }, grid: { color: '#1e1e1e' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// Switch KPI mese: allenamenti ↔ esercizi (aggiorna numero, etichetta e grafico se aperto)
+function toggleMeseMode(isEsercizi) {
+  overviewMeseMode = isEsercizi ? 'esercizi' : 'allenamenti';
+  const meseStr = new Date().toISOString().slice(0,7);
+  const sessMese = DATA.sessioni.filter(s => s.data.startsWith(meseStr));
+  const val = isEsercizi ? sessMese.reduce((a, s) => a + s.esercizi.length, 0) : sessMese.length;
+  const valEl = document.getElementById('kpi-mese-value');
+  const labEl = document.getElementById('kpi-mese-label');
+  if (valEl) valEl.textContent = val;
+  if (labEl) labEl.textContent = isEsercizi ? 'Esercizi mese' : 'Allenamenti mese';
+  if (overviewGraficoAttivo === 'mensile') renderGraficoMensile();
 }
 
 // =====================
 // PROGRESSIONE
 // =====================
 let progChart = null;
+
+// Rimuove il rumore floating-point nei numeri (es. 15.000000000000004 → 15, 14.2000001 → 14.2)
+function pulisciNum(n) { const x = typeof n === 'number' ? n : parseFloat(n); return isNaN(x) ? n : +x.toFixed(2); }
 
 function toggleProgMenu() {
   const menu = document.getElementById('prog-ex-menu');
@@ -2778,7 +2820,7 @@ function renderProgressione(exId, schemaFiltro) {
         <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
         ${ultime.map(r => {
           const kmhProg = r.unita === 'min/km' && r.peso ? ` [${(60/r.peso).toFixed(1)} km/h]` : '';
-          const pesoLabel = r.bw ? 'BW' : `${r.peso} ${r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : (r.unita || 'kg')}${kmhProg}`;
+          const pesoLabel = r.bw ? 'BW' : `${pulisciNum(r.peso)} ${r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : (r.unita || 'kg')}${kmhProg}`;
           return `
             <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
               <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
@@ -2806,7 +2848,7 @@ function renderProgressione(exId, schemaFiltro) {
   const unitaLabel = maxRec?.unita === 'min/km' ? 'min/km' : maxRec?.unita === 'sec' ? 'sec' : (maxRec?.unita || 'kg');
 
   document.getElementById('chart-info').innerHTML = records.length ? `
-    ${maxPeso ? `<div class="chart-stat">Record: <strong>${maxPeso} ${unitaLabel}</strong></div>` : ''}
+    ${maxPeso ? `<div class="chart-stat">Record: <strong>${pulisciNum(maxPeso)} ${unitaLabel}</strong></div>` : ''}
     ${maxRec ? `<div class="chart-stat">Data PR: <strong>${formatData(maxRec.data)}</strong></div>` : ''}
     <div class="chart-stat">Sessioni: <strong>${records.length}</strong></div>
   ` : '<div class="chart-stat" style="color:var(--text3)">Nessun dato per questo filtro</div>';
@@ -2853,7 +2895,7 @@ function renderProgressione(exId, schemaFiltro) {
             title: (items) => formatData(records[items[0].dataIndex]?.data || ''),
             label: (item) => {
               const r = records[item.dataIndex];
-              const pesoStr = r.bw ? 'BW' : `${r.peso} ${r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg'}`;
+              const pesoStr = r.bw ? 'BW' : `${pulisciNum(r.peso)} ${r.unita === 'kg/mano' ? 'kg/mano' : r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : 'kg'}`;
               const schTip = r.unita === 'min/km' && r.schema && /^\d+%$/.test(r.schema) ? `Inclinazione ${r.schema}` : (r.schema || '');
               return `${pesoStr} — ${schTip}`;
             }
@@ -2870,10 +2912,11 @@ function renderProgressione(exId, schemaFiltro) {
             color: '#888', font: { size: isMobile ? 10 : 12 },
             callback: (val) => {
               if (val === 0) return 'BW';
+              const v = pulisciNum(val);
               const unita = records[0]?.unita;
-              if (unita === 'min/km') return val + ' min/km';
-              if (unita === 'sec') return val + 's';
-              return val;
+              if (unita === 'min/km') return v + ' min/km';
+              if (unita === 'sec') return v + 's';
+              return v;
             }
           },
           grid: { color: '#1e1e1e' },
