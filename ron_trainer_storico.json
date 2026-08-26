@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 481,
-    "totale_righe_esercizio": 1350,
+    "totale_sessioni": 482,
+    "totale_righe_esercizio": 1353,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-08-26_manuale.json",
+      "title": "Training 26/08/2026 TE - Casa",
+      "data": "2026-08-26",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "military_man",
+          "schema": "6x12",
+          "peso_kg": 13.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Abbastanza leggero, si può crescere un pochino",
+          "data": "2026-08-26",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_man",
+          "schema": "6x8",
+          "peso_kg": 9,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-26",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_polsi",
+          "schema": "4x8",
+          "peso_kg": 10,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-26",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-08-23_manuale.json",
       "title": "Training 23/08/2026 TE - Casa",
