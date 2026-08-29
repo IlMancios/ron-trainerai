@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 483,
-    "totale_righe_esercizio": 1356,
+    "totale_sessioni": 484,
+    "totale_righe_esercizio": 1363,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,100 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-08-29_manuale.json",
+      "title": "Training 29/08/2026 TE - Casa",
+      "data": "2026-08-29",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "5x5",
+          "peso_kg": 155,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ok ma stabilizzare e migloorare tecnica e profondità",
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 24.8,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": "Fatto squat prima",
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 23.8,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": "Fatto squat prima",
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 25.6,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": "Fatto squat prima",
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 26.1,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": "Fatto squat prima",
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 25.08,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "cardio_distanza",
+          "nota_riga": "media 25.08s — 4 ripetizioni",
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "verticale",
+          "schema": "4x30",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-08-29",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-08-28_manuale.json",
       "title": "Training 28/08/2026 TE - Casa",
