@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 487,
-    "totale_righe_esercizio": 1370,
+    "totale_sessioni": 488,
+    "totale_righe_esercizio": 1373,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-09-05_manuale.json",
+      "title": "Training 05/09/2026 MI - BW le favaglie",
+      "data": "2026-09-05",
+      "luogo": "MI - BW le favaglie",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "tric_manubrio",
+          "schema": "6x14",
+          "peso_kg": 9,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-09-05",
+          "luogo": "MI - BW le favaglie",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pulldown",
+          "schema": "6x8",
+          "peso_kg": 65,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-09-05",
+          "luogo": "MI - BW le favaglie",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "sollevamento_gambe",
+          "schema": "5x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Macchina con braccia orizzontali e prese a pugno, non appeso.",
+          "data": "2026-09-05",
+          "luogo": "MI - BW le favaglie",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-09-04_manuale.json",
       "title": "Training 04/09/2026 TE - Casa",
