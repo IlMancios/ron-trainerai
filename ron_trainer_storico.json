@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 488,
-    "totale_righe_esercizio": 1373,
+    "totale_sessioni": 489,
+    "totale_righe_esercizio": 1376,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-09-07_manuale.json",
+      "title": "Training 07/09/2026 MI - Palestra action fit",
+      "data": "2026-09-07",
+      "luogo": "MI - Palestra action fit",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "panca_stretta",
+          "schema": "6x6",
+          "peso_kg": 60,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-09-07",
+          "luogo": "MI - Palestra action fit",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pendlay",
+          "schema": "5x14",
+          "peso_kg": 55,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Dovevo fare 6x14 ma non c erano pesi da 1,25",
+          "data": "2026-09-07",
+          "luogo": "MI - Palestra action fit",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_sed",
+          "schema": "5x14",
+          "peso_kg": 12.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Difficile",
+          "data": "2026-09-07",
+          "luogo": "MI - Palestra action fit",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-09-05_manuale.json",
       "title": "Training 05/09/2026 MI - BW le favaglie",
