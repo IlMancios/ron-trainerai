@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 492,
-    "totale_righe_esercizio": 1385,
+    "totale_sessioni": 493,
+    "totale_righe_esercizio": 1387,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,40 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-09-14_manuale.json",
+      "title": "Training 14/09/2026 TE - Casa",
+      "data": "2026-09-14",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "squat",
+          "schema": "5x12",
+          "peso_kg": 125,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Era 6x12 ma ultima serie non fatta per sicurezza, difficile",
+          "data": "2026-09-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_incl_bil",
+          "schema": "5x5",
+          "peso_kg": 55,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-09-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-09-13_manuale.json",
       "title": "Training 13/09/2026 TE - Casa",
