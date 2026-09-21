@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 496,
-    "totale_righe_esercizio": 1398,
+    "totale_sessioni": 497,
+    "totale_righe_esercizio": 1401,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-09-21_manuale.json",
+      "title": "Training 21/09/2026 TE - Casa",
+      "data": "2026-09-21",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "pulldown",
+          "schema": "6x10",
+          "peso_kg": 52.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-09-21",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_sopra_testa",
+          "schema": "6x8",
+          "peso_kg": 15.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-09-21",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_pulley",
+          "schema": "6x8",
+          "peso_kg": 3,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultima serie AMRAP fatte 11 ripetizioni/mano",
+          "data": "2026-09-21",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-09-20_manuale.json",
       "title": "Training 20/09/2026 TE - Casa",
