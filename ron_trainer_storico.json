@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 503,
-    "totale_righe_esercizio": 1419,
+    "totale_sessioni": 504,
+    "totale_righe_esercizio": 1426,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19
   },
@@ -418,6 +418,100 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-10-05_manuale.json",
+      "title": "Training 05/10/2026 TE - Casa",
+      "data": "2026-10-05",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 24.3,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 24.9,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 23.4,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 23.5,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 24.02,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "cardio_distanza",
+          "nota_riga": "media 24.02s — 4 ripetizioni",
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_incl_man",
+          "schema": "6x10",
+          "peso_kg": 22.5,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "In totale 4 ripetizioni non riuscite, provare con 0,5kg in meno",
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_pip",
+          "schema": "6x6",
+          "peso_kg": 18,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultima serie AMRAP fatte 9 ripetizioni",
+          "data": "2026-10-05",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-10-03_manuale.json",
       "title": "Training 03/10/2026 TE - Casa",
