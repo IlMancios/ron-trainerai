@@ -1293,9 +1293,9 @@
     <div class="loading" id="overview-loading">Caricamento dati...</div>
     <div id="overview-content" style="display:none">
       <button class="btn" id="fast-train-btn" onclick="fastTrainSetup()"
-        style="width:100%;margin-bottom:16px;color:#0a0a0a;font-weight:900;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2;padding:12px">
-        ⚡ FAST TRAIN
-        <span style="font-weight:600;font-size:11px;opacity:0.8;letter-spacing:0.3px;text-transform:none">5 core + 5 secondari · TE-Casa · oggi</span>
+        style="width:100%;margin-bottom:16px;color:#0a0a0a;font-weight:900;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px"
+        title="Setup rapido: 5 core + 5 secondari, TE-Casa, oggi">
+        <span style="filter:brightness(0)">⚡</span> FAST TRAIN
       </button>
       <div class="kpi-grid" id="kpi-grid"></div>
       <!-- Grafici a scomparsa -->
@@ -3211,9 +3211,26 @@ function cancellaLuogoPiano() {
 let ESERCIZI_PROPOSTI = [];
 let ESERCIZI_SELEZIONATI = new Set();
 
+// Una bozza conta come "sessione attiva" solo se ha dati reali (non la card vuota di default)
+function sessioneTrainAttiva() {
+  const raw = localStorage.getItem('ron_bozza');
+  if (!raw) return false;
+  let b; try { b = JSON.parse(raw); } catch(e) { return false; }
+  if ((b.note || '').trim() !== '') return true;
+  for (const ex of (b.esercizi || [])) {
+    for (const r of (ex.righe || [])) {
+      for (const [k, v] of Object.entries(r)) {
+        if (k === 'tipo') continue; // 'tipo' è sempre valorizzato, non è un dato inserito
+        if (typeof v === 'string' && v.trim() !== '') return true;
+      }
+    }
+  }
+  return false;
+}
+
 // Setup rapido dalla Home: TE-Casa, oggi, 5 core + 5 secondari, poi genera la proposta
 function fastTrainSetup() {
-  if (localStorage.getItem('ron_bozza')) {
+  if (sessioneTrainAttiva()) {
     showToast("C'è già una sessione in corso — finiscila o scartala prima", 'error');
     return;
   }
@@ -3233,7 +3250,7 @@ function fastTrainSetup() {
 function aggiornaFastTrainBtn() {
   const btn = document.getElementById('fast-train-btn');
   if (!btn) return;
-  const attiva = !!localStorage.getItem('ron_bozza');
+  const attiva = sessioneTrainAttiva();
   btn.disabled = attiva;
   btn.style.opacity = attiva ? '0.45' : '1';
   btn.style.cursor = attiva ? 'not-allowed' : 'pointer';
@@ -4943,7 +4960,7 @@ function aggiungiEsercizio(precompila = {}) {
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <button class="piano-stats-btn" onclick="apriStatsDaTrain('${cardId}')" title="Storico/grafico esercizio">📈</button>
-        <button class="piano-stats-btn" onclick="apriGuidaDaTrain('${cardId}')" title="Guida tecnica esercizio">📖</button>
+        <button class="piano-stats-btn" onclick="apriGuidaDaTrain('${cardId}')" title="Guida tecnica esercizio">📚</button>
         <button class="btn-sdoppia-small" onclick="sdoppiaEsercizio('${cardId}')">+ sdoppia</button>
         <button class="btn-remove" onclick="rimuoviEsercizioConUndo('${cardId}')">×</button>
       </div>
