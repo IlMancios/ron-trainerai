@@ -1292,6 +1292,11 @@
   <div class="panel active" id="panel-overview">
     <div class="loading" id="overview-loading">Caricamento dati...</div>
     <div id="overview-content" style="display:none">
+      <button class="btn" id="fast-train-btn" onclick="fastTrainSetup()"
+        style="width:100%;margin-bottom:16px;color:#0a0a0a;font-weight:900;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2;padding:12px">
+        ⚡ FAST TRAIN
+        <span style="font-weight:600;font-size:11px;opacity:0.8;letter-spacing:0.3px;text-transform:none">5 core + 5 secondari · TE-Casa · oggi</span>
+      </button>
       <div class="kpi-grid" id="kpi-grid"></div>
       <!-- Grafici a scomparsa -->
       <div id="overview-grafico-wrap" style="display:none;margin-bottom:20px">
@@ -1982,6 +1987,7 @@ function inizializza() {
     document.getElementById('token-missing-banner').style.display = 'flex';
   }
   inizializzaOverview();
+  aggiornaFastTrainBtn();
   inizializzaProgressione();
   inizializzaStorico();
   inizializzaPR();
@@ -2010,7 +2016,7 @@ function _switchTab(t) {
   t.classList.add('active');
   document.getElementById('panel-' + t.dataset.tab).classList.add('active');
   if (t.dataset.tab === 'guide') renderGuide();
-  if (t.dataset.tab === 'overview') mostraFraseRandom();
+  if (t.dataset.tab === 'overview') { mostraFraseRandom(); aggiornaFastTrainBtn(); }
   if (t.dataset.tab === 'esercizi') renderEsercizi();
   // ripristina lo scroll dove l'avevo lasciato (0 se mai visitato)
   window.scrollTo(0, tabScroll[t.dataset.tab] || 0);
@@ -3204,6 +3210,35 @@ function cancellaLuogoPiano() {
 
 let ESERCIZI_PROPOSTI = [];
 let ESERCIZI_SELEZIONATI = new Set();
+
+// Setup rapido dalla Home: TE-Casa, oggi, 5 core + 5 secondari, poi genera la proposta
+function fastTrainSetup() {
+  if (localStorage.getItem('ron_bozza')) {
+    showToast("C'è già una sessione in corso — finiscila o scartala prima", 'error');
+    return;
+  }
+  switchToTab('pianificatore');
+  document.getElementById('piano-data').value = oggi();
+  const luogoSel = document.getElementById('piano-luogo');
+  if (luogoSel && [...luogoSel.options].some(o => o.value === 'TE - Casa')) luogoSel.value = 'TE - Casa';
+  document.getElementById('piano-core').value = '5';
+  document.getElementById('piano-basic').value = '5';
+  document.getElementById('piano-cardio').value = '0';
+  if (typeof aggiornaBottoneCancellaLuogo === 'function') aggiornaBottoneCancellaLuogo();
+  generaPropostaStep1();
+  setTimeout(() => document.getElementById('piano-selezione')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
+
+// Disabilita il tasto Fast Train se c'è una bozza di allenamento attiva
+function aggiornaFastTrainBtn() {
+  const btn = document.getElementById('fast-train-btn');
+  if (!btn) return;
+  const attiva = !!localStorage.getItem('ron_bozza');
+  btn.disabled = attiva;
+  btn.style.opacity = attiva ? '0.45' : '1';
+  btn.style.cursor = attiva ? 'not-allowed' : 'pointer';
+  btn.title = attiva ? 'Sessione in corso — finiscila o scartala' : 'Setup rapido: 5 core + 5 secondari, TE-Casa, oggi';
+}
 
 function generaPropostaStep1() {
   // Validazione
@@ -4908,6 +4943,7 @@ function aggiungiEsercizio(precompila = {}) {
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <button class="piano-stats-btn" onclick="apriStatsDaTrain('${cardId}')" title="Storico/grafico esercizio">📈</button>
+        <button class="piano-stats-btn" onclick="apriGuidaDaTrain('${cardId}')" title="Guida tecnica esercizio">📖</button>
         <button class="btn-sdoppia-small" onclick="sdoppiaEsercizio('${cardId}')">+ sdoppia</button>
         <button class="btn-remove" onclick="rimuoviEsercizioConUndo('${cardId}')">×</button>
       </div>
@@ -6209,6 +6245,24 @@ function apriStatsDaTrain(cardId) {
   const rep = card.querySelector('.ins-rep')?.value;
   const schema = (serie && rep) ? `${serie}x${rep}` : null; // null → vista generale
   apriStatsByExSchema(exId, schema);
+}
+
+// Apri la Guide dell'esercizio della card Train
+function apriGuidaDaTrain(cardId) {
+  const exId = document.getElementById(cardId)?.querySelector('.ins-ex-sel')?.value;
+  if (!exId) { showToast('Seleziona prima un esercizio', 'error'); return; }
+  apriGuidaEsercizio(exId);
+}
+
+// Vai alla Guide e apri/scorri alla scheda tecnica di quell'esercizio
+function apriGuidaEsercizio(exId) {
+  switchToTab('guide'); // renderizza le card guide
+  setTimeout(() => {
+    const card = document.getElementById('guide-card-' + exId);
+    if (!card) { showToast('Nessuna scheda guida per questo esercizio', 'error'); return; }
+    card.classList.add('open');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 60);
 }
 
 // ---- Apri Stats preselezionando esercizio + schema ----
