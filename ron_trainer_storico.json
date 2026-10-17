@@ -239,7 +239,12 @@
       "nome": "Tricipiti spinte verso il basso con pulley alto",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [
+        {
+          "titolo": "Short tecnica",
+          "url": "https://youtube.com/shorts/mr5Jgz67SX8"
+        }
+      ]
     },
     {
       "id": "tric_manubrio",
