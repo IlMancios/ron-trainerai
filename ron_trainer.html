@@ -4333,7 +4333,10 @@ function aggiornaIndicatoreDimensione() {
   const bytes = new TextEncoder().encode(content).length;
   const kb = Math.round(bytes / 1024);
   const el = document.getElementById('gh-size-indicator');
-  if (el) el.textContent = `File: ~${kb} KB`;
+  const LIMITE_BYTES = 50000000; // tetto pratico con la Git Data API (~50 MB)
+  const pct = bytes / LIMITE_BYTES * 100;
+  const pctStr = (pct < 1 ? pct.toFixed(1) : Math.round(pct).toString()).replace('.', ',');
+  if (el) el.textContent = `File: ~${kb} KB su ~50 MB (${pctStr}%)`;
   const warn = document.getElementById('size-warning');
   if (!warn) return;
   // Con la Git Data API non c'è più il limite ~1MB: avviso solo per dimensioni estreme
