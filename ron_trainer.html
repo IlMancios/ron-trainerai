@@ -1959,27 +1959,50 @@ function normLuogo(l) { return l ? (LUOGHI_MAP[l.trim()] || l.trim()) : ''; }
 // =====================
 // CARICAMENTO DATI
 // =====================
+let _sorgenteDati = '';
 async function caricaDati() {
-  try {
-    const cacheBust = Date.now();
-    const resp = await fetch(`ron_trainer_storico.json?v=${cacheBust}`);
-    if (!resp.ok) throw new Error('File non trovato');
-    DATA = await resp.json();
+  const token = localStorage.getItem('gh_token');
+  const cb = Date.now();
+  // Legge i dati dal REPO (sempre aggiornati), non dal sito pubblicato (che può essere indietro).
+  // Ordine: API GitHub (con token, zero cache) → raw del repo → file del sito (fallback finale).
+  const sorgenti = [];
+  if (token) sorgenti.push({ nome: 'api',  api: true, url: 'https://api.github.com/repos/IlMancios/ron-trainerai/contents/ron_trainer_storico.json?ref=main' });
+  sorgenti.push({ nome: 'raw',  url: 'https://raw.githubusercontent.com/IlMancios/ron-trainerai/main/ron_trainer_storico.json?v=' + cb });
+  sorgenti.push({ nome: 'sito', url: 'ron_trainer_storico.json?v=' + cb });
 
-    // Normalizza luoghi nelle sessioni
-    DATA.sessioni.forEach(s => { s.luogo = normLuogo(s.luogo); });
-
-    // Carica luoghi custom da localStorage come fallback
-    const lc = localStorage.getItem('luoghi_custom');
-    if (lc) LUOGHI_CUSTOM = JSON.parse(lc);
-
-    document.getElementById('status-indicator').textContent = '';
-    inizializza();
-  } catch(e) {
-    document.getElementById('overview-loading').innerHTML =
-      '<div style="color:#ff6b6b">Errore caricamento dati.<br><small>Assicurati che ron_trainer_storico.json sia nella stessa cartella.</small></div>';
-    document.getElementById('status-indicator').textContent = 'Errore';
+  DATA = null;
+  for (const s of sorgenti) {
+    try {
+      const headers = s.api ? { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } : {};
+      const resp = await fetch(s.url, { headers, cache: 'no-store' });
+      if (!resp.ok) continue;
+      if (s.api) {
+        const info = await resp.json();
+        const json = decodeURIComponent(escape(atob((info.content || '').replace(/\s/g, ''))));
+        DATA = JSON.parse(json);
+      } else {
+        DATA = await resp.json();
+      }
+      if (DATA && DATA.sessioni) { _sorgenteDati = s.nome; break; }
+      DATA = null;
+    } catch(e) { /* passa alla sorgente successiva */ }
   }
+
+  if (!DATA || !DATA.sessioni) {
+    document.getElementById('overview-loading').innerHTML =
+      '<div style="color:#ff6b6b">Errore caricamento dati.<br><small>Controlla la connessione o il token GitHub.</small></div>';
+    document.getElementById('status-indicator').textContent = 'Errore';
+    return;
+  }
+
+  // Normalizza luoghi nelle sessioni
+  DATA.sessioni.forEach(s => { s.luogo = normLuogo(s.luogo); });
+  // Carica luoghi custom da localStorage come fallback
+  const lc = localStorage.getItem('luoghi_custom');
+  if (lc) { try { LUOGHI_CUSTOM = JSON.parse(lc); } catch(e) {} }
+
+  document.getElementById('status-indicator').textContent = '';
+  inizializza();
 }
 
 function inizializza() {
@@ -2086,7 +2109,7 @@ function inizializzaOverview() {
 
   const oggi = new Date();
   oggi.setHours(0,0,0,0);
-  const meseStr = oggi.toISOString().slice(0,7);
+  const meseStr = dataLocale(oggi).slice(0,7);
   const anno = oggi.getFullYear().toString();
   const sessMese = sessioni.filter(s => s.data.startsWith(meseStr));
   const sessAnno = sessioni.filter(s => s.data.startsWith(anno));
@@ -2420,7 +2443,7 @@ function renderGraficoMensile() {
 // Switch KPI mese: allenamenti ↔ esercizi (aggiorna numero, etichetta e grafico se aperto)
 function toggleMeseMode(isEsercizi) {
   overviewMeseMode = isEsercizi ? 'esercizi' : 'allenamenti';
-  const meseStr = new Date().toISOString().slice(0,7);
+  const meseStr = dataLocale().slice(0,7);
   const sessMese = DATA.sessioni.filter(s => s.data.startsWith(meseStr));
   const val = isEsercizi ? sessMese.reduce((a, s) => a + s.esercizi.length, 0) : sessMese.length;
   const valEl = document.getElementById('kpi-mese-value');
@@ -2547,8 +2570,8 @@ function riordinaSchemi(exId, tipo) {
   // Esclude solo righe vigneto (tipo_riga 'tempo'/'cardio_distanza'); include standard, inv_formato, null, ecc.
   const schemiCount = {};
   const _pSch = r => ({
-    s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
-    rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+    s:   r.serie || parseSchema(r.schema).serie,
+    rep: r.rep   || parseSchema(r.schema).rep
   });
   DATA.sessioni.forEach(s => {
     const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza');
@@ -2648,8 +2671,8 @@ function aggiornaSchemiDisponibili(exId) {
   // Esclude solo righe vigneto (tipo_riga 'tempo'/'cardio_distanza'); include standard, inv_formato, null, ecc.
   const schemiCount = {};
   const _pSch2 = r => ({
-    s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
-    rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+    s:   r.serie || parseSchema(r.schema).serie,
+    rep: r.rep   || parseSchema(r.schema).rep
   });
   DATA.sessioni.forEach(s => {
     const std = s.esercizi.filter(e => e.esercizio_id === exId && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza');
@@ -2756,8 +2779,8 @@ function renderProgressione(exId, schemaFiltro) {
   // usato in __generale__ per mostrare "6x10 (ultime 3: 3x8)" come schema unico
   // Parsing di fallback da schema "NxM" quando serie/rep non sono campi separati (sessioni manuali)
   const _srStats = r => ({
-    s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
-    rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+    s:   r.serie || parseSchema(r.schema).serie,
+    rep: r.rep   || parseSchema(r.schema).rep
   });
   const _sdoppiSchemas = {};
   DATA.sessioni.forEach(s => {
@@ -3415,8 +3438,8 @@ function procediStep2() {
       if (!stdR.length) return;
       // Calcola schema totale — fallback parsing da "NxM" per sessioni manuali senza serie/rep separati
       const _p = r => ({
-        s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
-        rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+        s:   r.serie || parseSchema(r.schema).serie,
+        rep: r.rep   || parseSchema(r.schema).rep
       });
       const totaleSerie = stdR.reduce((acc, r) => acc + _p(r).s, 0);
       const firstRep = _p(stdR[0]).rep;
@@ -3457,8 +3480,8 @@ function procediStep2() {
     Object.entries(byEx).forEach(([exId, righe]) => {
       if (righe.length < 2) return;
       const _p = r => ({
-        s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
-        rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+        s:   r.serie || parseSchema(r.schema).serie,
+        rep: r.rep   || parseSchema(r.schema).rep
       });
       const tot = righe.reduce((acc, r) => acc + _p(r).s, 0);
       const fr  = _p(righe[0]).rep;
@@ -3510,8 +3533,8 @@ function procediStep2() {
       const tempiSingoli = tempi || [];
       // Parsing di fallback da schema "NxM" quando serie/rep non sono campi separati (sessioni manuali)
       const _sr2 = r => {
-        const s = r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0;
-        const rep = r.rep || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1]) || 0;
+        const s = r.serie || parseSchema(r.schema).serie;
+        const rep = r.rep || parseSchema(r.schema).rep;
         return { s, rep };
       };
       const totaleSerie = righe.reduce((acc, r) => acc + _sr2(r).s, 0);
@@ -3624,8 +3647,8 @@ function procediStep2() {
     // Schema default: schema combinato dell'ultima sessione (gestisce split 2x8+6x10 → 8x8)
     const _ultRighe = (ultimaSessione?.principale || []).filter(r => r.tipo_riga !== 'tempo' && r.tipo_riga !== 'cardio_distanza');
     const _p2 = r => ({
-      s:   r.serie || parseInt((r.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0,
-      rep: r.rep   || parseInt((r.schema||'').match(/[xX](\d+)/)?.[1])  || 0
+      s:   r.serie || parseSchema(r.schema).serie,
+      rep: r.rep   || parseSchema(r.schema).rep
     });
     const _ultTot = _ultRighe.reduce((acc, r) => acc + _p2(r).s, 0);
     const _ultFr  = _p2(_ultRighe[0] || {}).rep;
@@ -4035,6 +4058,7 @@ function salvaBozza() {
 }
 
 function cancellaBozza() {
+  clearTimeout(_salvaBozzaTimeout); // annulla eventuale salvataggio in coda (evita bozza fantasma ricreata dopo reset/salva)
   localStorage.removeItem('ron_bozza');
   const b = document.getElementById('draft-banner');
   if (b) { b.classList.add('hidden'); b.classList.remove('collapsed'); }
@@ -5589,8 +5613,20 @@ function formatData(str) {
   return `${d}/${m}/${y}`;
 }
 
+// Data LOCALE in formato YYYY-MM-DD (niente UTC: evita che gli allenamenti serali finiscano datati il giorno dopo)
+function dataLocale(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 function oggi() {
-  return new Date().toISOString().slice(0,10);
+  return dataLocale();
+}
+
+// Parsing unico dello schema "NxM" → { serie, rep } (una sola fonte di verità, usata ovunque)
+function parseSchema(schema) {
+  const str = schema || '';
+  const s = str.match(/^(\d+)[xX]/);
+  const r = str.match(/[xX](\d+)/);
+  return { serie: s ? parseInt(s[1]) : 0, rep: r ? parseInt(r[1]) : 0 };
 }
 
 function contaGruppi(esercizi) {
@@ -5651,8 +5687,8 @@ function renderSessioneBody(s) {
     // Calcola schema totale: somma serie, usa rep della prima riga (schema intenzione)
     // Parsing di fallback da schema "NxM" quando serie/rep non sono campi separati (sessioni manuali)
     const _sr = e => {
-      const s = e.serie || parseInt((e.schema||'').match(/^(\d+)[xX]/)?.[1]) || 0;
-      const r = e.rep   || parseInt((e.schema||'').match(/[xX](\d+)/)?.[1])  || 0;
+      const s = e.serie || parseSchema(e.schema).serie;
+      const r = e.rep   || parseSchema(e.schema).rep;
       return { s, r };
     };
     const totSerie = g.righe.reduce((acc, e) => acc + _sr(e).s, 0);
