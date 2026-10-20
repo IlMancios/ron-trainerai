@@ -4332,76 +4332,89 @@ function aggiornaIndicatoreDimensione() {
   const content = JSON.stringify(DATA);
   const bytes = new TextEncoder().encode(content).length;
   const kb = Math.round(bytes / 1024);
-  const pct = Math.round(bytes / 750000 * 100); // 750KB = limite pratico GitHub API
   const el = document.getElementById('gh-size-indicator');
-  if (el) el.textContent = `File: ~${kb} KB (${pct}% del limite GitHub API)`;
+  if (el) el.textContent = `File: ~${kb} KB`;
   const warn = document.getElementById('size-warning');
   if (!warn) return;
-  if (bytes > 700000) {
+  // Con la Git Data API non c'è più il limite ~1MB: avviso solo per dimensioni estreme
+  if (bytes > 50000000) {
     warn.className = 'size-warning critical';
-    warn.textContent = `⚠️ Storico quasi pieno (${kb} KB / ~750 KB max). Il prossimo salvataggio su GitHub potrebbe fallire. Esporta subito un backup JSON e contatta il supporto per aumentare la capacità.`;
-  } else if (bytes > 500000) {
-    warn.className = 'size-warning warn';
-    warn.textContent = `⚠️ Storico a ${pct}% del limite GitHub API (~${kb} KB / 750 KB). Tra qualche mese potrebbe servire una soluzione di espansione.`;
+    warn.textContent = `⚠️ Storico molto grande (${kb} KB). Valuta di dividere i dati per anno.`;
   } else {
     warn.className = 'size-warning';
+    warn.textContent = '';
   }
+}
+
+const GH_REPO = 'IlMancios/ron-trainerai';
+const GH_FILE = 'ron_trainer_storico.json';
+
+// Metodo nuovo: Git Data API (blob/tree/commit) — nessun limite ~1MB, regge file molto grandi
+async function _salvaGitDataAPI(token, content) {
+  const base = `https://api.github.com/repos/${GH_REPO}/git/`;
+  const H = { Authorization: `token ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' };
+  const j = async (method, path, body) => {
+    const r = await fetch(base + path, { method, headers: H, body: body ? JSON.stringify(body) : undefined });
+    if (!r.ok) { let m = ''; try { m = (await r.json()).message || ''; } catch(_) {} throw new Error(`GitData ${path} ${r.status} ${m}`); }
+    return r.json();
+  };
+  const ref = await j('GET', 'ref/heads/main');            // 1. ultimo commit del ramo
+  const parent = ref.object.sha;
+  const commit = await j('GET', 'commits/' + parent);      // 2. tree di partenza
+  const b64 = btoa(unescape(encodeURIComponent(content)));
+  const blob = await j('POST', 'blobs', { content: b64, encoding: 'base64' });   // 3. contenuto nuovo
+  const tree = await j('POST', 'trees', { base_tree: commit.tree.sha, tree: [{ path: GH_FILE, mode: '100644', type: 'blob', sha: blob.sha }] }); // 4. snapshot
+  const newCommit = await j('POST', 'commits', { message: `Aggiorna storico allenamenti (${new Date().toLocaleDateString('it-IT')})`, tree: tree.sha, parents: [parent] }); // 5. commit
+  await j('PATCH', 'refs/heads/main', { sha: newCommit.sha }); // 6. sposta il ramo
+}
+
+// Metodo classico: Contents API (fallback, ok fino a ~1MB)
+async function _salvaContentsAPI(token, content) {
+  const url = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
+  const H = { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' };
+  const resGet = await fetch(url, { headers: H });
+  if (!resGet.ok) throw new Error('GET fallito: ' + resGet.status);
+  const fileInfo = await resGet.json();
+  const resPut = await fetch(url, {
+    method: 'PUT',
+    headers: { ...H, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: `Aggiorna storico allenamenti (${new Date().toLocaleDateString('it-IT')})`, content: btoa(unescape(encodeURIComponent(content))), sha: fileInfo.sha })
+  });
+  if (!resPut.ok) { const err = await resPut.json().catch(() => ({})); throw new Error(err.message || 'PUT fallito: ' + resPut.status); }
 }
 
 async function salvasuGitHub() {
   const token = localStorage.getItem('gh_token');
   if (!token) { mostraEsportazione(); return; }
 
-  // controllo dimensione preventivo
   const content = JSON.stringify(DATA, null, 2);
   const bytes = new TextEncoder().encode(content).length;
-  if (bytes > 900000) {
-    showToast('File troppo grande per GitHub API — scarico il JSON', 'error');
+  if (bytes > 50000000) { // ~50MB: oltre ogni uso realistico
+    showToast('File enorme — scarico il JSON', 'error');
     mostraEsportazione();
     aggiornaIndicatoreDimensione();
     return;
   }
 
-  showToast('⏳ Salvataggio su GitHub...', 'loading', 0); // spinner persistente
+  showToast('⏳ Salvataggio su GitHub...', 'loading', 0);
 
-  const url = 'https://api.github.com/repos/IlMancios/ron-trainerai/contents/ron_trainer_storico.json';
-  const encoded = btoa(unescape(encodeURIComponent(content)));
-
+  let usatoFallback = false;
   try {
-    const resGet = await fetch(url, {
-      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (!resGet.ok) throw new Error('GET fallito: ' + resGet.status);
-    const fileInfo = await resGet.json();
-
-    const resPut = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `Aggiorna storico allenamenti (${new Date().toLocaleDateString('it-IT')})`,
-        content: encoded,
-        sha: fileInfo.sha
-      })
-    });
-
-    if (!resPut.ok) {
-      const err = await resPut.json().catch(() => ({}));
-      throw new Error(err.message || 'PUT fallito: ' + resPut.status);
+    try {
+      await _salvaGitDataAPI(token, content);          // metodo nuovo (nessun limite)
+    } catch(eNew) {
+      console.warn('Git Data API fallita, uso il metodo classico:', eNew);
+      usatoFallback = true;
+      await _salvaContentsAPI(token, content);          // fallback automatico
     }
-
-    showToast('Salvato su GitHub ✓', 'success');
+    showToast(usatoFallback ? 'Salvato ✓ (metodo classico)' : 'Salvato su GitHub ✓', 'success');
     localStorage.removeItem('ron_pending_save');
     chiudiPendingBanner();
     aggiornaIndicatoreDimensione();
   } catch(e) {
     console.error('GitHub save error:', e);
     if (e instanceof TypeError) {
-      // errore di rete (offline) — salva in attesa di retry
-      localStorage.setItem('ron_pending_save', JSON.stringify(DATA));
+      localStorage.setItem('ron_pending_save', JSON.stringify(DATA)); // offline: retry più tardi
       showToast('Offline — sessione salvata, riprova la sync più tardi', 'error');
       mostraPendingBanner();
     } else {
