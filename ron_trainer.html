@@ -298,6 +298,10 @@
     position: relative;
   }
   canvas { width: 100% !important; }
+  /* Grafico Frequenza: più alto e non limitato dal cap mobile */
+  #freq-chart-wrap { height: 420px; }
+  #freq-chart { max-height: none !important; }
+  @media (max-width: 600px) { #freq-chart-wrap { height: 360px; } }
 
   .chart-info {
     display: flex;
@@ -1313,6 +1317,14 @@
 
   <!-- PROGRESSIONE -->
   <div class="panel" id="panel-progressione">
+    <!-- Toggle modalità: Progressione peso / Frequenza -->
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="statmode-peso" class="btn btn-sm" onclick="setStatMode('peso')" style="flex:1">📈 Progressione peso</button>
+      <button id="statmode-freq" class="btn btn-ghost btn-sm" onclick="setStatMode('freq')" style="flex:1">📅 Frequenza</button>
+    </div>
+
+    <!-- MODALITÀ PESO (esistente) -->
+    <div id="mode-peso">
     <div class="section-title">Seleziona esercizio</div>
     <div class="select-row" style="position:relative">
       <div id="prog-ex-selected" onclick="toggleProgMenu()"
@@ -1333,6 +1345,37 @@
       <canvas id="prog-chart" height="260"></canvas>
     </div>
     <div class="chart-info" id="chart-info"></div>
+    </div>
+
+    <!-- MODALITÀ FREQUENZA (nuova) -->
+    <div id="mode-freq" style="display:none">
+      <div class="section-title">Giorni tra una seduta e l'altra</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.5">Scegli fino a 3 esercizi o famiglie. La linea che <strong>scende</strong> = li alleni più spesso (più focus).</div>
+      <div class="select-row">
+        <select id="freq-add" class="ins-input" style="flex:1" onchange="freqAdd()"></select>
+      </div>
+      <div id="freq-chips" style="margin-top:12px"></div>
+      <div id="freq-controls" style="margin:12px 0 2px">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--text3);min-width:58px">Periodo:</span>
+          <button class="btn btn-ghost btn-sm freq-per-btn" onclick="setFreqPeriodo(3)">3M</button>
+          <button class="btn btn-ghost btn-sm freq-per-btn" onclick="setFreqPeriodo(6)">6M</button>
+          <button class="btn btn-ghost btn-sm freq-per-btn" onclick="setFreqPeriodo(12)">1A</button>
+          <button class="btn btn-ghost btn-sm freq-per-btn" onclick="setFreqPeriodo(0)">Tutto</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+          <span style="font-size:12px;color:var(--text3);min-width:58px" title="Media mobile: più alto = linea più smussata">Smussa:</span>
+          <button class="btn btn-ghost btn-sm freq-ma-btn" onclick="setFreqMA(1)">Off</button>
+          <button class="btn btn-ghost btn-sm freq-ma-btn" onclick="setFreqMA(3)">3</button>
+          <button class="btn btn-ghost btn-sm freq-ma-btn" onclick="setFreqMA(5)">5</button>
+          <button class="btn btn-ghost btn-sm freq-ma-btn" onclick="setFreqMA(7)">7</button>
+        </div>
+      </div>
+      <div class="chart-wrap" id="freq-chart-wrap" style="margin-top:8px">
+        <canvas id="freq-chart"></canvas>
+      </div>
+      <div class="chart-info" id="freq-info"></div>
+    </div>
   </div>
 
   <!-- STORICO -->
@@ -1689,6 +1732,11 @@
         </select>
       </div>
       <div class="ge-form-group">
+        <label class="ge-label">Famiglia di movimento</label>
+        <select id="ge-famiglia" class="ins-input" style="width:100%"></select>
+        <div style="font-size:11px;color:#555;margin-top:4px">Raggruppa le varianti dello stesso gesto (es. tutte le panche). Usata nel grafico Frequenza.</div>
+      </div>
+      <div class="ge-form-group">
         <label class="ge-label">Unità di misura</label>
         <input id="ge-unita" class="ins-input" list="ge-unita-opts" placeholder="es. kg, m, mt, sec…" autocomplete="off" style="width:100%">
         <datalist id="ge-unita-opts">
@@ -1960,6 +2008,66 @@ function normLuogo(l) { return l ? (LUOGHI_MAP[l.trim()] || l.trim()) : ''; }
 // CARICAMENTO DATI
 // =====================
 let _sorgenteDati = '';
+// =====================
+// FAMIGLIE DI MOVIMENTO (per grafico Frequenza)
+// =====================
+// Ogni esercizio canonico appartiene a una "famiglia" (varianti dello stesso gesto).
+// Serve al grafico Frequenza, che misura i giorni tra due sedute di un esercizio o di un'intera famiglia.
+const FAMIGLIE = [
+  { slug: 'squat_quad', label: 'Squat / Quadricipiti' },
+  { slug: 'stacco',     label: 'Stacco / Catena posteriore' },
+  { slug: 'panca_petto',label: 'Panca / Petto' },
+  { slug: 'spalle_push',label: 'Spalle – Military (spinta)' },
+  { slug: 'spalle_lat', label: 'Spalle – Alzate laterali' },
+  { slug: 'dorso_vert', label: 'Dorso – Trazioni (verticale)' },
+  { slug: 'dorso_oriz', label: 'Dorso – Rematore (orizzontale)' },
+  { slug: 'bicipiti',   label: 'Bicipiti' },
+  { slug: 'tricipiti',  label: 'Tricipiti' },
+  { slug: 'addome',     label: 'Addome' },
+  { slug: 'cardio',     label: 'Cardio / Corsa' },
+  { slug: 'skill',      label: 'Verticale / Skill' },
+  { slug: 'olimpici',   label: 'Alzate olimpiche' },
+  { slug: 'gambe_acc',  label: 'Gambe accessori (macchine)' },
+  { slug: 'atletica',   label: 'Atletica / Lanci' },
+  { slug: 'altro',      label: 'Non classificato' },
+];
+const FAMIGLIA_LABEL = Object.fromEntries(FAMIGLIE.map(f => [f.slug, f.label]));
+
+// Classificazione di default: assegnata una volta ai 47 esercizi esistenti (poi modificabile da UI).
+const FAMIGLIA_DEFAULT = {
+  squat:'squat_quad', squat_avanti:'squat_quad', leg_press:'squat_quad', affondi:'squat_quad', squat_jump:'squat_quad', seduto_muro:'squat_quad',
+  stacchi:'stacco',
+  panca:'panca_petto', panca_incl_bil:'panca_petto', panca_incl_man:'panca_petto', panca_stretta:'panca_petto', panca_inv:'panca_petto', croci_sdr:'panca_petto', flessioni:'panca_petto',
+  military_bil:'spalle_push', military_man:'spalle_push',
+  croci_man:'spalle_lat', croci_pulley:'spalle_lat',
+  trazioni_neutre:'dorso_vert', trazioni_polsi:'dorso_vert', trazioni_dorsi:'dorso_vert', pulldown:'dorso_vert', pullover:'dorso_vert',
+  pendlay:'dorso_oriz',
+  bicipiti_man_sed:'bicipiti', bicipiti_man_pip:'bicipiti', bicipiti_pulley:'bicipiti',
+  tric_sopra_testa:'tricipiti', tric_dips:'tricipiti', tric_basso:'tricipiti', tric_manubrio:'tricipiti', tric_casa:'tricipiti',
+  sollevamento_gambe:'addome', situp:'addome', addominali_sbarre:'addome', torsioni_panca:'addome',
+  corsa:'cardio', salita_vigneto:'cardio', calcetto:'cardio', balzi_gradoni:'cardio',
+  verticale:'skill',
+  strappo:'olimpici', girate:'olimpici',
+  esterno_coscia:'gambe_acc', interno_coscia:'gambe_acc', slanci:'gambe_acc',
+  lancio_del_martello:'atletica',
+};
+
+let _famMap = {}; // id esercizio -> slug famiglia (cache, ricostruita dopo la migrazione)
+
+// Aggiunge il campo "famiglia" agli esercizi che non ce l'hanno (solo additiva, non cancella nulla).
+// Gira sui dati freschi del repo; il campo viene persistito al prossimo salvataggio.
+function migraFamiglie() {
+  if (!DATA || !DATA.esercizi_canonici) return;
+  DATA.esercizi_canonici.forEach(e => {
+    if (!e.famiglia) e.famiglia = FAMIGLIA_DEFAULT[e.id] || 'altro';
+  });
+  _famMap = Object.fromEntries(DATA.esercizi_canonici.map(e => [e.id, e.famiglia]));
+}
+
+function famigliaDi(exId) {
+  return _famMap[exId] || FAMIGLIA_DEFAULT[exId] || 'altro';
+}
+
 async function caricaDati() {
   const token = localStorage.getItem('gh_token');
   const cb = Date.now();
@@ -2000,6 +2108,9 @@ async function caricaDati() {
   // Carica luoghi custom da localStorage come fallback
   const lc = localStorage.getItem('luoghi_custom');
   if (lc) { try { LUOGHI_CUSTOM = JSON.parse(lc); } catch(e) {} }
+
+  // Assegna la famiglia di movimento agli esercizi (per il grafico Frequenza)
+  migraFamiglie();
 
   document.getElementById('status-indicator').textContent = '';
   inizializza();
@@ -2560,6 +2671,203 @@ function inizializzaProgressione() {
   });
 
   aggiornaSchemiDisponibili(sel.value);
+}
+
+// =====================
+// GRAFICO FREQUENZA (giorni tra due sedute)
+// =====================
+let freqChart = null;
+let _freqSel = []; // [{tipo:'ex'|'fam', id, label}]
+let _freqPeriodo = 6;  // mesi mostrati (0 = tutto)
+let _freqMAWin = 5;    // finestra media mobile centrata (1 = off, 3/5/7)
+const FREQ_COLORS = ['#FF6B00', '#4C9AFF', '#2ecc71'];
+const _MESI_IT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+function _fmtMese(ts) {
+  const d = new Date(ts);
+  return _MESI_IT[d.getUTCMonth()] + ' ' + String(d.getUTCFullYear()).slice(2);
+}
+
+function setStatMode(m) {
+  const peso = (m === 'peso');
+  document.getElementById('mode-peso').style.display = peso ? 'block' : 'none';
+  document.getElementById('mode-freq').style.display = peso ? 'none' : 'block';
+  document.getElementById('statmode-peso').className = peso ? 'btn btn-sm' : 'btn btn-ghost btn-sm';
+  document.getElementById('statmode-freq').className = peso ? 'btn btn-ghost btn-sm' : 'btn btn-sm';
+  if (!peso) { popolaFreqSelect(); aggiornaFreqBtns(); renderFrequenza(); }
+}
+
+function setFreqPeriodo(m) { _freqPeriodo = m; aggiornaFreqBtns(); renderFrequenza(); }
+function setFreqMA(w) { _freqMAWin = w; aggiornaFreqBtns(); renderFrequenza(); }
+
+function aggiornaFreqBtns() {
+  document.querySelectorAll('.freq-per-btn').forEach(b => {
+    const per = parseInt(b.getAttribute('onclick').match(/\d+/)[0]);
+    b.className = (per === _freqPeriodo) ? 'btn btn-sm freq-per-btn' : 'btn btn-ghost btn-sm freq-per-btn';
+  });
+  document.querySelectorAll('.freq-ma-btn').forEach(b => {
+    const w = parseInt(b.getAttribute('onclick').match(/\d+/)[0]);
+    b.className = (w === _freqMAWin) ? 'btn btn-sm freq-ma-btn' : 'btn btn-ghost btn-sm freq-ma-btn';
+  });
+}
+
+// Popola il menu "Aggiungi": famiglie (con almeno un esercizio attivo) + esercizi attivi con dati
+function popolaFreqSelect() {
+  const sel = document.getElementById('freq-add');
+  const attivi = DATA.esercizi_canonici.filter(e => e.stato === 'attivo');
+  const famAttive = new Set(attivi.map(e => famigliaDi(e.id)));
+  const famOpts = FAMIGLIE.filter(f => famAttive.has(f.slug))
+    .map(f => `<option value="fam:${f.slug}">${f.label}</option>`).join('');
+  const conDati = new Set();
+  DATA.sessioni.forEach(s => s.esercizi.forEach(e => { if (e.peso_kg || e.schema) conDati.add(e.esercizio_id); }));
+  const exOpts = attivi.filter(e => conDati.has(e.id))
+    .map(e => `<option value="ex:${e.id}">${e.nome}</option>`).join('');
+  sel.innerHTML = `<option value="">+ Aggiungi esercizio o famiglia…</option>`
+    + `<optgroup label="Famiglie">${famOpts}</optgroup>`
+    + `<optgroup label="Esercizi singoli">${exOpts}</optgroup>`;
+}
+
+function freqAdd() {
+  const sel = document.getElementById('freq-add');
+  const v = sel.value; sel.value = '';
+  if (!v) return;
+  if (_freqSel.length >= 3) { showToast('Massimo 3 linee', 'error'); return; }
+  const [tipoRaw, id] = v.split(':');
+  const tipo = tipoRaw === 'fam' ? 'fam' : 'ex';
+  if (_freqSel.some(x => x.tipo === tipo && x.id === id)) return;
+  const label = tipo === 'fam'
+    ? FAMIGLIA_LABEL[id]
+    : (DATA.esercizi_canonici.find(e => e.id === id)?.nome || id);
+  _freqSel.push({ tipo, id, label });
+  renderFreqChips();
+  renderFrequenza();
+}
+
+function freqRemove(i) {
+  _freqSel.splice(i, 1);
+  renderFreqChips();
+  renderFrequenza();
+}
+
+function renderFreqChips() {
+  const c = document.getElementById('freq-chips');
+  if (!_freqSel.length) { c.innerHTML = ''; return; }
+  c.innerHTML = _freqSel.map((s, i) => {
+    const col = FREQ_COLORS[i] || '#888';
+    return `<span style="display:inline-flex;align-items:center;gap:6px;background:${col}22;border:1px solid ${col};color:var(--text1);padding:4px 10px;border-radius:20px;font-size:13px;margin:0 6px 6px 0">
+      <span style="width:8px;height:8px;border-radius:50%;background:${col}"></span>${s.label}
+      <span onclick="freqRemove(${i})" style="cursor:pointer;color:var(--text3);font-weight:700;margin-left:2px">✕</span></span>`;
+  }).join('');
+}
+
+// Date uniche e ordinate in cui compare la selezione (esercizio singolo o intera famiglia)
+function _freqDate(sel) {
+  const date = new Set();
+  DATA.sessioni.forEach(s => {
+    const hit = s.esercizi.some(e => sel.tipo === 'ex'
+      ? e.esercizio_id === sel.id
+      : famigliaDi(e.esercizio_id) === sel.id);
+    if (hit && s.data) date.add(s.data);
+  });
+  return [...date].sort((a, b) => a.localeCompare(b));
+}
+
+function renderFrequenza() {
+  const info = document.getElementById('freq-info');
+  if (!_freqSel.length) {
+    if (freqChart) { freqChart.destroy(); freqChart = null; }
+    info.innerHTML = '<span style="color:var(--text3)">Seleziona almeno un esercizio o una famiglia</span>';
+    return;
+  }
+  const isMobile = window.innerWidth < 600;
+  // Inizio finestra temporale (timestamp): coerente con le date UTC dei dati
+  let cutoff = -Infinity;
+  if (_freqPeriodo > 0) {
+    const base = new Date(oggi());                 // UTC midnight di oggi (data locale)
+    base.setUTCMonth(base.getUTCMonth() - _freqPeriodo);
+    cutoff = base.getTime();
+  }
+
+  const datasets = [];
+  const righeInfo = [];
+  _freqSel.forEach((sel, i) => {
+    const date = _freqDate(sel);
+    // Gap grezzi su TUTTA la serie (così media mobile e primo punto visibile restano corretti)
+    const grezzi = [];
+    for (let k = 1; k < date.length; k++) {
+      const giorni = Math.round((new Date(date[k]) - new Date(date[k - 1])) / 86400000);
+      grezzi.push({ x: new Date(date[k]).getTime(), gap: giorni, data: date[k] });
+    }
+    // Media mobile centrata con finestra _freqMAWin (1 = off); ai bordi media i punti disponibili
+    const w = _freqMAWin;
+    const h = Math.floor(w / 2);
+    const serie = grezzi.map((p, idx) => {
+      if (w <= 1) return { ...p, y: p.gap };
+      const slice = grezzi.slice(Math.max(0, idx - h), idx + h + 1);
+      const avg = slice.reduce((s, q) => s + q.gap, 0) / slice.length;
+      return { ...p, y: Math.round(avg * 10) / 10 };
+    });
+    // Filtro per periodo (solo visualizzazione)
+    const pts = serie.filter(p => p.x >= cutoff);
+    const col = FREQ_COLORS[i] || '#888';
+    datasets.push({
+      label: sel.label,
+      data: pts.map(p => ({ x: p.x, y: p.y, data: p.data, gap: p.gap })),
+      borderColor: col, backgroundColor: col + '22',
+      borderWidth: 2, tension: 0.25,
+      pointRadius: 0, pointHoverRadius: 5, pointBackgroundColor: col,
+      fill: false, spanGaps: true
+    });
+    const gapsVis = pts.map(p => p.gap);
+    const media = gapsVis.length ? Math.round(gapsVis.reduce((a, v) => a + v, 0) / gapsVis.length) : null;
+    righeInfo.push({ label: sel.label, n: gapsVis.length, media, col });
+  });
+
+  // "Legenda" = righe info, con marcatore a LINEA (non quadratino)
+  info.innerHTML = righeInfo.map(r => {
+    const testo = r.media != null
+      ? `~${r.media} giorni di media <span style="color:var(--text3)">· ${r.n} intervalli</span>`
+      : `<span style="color:var(--text3)">nessuna seduta nel periodo</span>`;
+    return `<div style="display:flex;align-items:center;gap:9px;padding:3px 0;font-size:13px">
+      <span style="display:inline-block;width:20px;height:0;border-top:3px solid ${r.col};border-radius:2px;flex-shrink:0"></span>
+      <span style="color:var(--text2)">${r.label}:</span>
+      <span style="color:var(--text1)">${testo}</span>
+    </div>`;
+  }).join('');
+
+  if (freqChart) { freqChart.destroy(); freqChart = null; }
+  const ctx = document.getElementById('freq-chart').getContext('2d');
+  freqChart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          title: (items) => formatData(items[0].raw.data),
+          label: (item) => {
+            const base = `${item.dataset.label}: ${item.raw.gap} giorni dalla volta prima`;
+            return (_freqMAWin > 1 && item.raw.y !== item.raw.gap) ? `${base} (media ~${item.raw.y})` : base;
+          }
+        }}
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          ticks: { color: '#888', maxTicksLimit: isMobile ? 5 : 9, font: { size: isMobile ? 10 : 12 }, callback: (v) => _fmtMese(v) },
+          grid: { color: '#1e1e1e' }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#888', callback: (v) => v + 'g', font: { size: isMobile ? 10 : 12 } },
+          grid: { color: '#1e1e1e' },
+          title: { display: true, text: 'giorni dalla seduta precedente', color: '#888', font: { size: isMobile ? 9 : 11 } }
+        }
+      }
+    }
+  });
 }
 
 function riordinaSchemi(exId, tipo) {
@@ -6192,6 +6500,10 @@ function apriModalNuovoEx(editId) {
   document.getElementById('ge-categoria').value = 'isolato';
   document.getElementById('ge-unita').value = 'kg';
   document.getElementById('ge-bw').checked = false;
+  // Popola il dropdown Famiglia
+  document.getElementById('ge-famiglia').innerHTML =
+    FAMIGLIE.map(f => `<option value="${f.slug}">${f.label}</option>`).join('');
+  document.getElementById('ge-famiglia').value = 'altro';
   geSetStato('attivo');
 
   if (_geEditId) {
@@ -6202,6 +6514,7 @@ function apriModalNuovoEx(editId) {
     document.getElementById('ge-nome').value = ex.nome;
     document.getElementById('ge-id-preview').textContent = `ID: ${ex.id} (non modificabile)`;
     document.getElementById('ge-categoria').value = ex.categoria || 'isolato';
+    document.getElementById('ge-famiglia').value = ex.famiglia || FAMIGLIA_DEFAULT[ex.id] || 'altro';
     document.getElementById('ge-unita').value = ex.unita || 'kg';
     document.getElementById('ge-bw').checked = !!ex.bodyweight;
   } else {
@@ -6221,6 +6534,7 @@ function salvaEsercizio() {
   if (!nome) { showToast('Inserisci il nome', 'error'); return; }
 
   const categoria = document.getElementById('ge-categoria').value;
+  const famiglia  = document.getElementById('ge-famiglia').value;
   const unita     = document.getElementById('ge-unita').value;
   const bw        = document.getElementById('ge-bw').checked;
 
@@ -6231,6 +6545,7 @@ function salvaEsercizio() {
       const vecchiaUnita = DATA.esercizi_canonici[idx].unita;
       DATA.esercizi_canonici[idx].nome      = nome;
       DATA.esercizi_canonici[idx].categoria = categoria;
+      DATA.esercizi_canonici[idx].famiglia  = famiglia;
       DATA.esercizi_canonici[idx].unita     = unita;
       DATA.esercizi_canonici[idx].bodyweight = bw;
       // Propaga la nuova unità a tutte le righe di sessione esistenti
@@ -6247,7 +6562,7 @@ function salvaEsercizio() {
     if (DATA.esercizi_canonici.find(e => e.id === id)) {
       showToast(`ID "${id}" già esistente — cambia il nome`, 'error'); return;
     }
-    const newEx = { id, nome, categoria, unita, bodyweight: bw, stato: _geStato };
+    const newEx = { id, nome, categoria, famiglia, unita, bodyweight: bw, stato: _geStato };
     const newOrd = GE_ORDER[categoria] ?? 1;
     let insertIdx = DATA.esercizi_canonici.length;
     for (let i = 0; i < DATA.esercizi_canonici.length; i++) {
@@ -6258,6 +6573,9 @@ function salvaEsercizio() {
     }
     DATA.esercizi_canonici.splice(insertIdx, 0, newEx);
   }
+
+  // Aggiorna la cache famiglie (così il grafico Frequenza riflette subito la modifica)
+  _famMap = Object.fromEntries(DATA.esercizi_canonici.map(e => [e.id, e.famiglia]));
 
   chiudiModalNuovoEx();
   renderEsercizi();
