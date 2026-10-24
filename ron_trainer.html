@@ -178,6 +178,12 @@
   }
   .tab.active { color: var(--orange); border-bottom-color: var(--orange); }
   .tab:hover:not(.active) { color: var(--text); }
+  /* Tab Train che "richiama" quando c'è un allenamento in corso: arancione + blink leggero (stesso ritmo del pallino bozza) */
+  .tab.train-attivo { color: var(--orange); animation: train-tab-blink 2.2s ease-in-out infinite; }
+  @keyframes train-tab-blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
 
   /* MAIN */
   main {
@@ -2053,6 +2059,7 @@ const FAMIGLIA_DEFAULT = {
 };
 
 let _famMap = {}; // id esercizio -> slug famiglia (cache, ricostruita dopo la migrazione)
+let _catMap = {}; // id esercizio -> categoria (cache, per il check struttura mensile)
 
 // Aggiunge il campo "famiglia" agli esercizi che non ce l'hanno (solo additiva, non cancella nulla).
 // Gira sui dati freschi del repo; il campo viene persistito al prossimo salvataggio.
@@ -2062,6 +2069,7 @@ function migraFamiglie() {
     if (!e.famiglia) e.famiglia = FAMIGLIA_DEFAULT[e.id] || 'altro';
   });
   _famMap = Object.fromEntries(DATA.esercizi_canonici.map(e => [e.id, e.famiglia]));
+  _catMap = Object.fromEntries(DATA.esercizi_canonici.map(e => [e.id, e.categoria]));
 }
 
 function famigliaDi(exId) {
@@ -2122,6 +2130,7 @@ function inizializza() {
   }
   inizializzaOverview();
   aggiornaFastTrainBtn();
+  aggiornaTrainTabAttiva();
   inizializzaProgressione();
   inizializzaStorico();
   inizializzaPR();
@@ -2514,6 +2523,31 @@ function toggleGraficoOverview(tipo) {
   }
 }
 
+// --- Check "struttura minima" di un allenamento ---
+// Valido se: 1 corsa lunga, OPPURE lancio martello, OPPURE 2 core, OPPURE 3 secondari, OPPURE 1 core + 2 secondari.
+// core = categoria compound; secondari = tutto il resto, INCLUSA la salita vigneto (conta come un secondario);
+// corsa = regola a sé (corsa lunga); calcetto = sport, non conta.
+function _allenamentoValido(sess) {
+  const ids = [...new Set((sess.esercizi || []).map(e => e.esercizio_id).filter(Boolean))];
+  if (ids.includes('corsa')) return true;              // corsa lunga
+  if (ids.includes('lancio_del_martello')) return true; // lancio del martello
+  let nCore = 0, nSec = 0;
+  for (const id of ids) {
+    if (id === 'corsa' || id === 'calcetto') continue;  // corsa = regola a sé; calcetto non conta
+    if (_catMap[id] === 'compound') nCore++;
+    else nSec++;  // isolato, addominali, verticale, salita vigneto… = secondario
+  }
+  return nCore >= 2 || nSec >= 3 || (nCore >= 1 && nSec >= 2);
+}
+
+// Stato struttura di un mese (YYYY-MM): tot sessioni, quante valide, ok se tutte valide
+function _statoStrutturaMese(meseStr) {
+  const sess = DATA.sessioni.filter(s => s.data && s.data.startsWith(meseStr));
+  const tot = sess.length;
+  const validi = sess.filter(_allenamentoValido).length;
+  return { tot, validi, ok: tot > 0 && validi === tot };
+}
+
 // Grafico a barre ultimi 18 mesi — allenamenti o esercizi in base a overviewMeseMode
 function renderGraficoMensile() {
   const cvs = document.getElementById('overview-chart');
@@ -2534,15 +2568,50 @@ function renderGraficoMensile() {
   });
   const labels = mesi.map(m => { const [y,mo] = m.split('-'); return `${mo}/${y.slice(2)}`; });
   const [sHi, sMid] = isEs ? [24, 12] : [8, 4]; // soglie colore
+  const stati = mesi.map(_statoStrutturaMese); // struttura minima per mese
+
+  // Plugin: disegna ✓ (verde) se tutti gli allenamenti del mese rispettano la struttura, ✕ (ambra) altrimenti
+  const checkStrutturaPlugin = {
+    id: 'checkStruttura',
+    afterDatasetsDraw(chart) {
+      const ctx = chart.ctx;
+      const meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach((bar, i) => {
+        const st = stati[i];
+        if (!st || st.tot === 0) return;
+        ctx.fillStyle = st.ok ? '#3fb950' : '#e3a008';
+        const y = Math.max(bar.y - 5, chart.chartArea.top + 13);
+        ctx.fillText(st.ok ? '✓' : '✕', bar.x, y);
+      });
+      ctx.restore();
+    }
+  };
+
   overviewChart = new Chart(cvs.getContext('2d'), {
     type: 'bar',
+    plugins: [checkStrutturaPlugin],
     data: {
       labels,
       datasets: [{ data: counts, backgroundColor: counts.map(c => c >= sHi ? 'rgba(255,107,0,0.9)' : c >= sMid ? 'rgba(255,107,0,0.6)' : 'rgba(255,107,0,0.3)'), borderRadius: 4 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: item => `${item.raw} ${isEs ? 'esercizi' : 'allenamenti'}` } } },
+      layout: { padding: { top: 18 } }, // spazio per il simbolo sopra le barre più alte
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          label: item => `${item.raw} ${isEs ? 'esercizi' : 'allenamenti'}`,
+          afterLabel: item => {
+            const st = stati[item.dataIndex];
+            if (!st || st.tot === 0) return '';
+            return st.ok ? `Struttura: ${st.validi}/${st.tot} ✓ tutti validi` : `Struttura: ${st.validi}/${st.tot} validi ✕`;
+          }
+        } }
+      },
       scales: {
         x: { ticks: { color: '#aaa', font: { size: 13 } }, grid: { color: '#1e1e1e' } },
         y: { ticks: { color: '#aaa', font: { size: 13 }, stepSize: isEs ? 5 : 1, precision: 0 }, grid: { color: '#1e1e1e' }, beginAtZero: true }
@@ -3588,6 +3657,12 @@ function aggiornaFastTrainBtn() {
   btn.title = attiva ? 'Sessione in corso — finiscila o scartala' : 'Setup rapido: 5 core + 5 secondari, TE-Casa, oggi';
 }
 
+// Evidenzia (arancione + blink) il tab Train quando c'è un allenamento in corso
+function aggiornaTrainTabAttiva() {
+  const tab = document.querySelector('.tab[data-tab="inserimento"]');
+  if (tab) tab.classList.toggle('train-attivo', sessioneTrainAttiva());
+}
+
 function generaPropostaStep1() {
   // Validazione
   const dataP = document.getElementById('piano-data').value;
@@ -4361,6 +4436,7 @@ function salvaBozza() {
         b.classList.remove('hidden');
         b.classList.add('collapsed');
       }
+      aggiornaTrainTabAttiva();
     } catch(e) { /* silenzioso */ }
   }, 400); // 400ms debounce — non salva ad ogni tasto
 }
@@ -4370,6 +4446,7 @@ function cancellaBozza() {
   localStorage.removeItem('ron_bozza');
   const b = document.getElementById('draft-banner');
   if (b) { b.classList.add('hidden'); b.classList.remove('collapsed'); }
+  aggiornaTrainTabAttiva();
 }
 
 function ripristinaBozza() {
