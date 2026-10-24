@@ -72,6 +72,15 @@
       "famiglia": "panca_petto"
     },
     {
+      "id": "bulgarian_split_squat",
+      "nome": "Bulgarian split squat",
+      "categoria": "isolato",
+      "famiglia": "squat_quad",
+      "unita": "kg",
+      "bodyweight": false,
+      "stato": "attivo"
+    },
+    {
       "id": "lancio_del_martello",
       "nome": "Lancio del martello",
       "categoria": "isolato",
