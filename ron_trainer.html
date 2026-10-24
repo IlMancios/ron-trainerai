@@ -1594,6 +1594,7 @@
         <div class="hs" data-zone="polpacci"   style="left:33%;top:80%"><div class="hs-dot"></div><span class="hs-txt">POLP DX</span></div>
         <div class="hs" data-zone="polpacci"   style="left:67%;top:80%"><div class="hs-dot"></div><span class="hs-txt">POLP SX</span></div>
         <button type="button" class="bw-point" id="bw-point" onclick="selezionaBodyweight()">⚖️ Bodyweight</button>
+        <button type="button" class="bw-point" id="bf-point" onclick="selezionaBF()" style="margin-top:8px">📊 Massa grassa</button>
       </div>
       <div class="body-panel" id="body-panel">
         <div class="body-panel-empty">← Clicca un punto sul corpo</div>
@@ -1774,6 +1775,32 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="chiudiModalNuovoEx()">ANNULLA</button>
       <button class="btn" onclick="salvaEsercizio()">SALVA</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MASSA GRASSA (altezza + calibrazione) -->
+<div class="modal-overlay" id="modal-bf-cal">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-title">📊 Massa grassa — impostazioni</div>
+    <div class="ge-form-group" style="margin-top:12px">
+      <label class="ge-label">Altezza (cm)</label>
+      <input id="bfcal-altezza" type="number" class="ins-input" style="width:100%" placeholder="180">
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin:12px 0 8px;line-height:1.5">Calibrazione (opzionale): inserisci una misura reale affidabile (DEXA/InBody) e la sua data. L'app correggerà la stima Navy con uno scarto fisso.</div>
+    <div class="ge-form-group">
+      <label class="ge-label">BF% reale misurata</label>
+      <input id="bfcal-reale" type="number" step="0.1" class="ins-input" style="width:100%" placeholder="es. 20">
+    </div>
+    <div class="ge-form-group">
+      <label class="ge-label">Data della misura reale</label>
+      <input id="bfcal-data" type="date" class="ins-input" style="width:100%">
+    </div>
+    <div id="bfcal-info" style="font-size:12px;color:var(--text2);min-height:16px;margin-bottom:6px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="chiudiModalBFCal()">ANNULLA</button>
+      <button class="btn btn-ghost" onclick="rimuoviCalibrazioneBF()" style="color:#e3a008">RIMUOVI CAL.</button>
+      <button class="btn" onclick="salvaBFCal()">SALVA</button>
     </div>
   </div>
 </div>
@@ -2119,6 +2146,8 @@ async function caricaDati() {
 
   // Assegna la famiglia di movimento agli esercizi (per il grafico Frequenza)
   migraFamiglie();
+  // Altezza di default per la stima massa grassa (Navy), se non impostata
+  if (DATA.meta && DATA.meta.altezza_cm == null) DATA.meta.altezza_cm = 180;
 
   document.getElementById('status-indicator').textContent = '';
   inizializza();
@@ -6819,6 +6848,8 @@ const BODY_ZONE_CFG = {
   cosce:      { label:'COSCE',      desc:'contratta, appena sotto il cavallo',         serie:[{ key:'coscia_dx', lab:'DX', col:'#ff6b00' }, { key:'coscia_sx', lab:'SX', col:'#4da6ff' }] },
   polpacci:   { label:'POLPACCI',   desc:'contratto, 4 dita sotto la piega',           serie:[{ key:'polpaccio_dx', lab:'DX', col:'#ff6b00' }, { key:'polpaccio_sx', lab:'SX', col:'#4da6ff' }] },
   bodyweight: { label:'BODYWEIGHT', desc:'peso corporeo', unit:'kg', source:'peso',   serie:[{ key:'kg', lab:'Peso', col:'#ff6b00' }] },
+  bf:         { label:'MASSA GRASSA', desc:'stima Navy (collo + vita + altezza)', unit:'%', computed:'bf',
+                serie:[{ key:'bf', lab:'BF% stimata', col:'#ff6b00' }, { key:'bf_cal', lab:'BF% calibrata', col:'#44cc88' }] },
 };
 
 // Peso corporeo: array separato [{ data, kg }] — non nelle misure per non sporcare i grafici cm
@@ -6833,7 +6864,29 @@ let _mmEditIdx = -1;
 let _mpEditIdx = -1;
 let _mpDeleteIdx = -1;
 
+// Stima massa grassa — formula US Navy (Hodgdon & Beckett, 1984), uomo, misure in cm
+function navyBF(collo, vita, altezza) {
+  if (!collo || !vita || !altezza || vita <= collo) return null;
+  const bf = 495 / (1.0324 - 0.19077 * Math.log10(vita - collo) + 0.15456 * Math.log10(altezza)) - 450;
+  if (!isFinite(bf)) return null;
+  return Math.round(bf * 10) / 10;
+}
+
 function bodyGetSess(cfg) {
+  // Massa grassa: serie calcolata dalle misure (collo + vita) + altezza, non memorizzata
+  if (cfg && cfg.computed === 'bf') {
+    const H = (DATA.meta && DATA.meta.altezza_cm) || 180;
+    const off = (DATA.meta && DATA.meta.bf_cal && DATA.meta.bf_cal.offset) || 0;
+    return [...(DATA.misure_corporee || [])].sort((a, b) => a.data.localeCompare(b.data))
+      .map(e => {
+        const vita = (e.m && e.m.omb_ril != null) ? e.m.omb_ril : (e.m ? e.m.cinta : null);
+        const bf = navyBF(e.m && e.m.collo, vita, H);
+        if (bf == null) return null;
+        const m = { bf };
+        if (off) m.bf_cal = Math.round((bf + off) * 10) / 10;
+        return { data: e.data, m };
+      }).filter(Boolean);
+  }
   if (cfg && cfg.source === 'peso') {
     if (!DATA.peso_corporeo) DATA.peso_corporeo = [];
     return [...DATA.peso_corporeo].sort((a,b) => a.data.localeCompare(b.data))
@@ -6861,6 +6914,7 @@ function inizializzaBody() {
       const z = this.dataset.zone;
       document.querySelectorAll('#panel-body .hs').forEach(x => x.classList.remove('active'));
       document.getElementById('bw-point')?.classList.remove('active');
+      document.getElementById('bf-point')?.classList.remove('active');
       document.querySelectorAll(`#panel-body .hs[data-zone="${z}"]`).forEach(x => x.classList.add('active'));
       renderBodyPanel(z);
     });
@@ -6870,15 +6924,76 @@ function inizializzaBody() {
 // Seleziona il punto "Bodyweight" (fuori dalla silhouette)
 function selezionaBodyweight() {
   document.querySelectorAll('#panel-body .hs').forEach(x => x.classList.remove('active'));
+  document.getElementById('bf-point')?.classList.remove('active');
   document.getElementById('bw-point')?.classList.add('active');
   renderBodyPanel('bodyweight');
 }
 
+// Seleziona il punto "Massa grassa" (stima Navy)
+function selezionaBF() {
+  document.querySelectorAll('#panel-body .hs').forEach(x => x.classList.remove('active'));
+  document.getElementById('bw-point')?.classList.remove('active');
+  document.getElementById('bf-point')?.classList.add('active');
+  renderBodyPanel('bf');
+}
+
+// ---- Modal massa grassa: altezza + calibrazione ----
+function apriModalBFCal() {
+  document.getElementById('bfcal-altezza').value = (DATA.meta && DATA.meta.altezza_cm) || 180;
+  const c = DATA.meta && DATA.meta.bf_cal;
+  document.getElementById('bfcal-reale').value = c ? c.reale : '';
+  document.getElementById('bfcal-data').value  = c ? c.data : dataLocale();
+  document.getElementById('bfcal-info').textContent = c
+    ? `Calibrazione attiva: scarto ${c.offset > 0 ? '+' : ''}${c.offset} punti (reale ${c.reale}% il ${c.data}).`
+    : '';
+  document.getElementById('modal-bf-cal').classList.add('show');
+}
+function chiudiModalBFCal() { document.getElementById('modal-bf-cal').classList.remove('show'); }
+
+function salvaBFCal() {
+  if (!DATA.meta) DATA.meta = {};
+  const h = parseFloat(document.getElementById('bfcal-altezza').value);
+  if (h && h > 100 && h < 250) DATA.meta.altezza_cm = h;
+
+  const reale = parseFloat(document.getElementById('bfcal-reale').value);
+  const dataC = document.getElementById('bfcal-data').value;
+  if (!isNaN(reale) && dataC) {
+    // trova la misura (con collo + vita) più vicina alla data indicata
+    const mis = (DATA.misure_corporee || []).filter(e => e.m && e.m.collo && (e.m.omb_ril != null || e.m.cinta != null));
+    if (mis.length) {
+      let best = mis[0], bestDiff = Infinity;
+      mis.forEach(e => { const d = Math.abs(new Date(e.data) - new Date(dataC)); if (d < bestDiff) { bestDiff = d; best = e; } });
+      const vita = best.m.omb_ril != null ? best.m.omb_ril : best.m.cinta;
+      const est = navyBF(best.m.collo, vita, DATA.meta.altezza_cm || 180);
+      if (est != null) {
+        DATA.meta.bf_cal = { data: dataC, reale: Math.round(reale * 10) / 10, offset: Math.round((reale - est) * 10) / 10 };
+      }
+    } else {
+      showToast('Nessuna misura con collo + vita per calibrare', 'error');
+    }
+  }
+  chiudiModalBFCal();
+  selezionaBF();
+  salvasuGitHub();
+}
+
+function rimuoviCalibrazioneBF() {
+  if (DATA.meta) delete DATA.meta.bf_cal;
+  chiudiModalBFCal();
+  selezionaBF();
+  salvasuGitHub();
+}
+
 function renderBodyPanel(zoneId) {
-  const cfg = BODY_ZONE_CFG[zoneId];
+  let cfg = BODY_ZONE_CFG[zoneId];
   if (!cfg) return;
+  // BF: mostra la linea "calibrata" solo se esiste una calibrazione
+  if (cfg.computed === 'bf' && !(DATA.meta && DATA.meta.bf_cal)) {
+    cfg = { ...cfg, serie: cfg.serie.filter(s => s.key !== 'bf_cal') };
+  }
   const U = cfg.unit || 'cm';
   const isPeso = cfg.source === 'peso';
+  const isComputed = !!cfg.computed;
   const sess = bodyGetSess(cfg);
   if (!sess.length) {
     document.getElementById('body-panel').innerHTML = isPeso
@@ -6906,7 +7021,7 @@ function renderBodyPanel(zoneId) {
     `<div class="bz-legend-item"><div class="bz-legend-line" style="background:${s.col}"></div><span style="color:${s.col}">${s.lab}</span></div>`
   ).join('');
 
-  const thHtml = `<th>Data</th>` + cfg.serie.map((s,i) => `<th class="c${i}">${s.lab}</th>`).join('') + `<th></th>`;
+  const thHtml = `<th>Data</th>` + cfg.serie.map((s,i) => `<th class="c${i}">${s.lab}</th>`).join('') + (isComputed ? '' : `<th></th>`);
   const trHtml = [...sess].reverse().map((entry, ri) => {
     const origIdx = sess.length - 1 - ri;
     const tds = cfg.serie.map((s, i) => {
@@ -6916,17 +7031,19 @@ function renderBodyPanel(zoneId) {
     const editFn = isPeso ? 'apriModalPeso' : 'apriModalMisure';
     const delFn  = isPeso ? 'apriConfermaEliminaPeso' : 'apriConfermaElimina';
     const noteHtml = entry.note ? `<div style="font-size:11px;color:#8a8a8a;font-style:italic;font-weight:400;margin-top:3px;white-space:normal;max-width:150px;line-height:1.3">📝 ${entry.note}</div>` : '';
-    return `<tr data-idx="${origIdx}">
-      <td>${bodyFmtData(entry.data)}${noteHtml}</td>${tds}
-      <td style="white-space:nowrap">
+    const actionsTd = isComputed ? '' : `<td style="white-space:nowrap">
         <button onclick="${editFn}(${origIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:2px 6px;font-family:inherit" title="Modifica">✏️</button>
         <button onclick="${delFn}(${origIdx})" class="mm-delete-btn" title="Elimina">🗑</button>
-      </td>
+      </td>`;
+    return `<tr data-idx="${origIdx}">
+      <td>${bodyFmtData(entry.data)}${noteHtml}</td>${tds}
+      ${actionsTd}
     </tr>`;
   }).join('');
 
   document.getElementById('body-panel').innerHTML = `
-    ${isPeso ? '<button class="btn btn-sm" onclick="apriModalPeso()" style="align-self:flex-start;margin-bottom:12px">+ AGGIUNGI PESO</button>' : ''}
+    ${isPeso ? '<button class="btn btn-sm" onclick="apriModalPeso()" style="align-self:flex-start;margin-bottom:12px">+ AGGIUNGI PESO</button>'
+      : isComputed ? '<button class="btn btn-sm" onclick="apriModalBFCal()" style="align-self:flex-start;margin-bottom:12px">⚙️ Altezza / Calibra</button>' : ''}
     <div class="bz-title">${cfg.label} <span class="bz-desc">— ${cfg.desc}</span></div>
     <div class="bz-date">Ultima: ${bodyFmtData(last.data)}</div>
     <div class="bz-last-vals">${lastValsHtml}</div>
