@@ -5,7 +5,8 @@
     "totale_sessioni": 514,
     "totale_righe_esercizio": 1453,
     "esercizi_canonici_attivi": 27,
-    "esercizi_archivio": 19
+    "esercizi_archivio": 19,
+    "altezza_cm": 180
   },
   "esercizi_canonici": [
     {
@@ -22,7 +23,8 @@
           "titolo": "Long Check",
           "url": "https://youtu.be/gcNh17Ckjgg?si=3c3pirrh8hNjO0vZ"
         }
-      ]
+      ],
+      "famiglia": "squat_quad"
     },
     {
       "id": "stacchi",
@@ -34,35 +36,40 @@
           "titolo": "Short tecnica",
           "url": "https://youtube.com/shorts/8np3vKDBJfc"
         }
-      ]
+      ],
+      "famiglia": "stacco"
     },
     {
       "id": "panca",
       "nome": "Panca classica",
       "categoria": "compound",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "panca_petto"
     },
     {
       "id": "panca_incl_bil",
       "nome": "Panca inclinata con bilanciere",
       "categoria": "compound",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "panca_petto"
     },
     {
       "id": "pendlay",
       "nome": "Pendlay row schiena dritta",
       "categoria": "compound",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "dorso_oriz"
     },
     {
       "id": "panca_stretta",
       "nome": "Panca con presa stretta",
       "categoria": "compound",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "panca_petto"
     },
     {
       "id": "lancio_del_martello",
@@ -70,7 +77,8 @@
       "categoria": "isolato",
       "unita": "mt",
       "bodyweight": false,
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "atletica"
     },
     {
       "id": "panca_incl_man",
@@ -82,21 +90,24 @@
           "titolo": "Tecnica short",
           "url": "https://youtube.com/shorts/ou6s32mJgjU"
         }
-      ]
+      ],
+      "famiglia": "panca_petto"
     },
     {
       "id": "military_bil",
       "nome": "Military press in piedi con bilanciere",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "spalle_push"
     },
     {
       "id": "military_man",
       "nome": "Military press da seduto con manubri",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "spalle_push"
     },
     {
       "id": "croci_man",
@@ -108,28 +119,32 @@
           "titolo": "Short tecnica",
           "url": "https://youtube.com/shorts/Kl3LEzQ5Zqs"
         }
-      ]
+      ],
+      "famiglia": "spalle_lat"
     },
     {
       "id": "croci_pulley",
       "nome": "Croci laterali con pulley basso",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "spalle_lat"
     },
     {
       "id": "trazioni_neutre",
       "nome": "Trazioni con presa neutra",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "dorso_vert"
     },
     {
       "id": "trazioni_polsi",
       "nome": "Trazioni polsi delle mani a me",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "dorso_vert"
     },
     {
       "id": "trazioni_dorsi",
@@ -149,21 +164,24 @@
           "titolo": "Tecnica generale 2",
           "url": "https://youtube.com/shorts/ym1V5H35IpA"
         }
-      ]
+      ],
+      "famiglia": "dorso_vert"
     },
     {
       "id": "pulldown",
       "nome": "Trazioni con sbarra pulley alto",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "dorso_vert"
     },
     {
       "id": "sollevamento_gambe",
       "nome": "Sollevamento gambe da appeso",
       "categoria": "addominali",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "addome"
     },
     {
       "id": "bicipiti_man_sed",
@@ -183,14 +201,16 @@
           "titolo": "Short tecnica",
           "url": "https://youtube.com/shorts/L_1gy_uN_zw"
         }
-      ]
+      ],
+      "famiglia": "bicipiti"
     },
     {
       "id": "bicipiti_man_pip",
       "nome": "Bicipiti con manubri, in piedi",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "bicipiti"
     },
     {
       "id": "bicipiti_pulley",
@@ -202,14 +222,16 @@
           "titolo": "Short tecnica",
           "url": "https://youtube.com/shorts/CrbTqNOlFgE"
         }
-      ]
+      ],
+      "famiglia": "bicipiti"
     },
     {
       "id": "pullover",
       "nome": "Pullover con piastra/bilanciere/manubri",
       "categoria": "isolato",
       "stato": "archivio",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "dorso_vert"
     },
     {
       "id": "tric_sopra_testa",
@@ -223,7 +245,8 @@
         }
       ],
       "unita": "kg",
-      "bodyweight": false
+      "bodyweight": false,
+      "famiglia": "tricipiti"
     },
     {
       "id": "tric_dips",
@@ -232,13 +255,14 @@
       "stato": "attivo",
       "link_tecnica": [],
       "unita": "kg",
-      "bodyweight": false
+      "bodyweight": false,
+      "famiglia": "tricipiti"
     },
     {
       "id": "tric_basso",
       "nome": "Tricipiti spinte verso il basso con pulley alto",
       "categoria": "isolato",
-      "stato": "attivo",
+      "stato": "archivio",
       "link_tecnica": [
         {
           "titolo": "Short tecnica",
@@ -248,21 +272,24 @@
           "titolo": "Short tecnica",
           "url": "https://youtube.com/shorts/1FoWlRS2Edc"
         }
-      ]
+      ],
+      "famiglia": "tricipiti"
     },
     {
       "id": "tric_manubrio",
       "nome": "Tricipite con manubrio dietro la testa",
       "categoria": "isolato",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "tricipiti"
     },
     {
       "id": "salita_vigneto",
       "nome": "100mt in salita vigneto",
       "categoria": "cardio",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "cardio"
     },
     {
       "id": "verticale",
@@ -274,98 +301,114 @@
           "titolo": "Tecnica e step by step",
           "url": "https://youtu.be/jxlucKF-lOs"
         }
-      ]
+      ],
+      "famiglia": "skill"
     },
     {
       "id": "corsa",
       "nome": "Corsa tapis-roulant o corsa all'aperto",
       "categoria": "cardio",
       "stato": "attivo",
-      "link_tecnica": []
+      "link_tecnica": [],
+      "famiglia": "cardio"
     },
     {
       "id": "strappo",
       "nome": "Strappo",
       "categoria": "compound",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "olimpici"
     },
     {
       "id": "girate",
       "nome": "Girate",
       "categoria": "compound",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "olimpici"
     },
     {
       "id": "panca_inv",
       "nome": "Panca inversa",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "panca_petto"
     },
     {
       "id": "flessioni",
       "nome": "Flessioni / piegamenti",
       "categoria": "corpo_libero",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "panca_petto"
     },
     {
       "id": "croci_sdr",
       "nome": "Croci sdraiato con manubri",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "panca_petto"
     },
     {
       "id": "situp",
       "nome": "Addominali sit-up con piastra",
       "categoria": "addominali",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "addome"
     },
     {
       "id": "seduto_muro",
       "nome": "Seduto al muro",
       "categoria": "isometrico",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "squat_quad"
     },
     {
       "id": "calcetto",
       "nome": "Calcetto",
       "categoria": "cardio",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "cardio"
     },
     {
       "id": "addominali_sbarre",
       "nome": "Addominali al sesto piolo",
       "categoria": "addominali",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "addome"
     },
     {
       "id": "affondi",
       "nome": "Affondi",
       "categoria": "compound",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "squat_quad"
     },
     {
       "id": "esterno_coscia",
       "nome": "Esterno coscia alla macchina",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "gambe_acc"
     },
     {
       "id": "interno_coscia",
       "nome": "Interno coscia alla macchina",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "gambe_acc"
     },
     {
       "id": "slanci",
       "nome": "Slanci / slanci dietro",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "gambe_acc"
     },
     {
       "id": "leg_press",
       "nome": "Leg press",
       "categoria": "compound",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "squat_quad"
     },
     {
       "id": "balzi_gradoni",
@@ -373,31 +416,36 @@
       "categoria": "isolato",
       "stato": "archivio",
       "unita": "nessuna",
-      "bodyweight": false
+      "bodyweight": false,
+      "famiglia": "cardio"
     },
     {
       "id": "squat_jump",
       "nome": "Squat jump / squat salto",
       "categoria": "pliometrico",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "squat_quad"
     },
     {
       "id": "squat_avanti",
       "nome": "Squat avanti / front squat",
       "categoria": "compound",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "squat_quad"
     },
     {
       "id": "torsioni_panca",
       "nome": "Torsioni su panca con bilanciere",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "addome"
     },
     {
       "id": "tric_casa",
       "nome": "Tricipiti in casa (bottiglie/zaino)",
       "categoria": "isolato",
-      "stato": "archivio"
+      "stato": "archivio",
+      "famiglia": "tricipiti"
     }
   ],
   "schemi_globali": [
