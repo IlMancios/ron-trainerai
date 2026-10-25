@@ -78,7 +78,13 @@
       "famiglia": "squat_quad",
       "unita": "kg",
       "bodyweight": false,
-      "stato": "attivo"
+      "stato": "attivo",
+      "link_tecnica": [
+        {
+          "titolo": "Short tecnica",
+          "url": "https://youtube.com/shorts/or1frhkjBDc"
+        }
+      ]
     },
     {
       "id": "lancio_del_martello",
