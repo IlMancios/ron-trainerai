@@ -26850,6 +26850,25 @@
         "polpaccio_dx": 39.5,
         "polpaccio_sx": 39.5
       }
+    },
+    {
+      "data": "2026-10-25",
+      "m": {
+        "collo": 42,
+        "petto": 99,
+        "cinta": 88.5,
+        "omb_ril": 86.5,
+        "omb_con": 84,
+        "bic_dx": 35.5,
+        "bic_sx": 34.5,
+        "avb_dx": 31.5,
+        "avb_sx": 30.5,
+        "coscia_dx": 64.5,
+        "coscia_sx": 64,
+        "polpaccio_dx": 40.5,
+        "polpaccio_sx": 40
+      },
+      "note": "Misurati nel pomeriggio, fatto allenamento la mattina."
     }
   ],
   "peso_corporeo": [
@@ -26876,6 +26895,10 @@
     {
       "data": "2026-09-26",
       "kg": 80.9
+    },
+    {
+      "data": "2026-10-25",
+      "kg": 82.7
     }
   ]
 }
