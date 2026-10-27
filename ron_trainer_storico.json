@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 516,
-    "totale_righe_esercizio": 1463,
+    "totale_sessioni": 517,
+    "totale_righe_esercizio": 1465,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180
@@ -503,6 +503,40 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-10-27_manuale.json",
+      "title": "Training 27/10/2026 TE - Casa",
+      "data": "2026-10-27",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "stacchi",
+          "schema": "6x12",
+          "peso_kg": 105,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-10-27",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_stretta",
+          "schema": "5x5",
+          "peso_kg": 65,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Ultima serie AMRAP fatte 8 ripetizioni, però stabilizzare tecnica prima di aumentare.",
+          "data": "2026-10-27",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-10-26_manuale.json",
       "title": "Training 26/10/2026 PG - BW Hotel Quattrotorri",
