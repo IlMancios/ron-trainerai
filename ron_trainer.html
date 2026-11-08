@@ -3179,6 +3179,35 @@ function aggiornaSchemiDisponibili(exId) {
   renderProgressione(exId, '__generale__');
 }
 
+// ---- Riquadro "Ultime sessioni" (Stats → Progressione peso): 3 di base, espandibile a 8 ----
+// Lo stato aperto/chiuso resta mentre navighi tra esercizi e schemi (si azzera ricaricando la pagina).
+const PROG_ULTIME_BASE = 3, PROG_ULTIME_MAX = 8;
+let _progUltimeEspanse = false;
+let _progUltimeUltimo = null; // ultimi dati mostrati, per ridisegnare solo il riquadro al click
+
+function renderProgUltime(recsDesc, rigaHtml) {
+  const ultimeDiv = document.getElementById('prog-ultime');
+  _progUltimeUltimo = { recsDesc, rigaHtml };
+  if (!recsDesc.length) { ultimeDiv.style.display = 'none'; return; }
+  const nMax = Math.min(PROG_ULTIME_MAX, recsDesc.length);
+  const n = _progUltimeEspanse ? nMax : Math.min(PROG_ULTIME_BASE, recsDesc.length);
+  const toggle = recsDesc.length > PROG_ULTIME_BASE
+    ? `<button onclick="toggleProgUltime()" style="background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;padding:8px 0 0;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.5px">${_progUltimeEspanse ? '▴ Mostra meno' : `▾ Mostra ultime ${nMax}`}</button>`
+    : '';
+  ultimeDiv.innerHTML = `
+    <div style="background:var(--orange-dim);border:1px solid rgba(255,107,0,0.25);border-radius:var(--radius);padding:12px 14px">
+      <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
+      ${recsDesc.slice(0, n).map(rigaHtml).join('')}
+      ${toggle}
+    </div>`;
+  ultimeDiv.style.display = 'block';
+}
+
+function toggleProgUltime() {
+  _progUltimeEspanse = !_progUltimeEspanse;
+  if (_progUltimeUltimo) renderProgUltime(_progUltimeUltimo.recsDesc, _progUltimeUltimo.rigaHtml);
+}
+
 function renderProgressione(exId, schemaFiltro) {
   // Caso speciale: corsa distanza
   if (exId === '__corsa_distanza__' || schemaFiltro === '__distanza__') {
@@ -3208,19 +3237,12 @@ function renderProgressione(exId, schemaFiltro) {
       &nbsp; Data PR: <strong style="color:var(--orange)">${formatData(bestKm.data)}</strong>
       &nbsp; Sessioni: <strong>${recsDist.length}</strong></span>`;
 
-    // Ultime 3 sessioni
-    const ultimeDiv = document.getElementById('prog-ultime');
-    const ultime3 = [...recsDist].reverse().slice(0,3);
-    ultimeDiv.innerHTML = `
-      <div style="background:var(--orange-dim);border:1px solid rgba(255,107,0,0.25);border-radius:var(--radius);padding:12px 14px">
-        <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
-        ${ultime3.map(r => `
+    // Ultime sessioni (3 di base, espandibile a 8)
+    renderProgUltime([...recsDist].reverse(), r => `
           <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
             <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
             <span style="color:#ffffff;font-weight:600">${r.peso.toFixed(1)} km</span>
-          </div>`).join('')}
-      </div>`;
-    ultimeDiv.style.display = 'block';
+          </div>`);
 
     if (progChart) { progChart.destroy(); progChart = null; }
     const ctx = document.getElementById('prog-chart').getContext('2d');
@@ -3317,30 +3339,18 @@ function renderProgressione(exId, schemaFiltro) {
   });
   records.sort((a,b) => a.data.localeCompare(b.data));
 
-  // Ultime 3 volte
-  const ultimeDiv = document.getElementById('prog-ultime');
-  if (records.length > 0) {
-    const ultime = [...records].reverse().slice(0, 3);
-    ultimeDiv.innerHTML = `
-      <div style="background:var(--orange-dim);border:1px solid rgba(255,107,0,0.25);border-radius:var(--radius);padding:12px 14px">
-        <div style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Ultime sessioni</div>
-        ${ultime.map(r => {
-          const kmhProg = r.unita === 'min/km' && r.peso ? ` [${(60/r.peso).toFixed(1)} km/h]` : '';
-          const pesoLabel = r.bw ? 'BW' : `${pulisciNum(r.peso)} ${r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : (r.unita || 'kg')}${kmhProg}`;
-          return `
+  // Ultime sessioni (3 di base, espandibile a 8)
+  renderProgUltime([...records].reverse(), r => {
+    const kmhProg = r.unita === 'min/km' && r.peso ? ` [${(60/r.peso).toFixed(1)} km/h]` : '';
+    const pesoLabel = r.bw ? 'BW' : `${pulisciNum(r.peso)} ${r.unita === 'min/km' ? 'min/km' : r.unita === 'sec' ? 'sec' : (r.unita || 'kg')}${kmhProg}`;
+    return `
             <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
               <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
               <span style="color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px">${fmtSchema(r.schema, r.unita)}</span>
               <span style="color:var(--text);font-weight:600">${pesoLabel}</span>
             </div>
           `;
-        }).join('')}
-      </div>
-    `;
-    ultimeDiv.style.display = 'block';
-  } else {
-    ultimeDiv.style.display = 'none';
-  }
+  });
 
   // Stats (solo record con peso reale)
   const recordConPeso = records.filter(r => !r.bw);
