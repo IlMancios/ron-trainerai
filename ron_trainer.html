@@ -185,26 +185,30 @@
     50%      { opacity: 0.4; }
   }
 
-  /* AMRAP — tasto fiamma in alto a destra sopra la nota della riga (Train) */
-  .amrap-head { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:16px; }
-  .amrap-head > span:first-child { white-space:nowrap; }
-  .amrap-wrap { display:inline-flex; align-items:center; gap:4px; border-radius:12px; padding:0 2px;
-                transition: background .2s, box-shadow .2s; }
-  .amrap-btn { background:none; border:none; cursor:pointer; font-size:15px; line-height:1; padding:0 2px;
-               filter:grayscale(1); opacity:.45; transition: opacity .2s, filter .2s; }
-  .amrap-btn:hover { opacity:.85; }
-  .amrap-wrap.on { background:linear-gradient(90deg, rgba(255,69,0,.22), rgba(255,140,0,.16));
-                   box-shadow:0 0 0 1px rgba(255,90,0,.55), 0 0 10px rgba(255,80,0,.35); padding:1px 5px 1px 3px; }
-  .amrap-wrap.on .amrap-btn { filter:none; opacity:1; }
-  .amrap-lab { display:none; font-size:10px; font-weight:800; letter-spacing:.5px; color:#ff7a2a; text-transform:uppercase; }
-  .amrap-wrap.on .amrap-lab { display:inline; }
-  @media (max-width: 600px) { .amrap-wrap.on .amrap-lab { display:none; } } /* su telefono basta 🔥 + rip */
-  .amrap-wrap .ins-amrap { display:none; }
-  .amrap-wrap.on .ins-amrap { display:inline-block; }
+  /* AMRAP — tasto fiamma accanto a Serie × Rip (Train), stessa altezza dei campi (39px) */
+  .amrap-wrap { display:inline-flex; align-items:stretch; gap:4px; border-radius:var(--radius);
+                transition: box-shadow .2s; }
+  .amrap-btn { height:39px; width:48px; display:flex; align-items:center; justify-content:center; padding:0;
+               background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius);
+               cursor:pointer; overflow:visible; transition: background .2s, border-color .2s; }
+  .amrap-flame { display:inline-block; font-size:21px; line-height:1; filter:grayscale(1); opacity:.45;
+                 transition: filter .2s, opacity .2s; }
+  .amrap-btn:hover .amrap-flame { opacity:.85; }
+  .amrap-wrap.on { box-shadow: 0 0 0 1px rgba(255,90,0,.55), 0 0 12px rgba(255,80,0,.4); }
+  .amrap-wrap.on .amrap-btn { background:linear-gradient(135deg, rgba(255,69,0,.35), rgba(255,140,0,.22));
+                              border-color: rgba(255,100,0,.8); }
+  .amrap-wrap.on .amrap-flame { filter:none; opacity:1; }
+  .amrap-wrap .ins-amrap { display:none; width:54px; height:39px; padding:0 6px; font-size:16px; text-align:center; }
+  .amrap-wrap.on .ins-amrap { display:block; }
   .amrap-wrap .ins-amrap::-webkit-outer-spin-button,
   .amrap-wrap .ins-amrap::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  @media (max-width: 600px) { /* su telefono: più largo e fiamma più grande, stessa altezza dei campi */
+    .amrap-btn { width:58px; }
+    .amrap-flame { font-size:27px; }
+    .amrap-wrap .ins-amrap { width:60px; font-size:18px; }
+  }
   .amrap-wrap.burst { animation: amrap-glow .75s ease-out; }
-  .amrap-wrap.burst .amrap-btn { animation: amrap-flame .75s ease-out; }
+  .amrap-wrap.burst .amrap-flame { animation: amrap-flame .75s ease-out; }
   @keyframes amrap-flame {
     0%   { transform: scale(1)   rotate(0); }
     25%  { transform: scale(1.9) rotate(-8deg); }
@@ -215,7 +219,7 @@
   @keyframes amrap-glow {
     0%   { box-shadow: 0 0 0 0 rgba(255,80,0,0); }
     30%  { box-shadow: 0 0 0 4px rgba(255,80,0,.45), 0 0 22px rgba(255,120,0,.75); }
-    100% { box-shadow: 0 0 0 1px rgba(255,90,0,.55), 0 0 10px rgba(255,80,0,.35); }
+    100% { box-shadow: 0 0 0 1px rgba(255,90,0,.55), 0 0 12px rgba(255,80,0,.4); }
   }
   /* Chip AMRAP (Plan step 2, Log, ultimi dati del Train) */
   .amrap-chip { display:inline-flex; align-items:center; gap:3px; white-space:nowrap;
@@ -5223,18 +5227,18 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
                  : (precompila.amrap != null && precompila.amrap !== '');
   const amrapVal = amrapOn && precompila.amrap != null ? precompila.amrap : '';
 
-  // nota inline (standard) — × top-right inside input; 🔥 AMRAP in alto a destra sopra la nota
-  const notaInline = `<div style="flex:1;min-width:90px">
-    <div class="form-label amrap-head">
-      <span>Nota riga</span>
-      <span class="amrap-wrap${amrapOn ? ' on' : ''}">
-        <button type="button" class="amrap-btn" onclick="toggleAmrap(this)" title="Ultima serie AMRAP (massimo delle ripetizioni)">🔥</button>
-        <span class="amrap-lab">AMRAP</span>
-        <input type="number" class="ins-amrap" min="1" max="999" placeholder="${precompila.rep || 'rip'}" value="${amrapVal}"
-          oninput="aggiornaPreviewAllenamento()"
-          style="width:40px;height:20px;padding:0 4px;font-size:12px;text-align:center;border-radius:5px">
-      </span>
+  // Campo AMRAP accanto a Serie × Rip: tasto 🔥 (+ rip fatte nell'ultima serie quando è acceso)
+  const amrapField = `<div style="flex:0 0 auto">
+    <div class="form-label">AMRAP</div>
+    <div class="amrap-wrap${amrapOn ? ' on' : ''}">
+      <button type="button" class="amrap-btn" onclick="toggleAmrap(this)" title="Ultima serie AMRAP (massimo delle ripetizioni)"><span class="amrap-flame">🔥</span></button>
+      <input type="number" class="ins-amrap" min="1" max="999" placeholder="${precompila.rep || 'rip'}" value="${amrapVal}" oninput="aggiornaPreviewAllenamento()">
     </div>
+  </div>`;
+
+  // nota inline (standard) — × top-right inside input
+  const notaInline = `<div style="flex:1;min-width:90px">
+    <div class="form-label">Nota riga</div>
     <div style="position:relative">
       <input type="text" class="ins-nota-riga" placeholder="Nota..." value="${precompila.notaRiga||''}"
         oninput="aggiornaPreviewAllenamento()" style="width:100%;padding-right:22px">
@@ -5359,6 +5363,7 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
     ${sepX}
     <div style="flex:0 0 48px"><div class="form-label">${exId==='verticale'?'Sec':'Rip'}</div>
       <input type="number" class="ins-rep" placeholder="${exId==='verticale'?'10':'6'}" value="${precompila.rep||''}" min="1" max="${exId==='verticale'?9999:50}" oninput="aggiornaPreviewAllenamento()"></div>
+    ${amrapField}
     <div style="flex:0 0 10px"></div>
     ${pesoField}${notaInline}${rimuoviStd}
   </div>`;
