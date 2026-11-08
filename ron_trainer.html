@@ -185,6 +185,46 @@
     50%      { opacity: 0.4; }
   }
 
+  /* AMRAP — tasto fiamma in alto a destra sopra la nota della riga (Train) */
+  .amrap-head { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:16px; }
+  .amrap-head > span:first-child { white-space:nowrap; }
+  .amrap-wrap { display:inline-flex; align-items:center; gap:4px; border-radius:12px; padding:0 2px;
+                transition: background .2s, box-shadow .2s; }
+  .amrap-btn { background:none; border:none; cursor:pointer; font-size:15px; line-height:1; padding:0 2px;
+               filter:grayscale(1); opacity:.45; transition: opacity .2s, filter .2s; }
+  .amrap-btn:hover { opacity:.85; }
+  .amrap-wrap.on { background:linear-gradient(90deg, rgba(255,69,0,.22), rgba(255,140,0,.16));
+                   box-shadow:0 0 0 1px rgba(255,90,0,.55), 0 0 10px rgba(255,80,0,.35); padding:1px 5px 1px 3px; }
+  .amrap-wrap.on .amrap-btn { filter:none; opacity:1; }
+  .amrap-lab { display:none; font-size:10px; font-weight:800; letter-spacing:.5px; color:#ff7a2a; text-transform:uppercase; }
+  .amrap-wrap.on .amrap-lab { display:inline; }
+  @media (max-width: 600px) { .amrap-wrap.on .amrap-lab { display:none; } } /* su telefono basta 🔥 + rip */
+  .amrap-wrap .ins-amrap { display:none; }
+  .amrap-wrap.on .ins-amrap { display:inline-block; }
+  .amrap-wrap .ins-amrap::-webkit-outer-spin-button,
+  .amrap-wrap .ins-amrap::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .amrap-wrap.burst { animation: amrap-glow .75s ease-out; }
+  .amrap-wrap.burst .amrap-btn { animation: amrap-flame .75s ease-out; }
+  @keyframes amrap-flame {
+    0%   { transform: scale(1)   rotate(0); }
+    25%  { transform: scale(1.9) rotate(-8deg); }
+    45%  { transform: scale(1.5) rotate(7deg); }
+    65%  { transform: scale(1.75) rotate(-5deg); }
+    100% { transform: scale(1)   rotate(0); }
+  }
+  @keyframes amrap-glow {
+    0%   { box-shadow: 0 0 0 0 rgba(255,80,0,0); }
+    30%  { box-shadow: 0 0 0 4px rgba(255,80,0,.45), 0 0 22px rgba(255,120,0,.75); }
+    100% { box-shadow: 0 0 0 1px rgba(255,90,0,.55), 0 0 10px rgba(255,80,0,.35); }
+  }
+  /* Chip AMRAP (Plan step 2, Log, ultimi dati del Train) */
+  .amrap-chip { display:inline-flex; align-items:center; gap:3px; white-space:nowrap;
+                background:linear-gradient(90deg, rgba(255,69,0,.2), rgba(255,140,0,.15));
+                border:1px solid rgba(255,90,0,.5); color:#ff8a3d; font-size:11px; font-weight:800;
+                padding:1px 7px; border-radius:10px; letter-spacing:.3px; vertical-align:middle; }
+  .amrap-chip .delta { color:#ffd27a; font-weight:700; }
+  .amrap-chip.mini { font-size:10px; padding:0 5px; }
+
   /* MAIN */
   main {
     max-width: 900px;
@@ -2103,6 +2143,30 @@ function famigliaDi(exId) {
   return _famMap[exId] || FAMIGLIA_DEFAULT[exId] || 'altro';
 }
 
+// ---- Migrazione una tantum: note "Ultima serie AMRAP fatte N ripetizioni" → campo amrap_rep ----
+// Estrae N, toglie la frase dalla nota (il resto del testo resta), poi imposta un flag per non rifarla.
+// Gira sui dati freschi del repo; si fissa nel repo al primo salvataggio.
+const AMRAP_NOTA_RX = /Ultima serie AMRAP fatte\s+(\d+)\s+ripetizioni(\s*(per mano|\/mano))?\.?/i;
+let _amrapMigrati = 0;
+function migraAmrap() {
+  if (!DATA || !DATA.sessioni) return;
+  if (!DATA.meta) DATA.meta = {};
+  if (DATA.meta.amrap_migrato) return;
+  let n = 0;
+  DATA.sessioni.forEach(s => (s.esercizi || []).forEach(e => {
+    if (e.amrap_rep != null || !e.nota_riga) return;
+    const m = e.nota_riga.match(AMRAP_NOTA_RX);
+    if (!m) return;
+    e.amrap_rep = parseInt(m[1]);
+    const resto = e.nota_riga.replace(AMRAP_NOTA_RX, '')
+      .replace(/^[\s,.;:-]+|[\s,;:-]+$/g, '').replace(/\s{2,}/g, ' ');
+    e.nota_riga = resto ? resto.charAt(0).toUpperCase() + resto.slice(1) : null;
+    n++;
+  }));
+  DATA.meta.amrap_migrato = true;
+  _amrapMigrati = n;
+}
+
 async function caricaDati() {
   const token = localStorage.getItem('gh_token');
   const cb = Date.now();
@@ -2146,11 +2210,14 @@ async function caricaDati() {
 
   // Assegna la famiglia di movimento agli esercizi (per il grafico Frequenza)
   migraFamiglie();
+  // Converte le vecchie note "Ultima serie AMRAP fatte N ripetizioni" nel campo AMRAP (una volta sola)
+  migraAmrap();
   // Altezza di default per la stima massa grassa (Navy), se non impostata
   if (DATA.meta && DATA.meta.altezza_cm == null) DATA.meta.altezza_cm = 180;
 
   document.getElementById('status-indicator').textContent = '';
   inizializza();
+  if (_amrapMigrati) setTimeout(() => showToast(`🔥 ${_amrapMigrati} AMRAP convertiti dalle note — si fissano al prossimo salvataggio`, 'success', 5000), 1500);
 }
 
 function inizializza() {
@@ -3776,7 +3843,7 @@ function generaPropostaStep1() {
       style="cursor:pointer;border:2px solid transparent;transition:all 0.15s;margin-bottom:8px">
       <div class="proposta-ex-head" style="align-items:center;gap:12px">
         <div style="display:flex;align-items:center;gap:10px;flex:1">
-          ${badgeCat}
+          <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;flex-shrink:0;min-width:108px">${badgeCat}${badgeFamiglia(ex.id)}</div>
           <div style="font-size:17px;font-weight:600;color:var(--text1)">${ex.nome}</div>
         </div>
         <span style="font-size:15px;font-weight:700;color:${coloreGiorni};white-space:nowrap">${testoGiorni}</span>
@@ -4001,6 +4068,8 @@ function procediStep2() {
 
       const luogoSess = righe[0]?.luogo || '';
       const notaSess = !isCorsa && ex.id !== 'salita_vigneto' ? (righe[0]?.nota_riga || '') : '';
+      const rA = !isCorsa && ex.id !== 'salita_vigneto' ? rigaAmrap(righe) : null;
+      const amrapHtml = rA ? ' ' + chipAmrap(rA.amrap_rep, repTargetRiga(rA)) : '';
       const rawSchema = righe[0]?.schema || null;
       const statsBtnSchema = rawSchema ? rawSchema.replace(/'/g,"\\'") : null;
       return `
@@ -4008,7 +4077,7 @@ function procediStep2() {
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <span style="color:#bbb;font-size:14px;min-width:85px">${formatData(data)}</span>
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--orange);font-size:20px">${schemaLabel}</span>
-          ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}
+          ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}${amrapHtml}
           ${notaSess ? `<span style="color:#999;font-size:12px;font-style:italic"> · ${notaSess}</span>` : ''}
           ${luogoSess ? `<span class="piano-storico-luogo">${luogoSess}</span>` : ''}
           ${statsBtnSchema ? `<button class="piano-stats-btn" onclick="apriStatsByExSchema('${ex.id}','${statsBtnSchema}')" title="Apri grafico — ${ex.nome} ${rawSchema}">📈</button>` : ''}
@@ -4433,6 +4502,8 @@ function serializzaBozza() {
           rep:   riga.querySelector('.ins-rep')?.value  || '',
           peso:  riga.querySelector('.ins-peso')?.value || '',
           bwActive: bwBtn ? bwBtn.dataset.bw === '1' : false,
+          amrapOn: !!riga.querySelector('.amrap-wrap')?.classList.contains('on'),
+          amrap: riga.querySelector('.ins-amrap')?.value || '',
           notaRiga
         });
       }
@@ -5047,7 +5118,9 @@ function aggiornaPreviewAllenamento() {
       const schema  = serie && rep ? `${serie}x${rep}` : (serie || rep);
       const unita   = getUnitaEx(exId);
       const pesoStr = isBW ? ' BW' : (pesoInput ? ` ${pesoInput}${unita==='kg_mano'?'kg/mano':unita==='bw'?'kg':unita}` : '');
-      linee.push(`${schema} ${ex.nome}${pesoStr}${notaStr}`);
+      const amrapOnP = riga.querySelector('.amrap-wrap')?.classList.contains('on');
+      const amrapStr = amrapOnP ? ` 🔥AMRAP ${riga.querySelector('.ins-amrap')?.value || '?'}` : '';
+      linee.push(`${schema} ${ex.nome}${pesoStr}${amrapStr}${notaStr}`);
     });
   });
   const note = document.getElementById('ins-note')?.value || '';
@@ -5145,9 +5218,23 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
   const isCorsa = exId === 'corsa';
   const isVig   = exId === 'salita_vigneto';
 
-  // nota inline (standard/corsa) — × top-right inside input
+  // AMRAP (solo righe standard): stato ripreso da bozza / modifica sessione
+  const amrapOn  = precompila.amrapOn !== undefined ? !!precompila.amrapOn
+                 : (precompila.amrap != null && precompila.amrap !== '');
+  const amrapVal = amrapOn && precompila.amrap != null ? precompila.amrap : '';
+
+  // nota inline (standard) — × top-right inside input; 🔥 AMRAP in alto a destra sopra la nota
   const notaInline = `<div style="flex:1;min-width:90px">
-    <div class="form-label">Nota riga</div>
+    <div class="form-label amrap-head">
+      <span>Nota riga</span>
+      <span class="amrap-wrap${amrapOn ? ' on' : ''}">
+        <button type="button" class="amrap-btn" onclick="toggleAmrap(this)" title="Ultima serie AMRAP (massimo delle ripetizioni)">🔥</button>
+        <span class="amrap-lab">AMRAP</span>
+        <input type="number" class="ins-amrap" min="1" max="999" placeholder="${precompila.rep || 'rip'}" value="${amrapVal}"
+          oninput="aggiornaPreviewAllenamento()"
+          style="width:40px;height:20px;padding:0 4px;font-size:12px;text-align:center;border-radius:5px">
+      </span>
+    </div>
     <div style="position:relative">
       <input type="text" class="ins-nota-riga" placeholder="Nota..." value="${precompila.notaRiga||''}"
         oninput="aggiornaPreviewAllenamento()" style="width:100%;padding-right:22px">
@@ -5318,6 +5405,24 @@ function setCorsaMode(rigaId, mode) {
   const btnT = document.getElementById(rigaId + '-btn-tapis');
   if (btnE) btnE.classList.toggle('active', mode === 'esterno');
   if (btnT) btnT.classList.toggle('active', mode === 'tapis');
+  aggiornaPreviewAllenamento();
+}
+
+// Accende/spegne l'AMRAP sull'ultima serie della riga (con fiammata). Lo schema resta invariato.
+function toggleAmrap(btn) {
+  const wrap = btn.closest('.amrap-wrap');
+  if (!wrap) return;
+  const on = !wrap.classList.contains('on');
+  wrap.classList.toggle('on', on);
+  const inp = wrap.querySelector('.ins-amrap');
+  if (on) {
+    wrap.classList.remove('burst'); void wrap.offsetWidth; wrap.classList.add('burst');
+    setTimeout(() => wrap.classList.remove('burst'), 800);
+    const rep = btn.closest('.ex-riga')?.querySelector('.ins-rep')?.value;
+    if (inp && rep) inp.placeholder = rep;
+  } else if (inp) {
+    inp.value = '';
+  }
   aggiornaPreviewAllenamento();
 }
 
@@ -5526,7 +5631,9 @@ function mostraUltimoDato(sel, cardId) {
     } else {
       const r = rows[0];
       const u = r.unita && r.unita!=='nessuna' ? r.unita : 'kg';
-      records.push({ data:s.data, schema:r.schema||'', display: r.peso_kg ? `${r.peso_kg} ${u}` : 'BW' });
+      const rA = rigaAmrap(rows);
+      records.push({ data:s.data, schema:r.schema||'', display: r.peso_kg ? `${r.peso_kg} ${u}` : 'BW',
+                     amrap: rA ? chipAmrap(rA.amrap_rep, repTargetRiga(rA), true) : '' });
     }
   });
   records.sort((a,b)=>b.data.localeCompare(a.data));
@@ -5535,7 +5642,7 @@ function mostraUltimoDato(sel, cardId) {
   storicoDiv.style.display = 'block';
   storicoDiv.innerHTML =
     `<div style="font-size:10px;color:var(--text3);margin-bottom:3px">ULTIMI DATI</div>` +
-    ultimi.map(r=>`<div style="padding:1px 0;font-size:11px;line-height:1.5">${formatData(r.data)} · <span style="color:var(--orange)">${r.schema||'—'}</span> · ${r.display}</div>`).join('');
+    ultimi.map(r=>`<div style="padding:1px 0;font-size:11px;line-height:1.5">${formatData(r.data)} · <span style="color:var(--orange)">${r.schema||'—'}</span> · ${r.display}${r.amrap ? ' ' + r.amrap : ''}</div>`).join('');
 }
 
 function confermaAllenamento() {
@@ -5685,6 +5792,13 @@ function salvaAllenamento() {
         errore = `"${ex?.nome || exId}": serie o rip mancanti`;
         return;
       }
+      // AMRAP sull'ultima serie: ripetizioni effettive (lo schema resta serie x rep)
+      const amrapOn = riga.querySelector('.amrap-wrap')?.classList.contains('on');
+      const amrapRep = amrapOn ? (parseInt(riga.querySelector('.ins-amrap')?.value) || 0) : 0;
+      if (amrapOn && !amrapRep) {
+        errore = `"${ex?.nome || exId}": AMRAP acceso ma senza ripetizioni`;
+        return;
+      }
       const pesoInput = parseFloat(riga.querySelector('.ins-peso')?.value) || null;
       const bwBtn  = riga.querySelector('.ins-bw-btn');
       const isBW   = bwBtn?.dataset?.bw === '1';
@@ -5699,6 +5813,7 @@ function salvaAllenamento() {
         bodyweight: isBW || (!peso && unita === 'bw'),
         tipo_riga: 'standard',
         nota_riga: nota,
+        ...(amrapOn ? { amrap_rep: amrapRep } : {}),
         data, luogo,
         file_sorgente: 'manuale'
       });
@@ -5974,6 +6089,8 @@ function caricaSessioneInModifica(idx) {
         rep:   match ? parseInt(match[2]) : '',
         peso:  isPeso ? riga0.peso_kg : '',
         bwActive: isBW,
+        amrapOn: riga0.amrap_rep != null,
+        amrap: riga0.amrap_rep ?? '',
         notaRiga: riga0.nota_riga || ''
       });
       // righe aggiuntive dello stesso esercizio
@@ -5987,6 +6104,8 @@ function caricaSessioneInModifica(idx) {
             rep:   m2 ? parseInt(m2[2]) : '',
             peso:  !isBW2 ? r.peso_kg : '',
             bwActive: isBW2,
+            amrapOn: r.amrap_rep != null,
+            amrap: r.amrap_rep ?? '',
             notaRiga: r.nota_riga || ''
           });
         });
@@ -6024,6 +6143,38 @@ function badgeEx(id) {
   if (cat === 'cardio')
     return '<span style="background:rgba(80,200,120,0.15);color:#66cc88;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;flex-shrink:0">CARDIO</span>';
   return '<span style="background:rgba(100,150,255,0.15);color:#7aa0ff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;flex-shrink:0">ISOLATO</span>';
+}
+
+// ---- AMRAP: helper di visualizzazione ----
+// Chip "🔥 12 (+2)": rip fatte nell'ultima serie e scarto rispetto alle rip previste dallo schema
+function chipAmrap(rep, target, mini) {
+  if (rep == null) return '';
+  const t = parseInt(target);
+  let delta = '';
+  if (t) {
+    const d = rep - t;
+    delta = ` <span class="delta">(${d > 0 ? '+' + d : d < 0 ? '−' + Math.abs(d) : '±0'})</span>`;
+  }
+  return `<span class="amrap-chip${mini ? ' mini' : ''}" title="Ultima serie AMRAP: ${rep} ripetizioni">🔥 ${rep}${delta}</span>`;
+}
+// Rip previste di una riga (campo rep oppure dallo schema NxM)
+function repTargetRiga(r) { return r.rep || parseSchema(r.schema).rep || null; }
+// Ultima riga con AMRAP tra le righe di un esercizio
+function rigaAmrap(righe) { return [...righe].reverse().find(r => r.amrap_rep != null) || null; }
+
+// ---- Badge gruppo muscolare (famiglia), stesso stile dei badge CORE/ISOLATO ----
+const FAM_BADGE = {
+  squat_quad: ['🦵','QUAD'],      stacco:     ['🍑','POSTERIORE'], panca_petto: ['🛡️','PETTO'],
+  spalle_push:['🏔️','SPALLE'],    spalle_lat: ['🦅','SPALLE LAT'],
+  dorso_vert: ['🧗','TRAZIONI'],  dorso_oriz: ['🚣','REMATORE'],
+  bicipiti:   ['💪','BICIPITI'],  tricipiti:  ['🦾','TRICIPITI'],  addome:      ['🍫','ADDOME'],
+  skill:      ['🤸','SKILL'],     olimpici:   ['🏋️','OLIMPICI'],   gambe_acc:   ['🦵','GAMBE ACC'],
+  atletica:   ['🔨','LANCI'],
+};
+function badgeFamiglia(exId) {
+  const f = FAM_BADGE[famigliaDi(exId)];
+  if (!f) return ''; // cardio / non classificato: nessun badge (il badge CARDIO c'è già)
+  return `<span style="background:rgba(255,255,255,0.07);color:#c8c8c8;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.5px;white-space:nowrap">${f[0]} ${f[1]}</span>`;
 }
 
 function kmCorsaFromNota(nota_riga) {
@@ -6217,7 +6368,7 @@ function renderExRow(e) {
       <div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px">
         ${badgeEx(e.esercizio_id)}
         <div style="min-width:0">
-          <div class="ex-name">${nome}</div>
+          <div class="ex-name">${nome}${e.amrap_rep != null ? ' ' + chipAmrap(e.amrap_rep, repTargetRiga(e)) : ''}</div>
           ${e.nota_riga ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
         </div>
       </div>
