@@ -6,7 +6,8 @@
     "totale_righe_esercizio": 1483,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
-    "altezza_cm": 180
+    "altezza_cm": 180,
+    "amrap_migrato": true
   },
   "esercizi_canonici": [
     {
@@ -517,10 +518,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 12 ripetizioni, si può crescere",
+          "nota_riga": "Si può crescere",
           "data": "2026-11-08",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 12
         },
         {
           "esercizio_id": "military_bil",
@@ -621,10 +623,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 8 ripetizioni",
+          "nota_riga": null,
           "data": "2026-11-04",
           "luogo": "BA - Hotel Majesty",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 8
         },
         {
           "esercizio_id": "verticale",
@@ -701,10 +704,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 12 ripetizioni",
+          "nota_riga": null,
           "data": "2026-11-01",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 12
         },
         {
           "esercizio_id": "bicipiti_man_sed",
@@ -713,10 +717,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 11 ripetizioni",
+          "nota_riga": null,
           "data": "2026-11-01",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 11
         },
         {
           "esercizio_id": "tric_dips",
@@ -725,10 +730,11 @@
           "unita": "nessuna",
           "bodyweight": true,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 8 ripetizioni",
+          "nota_riga": null,
           "data": "2026-11-01",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 8
         }
       ],
       "righe_non_parsificate": []
@@ -747,10 +753,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 8 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-30",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 8
         },
         {
           "esercizio_id": "trazioni_polsi",
@@ -771,10 +778,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 40 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-30",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 40
         }
       ],
       "righe_non_parsificate": []
@@ -805,10 +813,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 8 ripetizioni, però stabilizzare tecnica prima di aumentare.",
+          "nota_riga": "Però stabilizzare tecnica prima di aumentare.",
           "data": "2026-10-27",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 8
         }
       ],
       "righe_non_parsificate": []
@@ -827,10 +836,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 14 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-26",
           "luogo": "PG - BW Hotel Quattrotorri",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 14
         },
         {
           "esercizio_id": "tric_sopra_testa",
@@ -933,10 +943,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Aumentare. Ultima serie AMRAP fatte 11 ripetizioni",
+          "nota_riga": "Aumentare.",
           "data": "2026-10-25",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 11
         },
         {
           "esercizio_id": "bulgarian_split_squat",
@@ -945,10 +956,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Aumentare un po. Ultima serie AMRAP fatte 18 ripetizioni.",
+          "nota_riga": "Aumentare un po.",
           "data": "2026-10-25",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 18
         }
       ],
       "righe_non_parsificate": []
@@ -979,10 +991,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 13 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-23",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 13
         },
         {
           "esercizio_id": "croci_pulley",
@@ -991,10 +1004,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 13 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-23",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 13
         }
       ],
       "righe_non_parsificate": []
@@ -1186,10 +1200,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 12 ripetizioni, tecnica migliorata",
+          "nota_riga": "Tecnica migliorata",
           "data": "2026-10-16",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 12
         },
         {
           "esercizio_id": "tric_dips",
@@ -1300,10 +1315,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 6 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-09",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 6
         },
         {
           "esercizio_id": "sollevamento_gambe",
@@ -1464,10 +1480,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 9 ripetizioni",
+          "nota_riga": null,
           "data": "2026-10-05",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 9
         }
       ],
       "righe_non_parsificate": []
@@ -1590,10 +1607,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 12 ripetizioni per mano",
+          "nota_riga": null,
           "data": "2026-09-28",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 12
         },
         {
           "esercizio_id": "military_man",
@@ -1730,10 +1748,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 14 ripetizioni",
+          "nota_riga": null,
           "data": "2026-09-25",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 14
         },
         {
           "esercizio_id": "sollevamento_gambe",
@@ -1788,10 +1807,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 11 ripetizioni/mano",
+          "nota_riga": null,
           "data": "2026-09-21",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 11
         }
       ],
       "righe_non_parsificate": []
@@ -1882,10 +1902,11 @@
           "unita": "kg",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 9 ripetizioni, si può umentare un pochino",
+          "nota_riga": "Si può umentare un pochino",
           "data": "2026-09-20",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 9
         }
       ],
       "righe_non_parsificate": []
@@ -1904,10 +1925,11 @@
           "unita": "kg/mano",
           "bodyweight": false,
           "tipo_riga": "standard",
-          "nota_riga": "Ultima serie AMRAP fatte 14 ripetizioni",
+          "nota_riga": null,
           "data": "2026-09-18",
           "luogo": "TE - Casa",
-          "file_sorgente": "manuale"
+          "file_sorgente": "manuale",
+          "amrap_rep": 14
         },
         {
           "esercizio_id": "trazioni_neutre",
@@ -27254,7 +27276,7 @@
     },
     {
       "data": "2026-10-25",
-      "kg": 82.7
+      "kg": 82.8
     }
   ]
 }
