@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 523,
-    "totale_righe_esercizio": 1483,
+    "totale_sessioni": 524,
+    "totale_righe_esercizio": 1484,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180,
@@ -504,6 +504,29 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-11-10_manuale.json",
+      "title": "Training 10/11/2026 MI - Quark Hotel",
+      "data": "2026-11-10",
+      "luogo": "MI - Quark Hotel",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "corsa",
+          "schema": "10%",
+          "peso_kg": 9.28,
+          "unita": "min/km",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "3.2km",
+          "tempo_corsa": "29:41",
+          "data": "2026-11-10",
+          "luogo": "MI - Quark Hotel",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-11-08_manuale.json",
       "title": "Training 08/11/2026 TE - Casa",
