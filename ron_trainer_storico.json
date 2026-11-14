@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 525,
-    "totale_righe_esercizio": 1487,
+    "totale_sessioni": 526,
+    "totale_righe_esercizio": 1494,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180,
@@ -504,6 +504,101 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-11-14_manuale.json",
+      "title": "Training 14/11/2026 TE - Casa",
+      "data": "2026-11-14",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 22.7,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 23.9,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 25.3,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 24.3,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "tempo",
+          "nota_riga": null,
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "salita_vigneto",
+          "schema": "4x100mt",
+          "peso_kg": 24.05,
+          "unita": "sec",
+          "bodyweight": true,
+          "tipo_riga": "cardio_distanza",
+          "nota_riga": "media 24.05s — 4 ripetizioni",
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "pendlay",
+          "schema": "5x5",
+          "peso_kg": 85,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "amrap_rep": 7,
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "sollevamento_gambe",
+          "schema": "5x10",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-11-14",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-11-13_manuale.json",
       "title": "Training 13/11/2026 TE - Casa",
