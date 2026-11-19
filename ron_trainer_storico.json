@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 527,
-    "totale_righe_esercizio": 1497,
+    "totale_sessioni": 528,
+    "totale_righe_esercizio": 1500,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180,
@@ -504,6 +504,54 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-11-19_manuale.json",
+      "title": "Training 19/11/2026 CH-Palestra Mariani",
+      "data": "2026-11-19",
+      "luogo": "CH-Palestra Mariani",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "panca",
+          "schema": "3x3",
+          "peso_kg": 90,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "amrap_rep": 6,
+          "data": "2026-11-19",
+          "luogo": "CH-Palestra Mariani",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "bicipiti_man_sed",
+          "schema": "4x4",
+          "peso_kg": 22,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-11-19",
+          "luogo": "CH-Palestra Mariani",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "tric_dips",
+          "schema": "5x6",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Si può provare 5x8",
+          "amrap_rep": 10,
+          "data": "2026-11-19",
+          "luogo": "CH-Palestra Mariani",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-11-16_manuale.json",
       "title": "Training 16/11/2026 TE - Casa",
