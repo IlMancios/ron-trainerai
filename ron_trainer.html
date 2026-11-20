@@ -229,6 +229,16 @@
   .amrap-chip .delta { color:#ffd27a; font-weight:700; }
   .amrap-chip.mini { font-size:10px; padding:0 5px; }
 
+  /* Presa del pulldown: 🤚 dorsi / ✊ polsi (selettore in Train e Plan, icona nelle liste) */
+  .presa-sel { display:inline-flex; gap:4px; }
+  .presa-btn { height:39px; width:44px; padding:0; display:flex; align-items:center; justify-content:center;
+               font-size:20px; line-height:1; background:var(--bg3); border:1px solid var(--border);
+               border-radius:var(--radius); cursor:pointer; filter:grayscale(1); opacity:.45; transition:all .15s; }
+  .presa-btn:hover { opacity:.8; }
+  .presa-btn.on { filter:none; opacity:1; border-color:var(--orange); background:rgba(255,107,0,.15); }
+  @media (max-width: 600px) { .presa-btn { width:48px; font-size:23px; } }
+  .presa-tag { font-size:14px; margin-left:4px; vertical-align:middle; }
+
   /* MAIN */
   main {
     max-width: 900px;
@@ -1390,6 +1400,14 @@
     <div class="select-row" style="margin-top:8px">
       <select id="prog-schema" style="flex:1"></select>
     </div>
+    <!-- Filtro presa: visibile solo per il pulldown -->
+    <div id="prog-presa-wrap" style="display:none;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--text3);min-width:46px">Presa:</span>
+      <button class="btn btn-sm presa-filt" data-p="tutte" onclick="setProgPresa('tutte')">Tutte</button>
+      <button class="btn btn-ghost btn-sm presa-filt" data-p="dorsi" onclick="setProgPresa('dorsi')">🤚 Dorsi</button>
+      <button class="btn btn-ghost btn-sm presa-filt" data-p="polsi" onclick="setProgPresa('polsi')">✊ Polsi</button>
+      <span style="font-size:11px;color:var(--text3)">nel grafico: <span style="color:#FF6B00">●</span> 🤚 dorsi · <span style="color:#4C9AFF">●</span> ✊ polsi</span>
+    </div>
     <div id="prog-ultime" style="display:none;margin-bottom:16px"></div>
     <div class="chart-wrap">
       <canvas id="prog-chart" height="260"></canvas>
@@ -2171,6 +2189,57 @@ function migraAmrap() {
   _amrapMigrati = n;
 }
 
+// ---- Presa del pulldown (Trazioni con sbarra pulley alto): 🤚 dorsi a me / ✊ polsi a me ----
+const PRESA_EX = 'pulldown';
+const PRESE = { dorsi: { emoji: '🤚', label: 'Dorsi delle mani a me' },
+                polsi: { emoji: '✊', label: 'Polsi delle mani a me' } };
+function haPresa(exId) { return exId === PRESA_EX; }
+function presaTag(p) { return PRESE[p] ? `<span class="presa-tag" title="${PRESE[p].label}">${PRESE[p].emoji}</span>` : ''; }
+// Presa proposta per un nuovo allenamento: l'opposta dell'ultima volta, così si alternano (nessuno storico → dorsi)
+function presaProposta() {
+  let ultima = null, ultimaData = '';
+  DATA.sessioni.forEach(s => (s.esercizi || []).forEach(e => {
+    if (e.esercizio_id === PRESA_EX && e.presa && s.data >= ultimaData) { ultima = e.presa; ultimaData = s.data; }
+  }));
+  return ultima === 'dorsi' ? 'polsi' : 'dorsi';
+}
+// Seleziona la presa nel selettore (Train / Plan); chi chiama aggiorna poi anteprima o peso
+function setPresa(btn, p) {
+  const sel = btn.closest('.presa-sel');
+  if (!sel) return;
+  sel.dataset.presa = p;
+  sel.querySelectorAll('.presa-btn').forEach(b => b.classList.toggle('on', b === btn));
+}
+function htmlSelettorePresa(p, onclickExtra, idAttr) {
+  return `<div class="presa-sel"${idAttr ? ` id="${idAttr}"` : ''} data-presa="${p}">
+      <button type="button" class="presa-btn${p === 'dorsi' ? ' on' : ''}" onclick="setPresa(this,'dorsi');${onclickExtra}" title="${PRESE.dorsi.label}">${PRESE.dorsi.emoji}</button>
+      <button type="button" class="presa-btn${p === 'polsi' ? ' on' : ''}" onclick="setPresa(this,'polsi');${onclickExtra}" title="${PRESE.polsi.label}">${PRESE.polsi.emoji}</button>
+    </div>`;
+}
+
+// Migrazione una tantum della presa sulle sedute passate del pulldown:
+// polsi = testo importato da Keep "polsi delle mani" oppure nota "polsi a me" (la frase esce dalla nota); tutto il resto = dorsi.
+let _presaMigrate = null;
+function migraPresa() {
+  if (!DATA || !DATA.sessioni) return;
+  if (!DATA.meta) DATA.meta = {};
+  if (DATA.meta.presa_migrata) return;
+  let nP = 0, nD = 0;
+  DATA.sessioni.forEach(s => (s.esercizi || []).forEach(e => {
+    if (e.esercizio_id !== PRESA_EX || e.presa) return;
+    const nota = e.nota_riga || '';
+    const polsi = /polsi delle mani/i.test(e.esercizio_raw || '') || /polsi a me/i.test(nota);
+    e.presa = polsi ? 'polsi' : 'dorsi';
+    if (/polsi a me/i.test(nota)) {
+      const resto = nota.replace(/polsi a me\.?/i, '').replace(/^[\s,.;:-]+|[\s,;:-]+$/g, '').replace(/\s{2,}/g, ' ');
+      e.nota_riga = resto ? resto.charAt(0).toUpperCase() + resto.slice(1) : null;
+    }
+    polsi ? nP++ : nD++;
+  }));
+  DATA.meta.presa_migrata = true;
+  if (nP + nD) _presaMigrate = { polsi: nP, dorsi: nD };
+}
+
 async function caricaDati() {
   const token = localStorage.getItem('gh_token');
   const cb = Date.now();
@@ -2216,12 +2285,17 @@ async function caricaDati() {
   migraFamiglie();
   // Converte le vecchie note "Ultima serie AMRAP fatte N ripetizioni" nel campo AMRAP (una volta sola)
   migraAmrap();
+  // Assegna la presa (🤚 dorsi / ✊ polsi) alle sedute passate del pulldown (una volta sola)
+  migraPresa();
   // Altezza di default per la stima massa grassa (Navy), se non impostata
   if (DATA.meta && DATA.meta.altezza_cm == null) DATA.meta.altezza_cm = 180;
 
   document.getElementById('status-indicator').textContent = '';
   inizializza();
-  if (_amrapMigrati) setTimeout(() => showToast(`🔥 ${_amrapMigrati} AMRAP convertiti dalle note — si fissano al prossimo salvataggio`, 'success', 5000), 1500);
+  const msgMig = [];
+  if (_amrapMigrati) msgMig.push(`🔥 ${_amrapMigrati} AMRAP convertiti dalle note`);
+  if (_presaMigrate) msgMig.push(`Presa pulldown: ✊ ${_presaMigrate.polsi} polsi, 🤚 ${_presaMigrate.dorsi} dorsi`);
+  if (msgMig.length) setTimeout(() => showToast(msgMig.join(' · ') + ' — si fissano al prossimo salvataggio', 'success', 6000), 1500);
 }
 
 function inizializza() {
@@ -3208,7 +3282,26 @@ function toggleProgUltime() {
   if (_progUltimeUltimo) renderProgUltime(_progUltimeUltimo.recsDesc, _progUltimeUltimo.rigaHtml);
 }
 
+// ---- Filtro presa in Stats (solo pulldown): tutte / 🤚 dorsi / ✊ polsi ----
+let _progPresa = 'tutte';
+function impostaFiltroPresa(p) {
+  _progPresa = PRESE[p] ? p : 'tutte';
+  document.querySelectorAll('#prog-presa-wrap .presa-filt').forEach(b => {
+    b.className = (b.dataset.p === _progPresa ? 'btn btn-sm' : 'btn btn-ghost btn-sm') + ' presa-filt';
+  });
+}
+function setProgPresa(p) {
+  impostaFiltroPresa(p);
+  renderProgressione(document.getElementById('prog-esercizio').value,
+                     document.getElementById('prog-schema').value || '__generale__');
+}
+
 function renderProgressione(exId, schemaFiltro) {
+  // Filtro presa: visibile solo per il pulldown; separa la progressione 🤚 dorsi / ✊ polsi
+  const presaWrap = document.getElementById('prog-presa-wrap');
+  if (presaWrap) presaWrap.style.display = haPresa(exId) ? 'flex' : 'none';
+  const filtroPresa = haPresa(exId) && _progPresa !== 'tutte' ? _progPresa : null;
+
   // Caso speciale: corsa distanza
   if (exId === '__corsa_distanza__' || schemaFiltro === '__distanza__') {
     const kmPerSessione = {};
@@ -3295,12 +3388,14 @@ function renderProgressione(exId, schemaFiltro) {
   // AMRAP del record: in __generale__ l'ultima riga AMRAP della seduta (gestisce le sdoppiate), altrimenti quella della riga
   const _amrapSess  = s => rigaAmrap(s.esercizi.filter(x => x.esercizio_id === exId && x.tipo_riga !== 'tempo' && x.tipo_riga !== 'cardio_distanza'));
   const _amrapCampi = riga => (riga && riga.amrap_rep != null) ? { amrap: riga.amrap_rep, amrapT: repTargetRiga(riga) } : {};
+  const _presaCampo = riga => riga && riga.presa ? { presa: riga.presa } : {};
 
   const _seenStd = new Set(); // deduplicazione sessioni per righe standard in __generale__
   DATA.sessioni.forEach(s => {
     s.esercizi.forEach(e => {
       if (e.esercizio_id !== exId) return;
 
+  if (filtroPresa && (e.presa || 'dorsi') !== filtroPresa) return;
   if (schemaFiltro !== '__generale__' && schemaFiltro !== '__media__' && schemaFiltro !== '__tempi__' && schemaFiltro !== '__distanza__' && e.schema !== schemaFiltro) return;
       // Filtro media: solo record con tipo != 'tempo' (quelli con la media)
       if (schemaFiltro === '__media__' && e.tipo_riga === 'tempo') return;
@@ -3318,27 +3413,27 @@ function renderProgressione(exId, schemaFiltro) {
             data: e.data, peso: e.peso_kg,
             schema: _sdoppiSchemas[s.data] || e.schema,
             bw: false, unita: e.unita && e.unita !== 'kg' ? e.unita : (_canonicalUnita || e.unita || 'kg'),
-            ..._amrapCampi(_amrapSess(s))
+            ..._amrapCampi(_amrapSess(s)), ..._presaCampo(e)
           });
           return;
         }
         records.push({
           data: e.data, peso: e.peso_kg, schema: e.schema,
           bw: false, unita: e.unita && e.unita !== 'kg' ? e.unita : (_canonicalUnita || e.unita || 'kg'),
-          ..._amrapCampi(e)
+          ..._amrapCampi(e), ..._presaCampo(e)
         });
       } else if (e.bodyweight === true && e.tipo_riga !== 'cardio_distanza') {
         // Solo veri bodyweight (trazioni, wall walks, ecc.)
         if (schemaFiltro === '__generale__' && e.tipo_riga !== 'tempo' && e.tipo_riga !== 'cardio_distanza') {
           if (_seenStd.has(s.data)) return;
           _seenStd.add(s.data);
-          records.push({ data: e.data, peso: 0, schema: _sdoppiSchemas[s.data] || e.schema, bw: true, unita: 'bw', ..._amrapCampi(_amrapSess(s)) });
+          records.push({ data: e.data, peso: 0, schema: _sdoppiSchemas[s.data] || e.schema, bw: true, unita: 'bw', ..._amrapCampi(_amrapSess(s)), ..._presaCampo(e) });
           return;
         }
         records.push({
           data: e.data, peso: 0, schema: e.schema,
           bw: true, unita: 'bw',
-          ..._amrapCampi(e)
+          ..._amrapCampi(e), ..._presaCampo(e)
         });
       }
       // Ignora senza_peso con bodyweight=false (peso non estratto = dato mancante)
@@ -3353,7 +3448,7 @@ function renderProgressione(exId, schemaFiltro) {
     return `
             <div style="display:flex;gap:12px;align-items:center;padding:4px 0;font-size:15px">
               <span style="color:var(--text2);min-width:90px">${formatData(r.data)}</span>
-              <span style="color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px">${fmtSchema(r.schema, r.unita)}</span>
+              <span style="color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px">${fmtSchema(r.schema, r.unita)}${presaTag(r.presa)}</span>
               <span style="color:var(--text);font-weight:600">${pesoLabel}</span>
               ${r.amrap != null ? chipAmrap(r.amrap, r.amrapT) : ''}
             </div>
@@ -3383,7 +3478,7 @@ function renderProgressione(exId, schemaFiltro) {
   if (!records.length) return;
 
   // Colore punti: BW in grigio, con peso in arancione
-  const pointColors = records.map(r => r.bw ? '#666' : '#FF6B00');
+  const pointColors = records.map(r => r.bw ? '#666' : r.presa === 'polsi' ? '#4C9AFF' : '#FF6B00'); // pulldown: ✊ polsi in blu
   const isMobile = window.innerWidth < 600;
 
   progChart = new Chart(ctx, {
@@ -3395,6 +3490,7 @@ function renderProgressione(exId, schemaFiltro) {
         borderColor: '#FF6B00',
         backgroundColor: 'rgba(255,107,0,0.08)',
         pointBackgroundColor: pointColors,
+        pointBorderColor: records.map(r => r.presa === 'polsi' ? '#4C9AFF' : '#FF6B00'), // ✊ polsi: punto tutto blu
         pointRadius: isMobile ? 2 : 4,
         pointHoverRadius: isMobile ? 5 : 7,
         borderWidth: 2,
@@ -3423,7 +3519,8 @@ function renderProgressione(exId, schemaFiltro) {
               const schTip = r.unita === 'min/km' && r.schema && /^\d+%$/.test(r.schema) ? `Inclinazione ${r.schema}` : (r.schema || '');
               const dA = r.amrap != null ? amrapDelta(r.amrap, r.amrapT) : '';
               const amrapTip = r.amrap != null ? ` · 🔥 AMRAP ${r.amrap}${dA ? ` (${dA})` : ''}` : '';
-              return `${pesoStr} — ${schTip}${amrapTip}`;
+              const presaTip = PRESE[r.presa] ? ` ${PRESE[r.presa].emoji}` : '';
+              return `${pesoStr} — ${schTip}${presaTip}${amrapTip}`;
             }
           }
         }
@@ -3605,7 +3702,8 @@ function renderPR() {
           unita: e.unita || 'kg',
           nota: e.nota_riga || null,
           amrap: e.amrap_rep ?? null,
-          amrapT: e.amrap_rep != null ? repTargetRiga(e) : null
+          amrapT: e.amrap_rep != null ? repTargetRiga(e) : null,
+          presa: e.presa || null
         };
       }
     });
@@ -3663,7 +3761,7 @@ function renderPR() {
       <div style="flex:1;min-width:0">
         <div style="font-size:15px;font-weight:500;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nome}</div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange)">${schemaDisplayPR}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange)">${schemaDisplayPR}</span>${presaTag(r.presa)}
           <span style="color:var(--text3);font-size:12px">·</span>
           <span style="color:#888;font-size:12px">${formatData(r.data)}</span>
           ${r.amrap != null ? chipAmrap(r.amrap, r.amrapT) : ''}
@@ -4103,11 +4201,11 @@ function procediStep2() {
       <div style="padding:7px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <span style="color:#bbb;font-size:14px;min-width:85px">${formatData(data)}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--orange);font-size:20px">${schemaLabel}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--orange);font-size:20px">${schemaLabel}</span>${presaTag(righe[0]?.presa)}
           ${pesoDisplay}${isCorsa || ex.id==='salita_vigneto' ? '' : sottoschemi}${amrapHtml}
           ${notaSess ? `<span style="color:#999;font-size:12px;font-style:italic"> · ${notaSess}</span>` : ''}
           ${luogoSess ? `<span class="piano-storico-luogo">${luogoSess}</span>` : ''}
-          ${statsBtnSchema ? `<button class="piano-stats-btn" onclick="apriStatsByExSchema('${ex.id}','${statsBtnSchema}')" title="Apri grafico — ${ex.nome} ${rawSchema}">📈</button>` : ''}
+          ${statsBtnSchema ? `<button class="piano-stats-btn" onclick="apriStatsByExSchema('${ex.id}','${statsBtnSchema}','${righe[0]?.presa || ''}')" title="Apri grafico — ${ex.nome} ${rawSchema}">📈</button>` : ''}
         </div>
       </div>`;
     };
@@ -4164,7 +4262,13 @@ function procediStep2() {
       ? (ultimaSessione?.principale?.[0]?.schema || tuttiSchemi[0]?.[0] || '')
       : ((_ultTot && _ultFr) ? `${_ultTot}x${_ultFr}` : (_ultRighe[0]?.schema || tuttiSchemi[0]?.[0] || ''));
     const ultimoPesoSchema = pesoPerSchema[ex.id]?.[schemaDefault];
-    const pesoDefault = ex.id === 'salita_vigneto' ? '' : (ultimoPesoSchema?.peso || '');
+    // Pulldown: presa proposta (alternata) e peso dell'ultima volta con stesso schema + stessa presa.
+    // Esercizi col tasto BW: decide l'ultima volta con quello schema, anche se era a corpo libero.
+    const presaDef = haPresa(ex.id) ? presaProposta() : null;
+    const rigaDef = (isBW || presaDef) ? ultimaRigaSchema(ex.id, schemaDefault, presaDef, isBW) : null;
+    const pesoDefault = ex.id === 'salita_vigneto' ? ''
+      : rigaDef ? (rigaDef.peso_kg || '')
+      : presaDef ? '' : (ultimoPesoSchema?.peso || '');
     const eraBW = !pesoDefault && (isBW || ex.id === 'salita_vigneto');
     const unitaLabel = isCorsa ? 'min/km' : ex.id === 'salita_vigneto' ? 'bw' : (ex.unita || pesoPerSchema[ex.id]?.[schemaDefault]?.unita || 'kg');
 
@@ -4261,6 +4365,10 @@ function procediStep2() {
           <div class="form-label">${unitaLabel==='bw' ? 'Bodyweight' : unitaLabel==='min/km' ? 'Passo (min/km)' : unitaLabel==='sec' ? 'Tempo (sec)' : (unitaLabel==='kg'||unitaLabel==='kg/mano') ? 'Peso (' + unitaLabel + ')' : unitaLabel.toUpperCase()}</div>
           ${campoBody}
         </div>
+        ${presaDef ? `<div>
+          <div class="form-label">Presa</div>
+          ${htmlSelettorePresa(presaDef, `cambiaPresaPiano(${i})`, `piano2-presa-${i}`)}
+        </div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -4283,27 +4391,51 @@ function aggiornaPesoAutomatico(i) {
     pesoInput.value = '';
   } else {
     customWrap.style.display = 'none';
-    // Trova il peso per questo schema per questo esercizio
-    const idx = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).indexOf([...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b)[i]);
     const ex = [...ESERCIZI_SELEZIONATI].sort((a,b)=>a-b).map(j => ESERCIZI_PROPOSTI[j])[i];
     if (ex) {
-      // Cerca il peso nello storico
-      let ultimoPeso = null;
-      let ultimaData = null;
-      DATA.sessioni.forEach(s => {
-        s.esercizi.forEach(e => {
-          if (e.esercizio_id === ex.id && e.schema === sel.value && e.peso_kg) {
-            if (!ultimaData || s.data > ultimaData) {
-              ultimoPeso = e.peso_kg;
-              ultimaData = s.data;
-            }
-          }
-        });
-      });
-      pesoInput.value = ultimoPeso || '';
+      const bwBtn = document.getElementById(`piano2-bw-${i}`);
+      const isBwEx = !!bwBtn && ex.id !== 'salita_vigneto'; // esercizi col tasto BW (il vigneto resta com'era)
+      const presa = haPresa(ex.id) ? (document.getElementById(`piano2-presa-${i}`)?.dataset.presa || null) : null;
+      // Ultima volta con questo schema (pulldown: stessa presa; esercizi BW: conta anche il corpo libero)
+      const ultima = ultimaRigaSchema(ex.id, sel.value, presa, isBwEx);
+      pesoInput.value = ultima?.peso_kg || '';
+      // Tasto BW coerente con quell'ultima volta: con peso → BW spento; a corpo libero → BW acceso
+      if (isBwEx && ultima) impostaBW(i, !ultima.peso_kg);
     }
   }
   aggiornaOutputKeep();
+}
+
+// Ultima riga di un esercizio con un dato schema (per il pulldown anche con una data presa).
+// contaBW=true: valgono anche le sedute a corpo libero (esercizi col tasto BW); altrimenti solo righe con peso.
+function ultimaRigaSchema(exId, schema, presa, contaBW) {
+  let ultima = null, ultimaData = '';
+  DATA.sessioni.forEach(s => s.esercizi.forEach(e => {
+    if (e.esercizio_id !== exId || e.schema !== schema) return;
+    if (presa && (e.presa || 'dorsi') !== presa) return;
+    if (!contaBW && !e.peso_kg) return;
+    if (s.data > ultimaData) { ultima = e; ultimaData = s.data; }
+  }));
+  return ultima;
+}
+
+// Imposta (senza alternare) lo stato del tasto BW nel Plan step 2
+function impostaBW(i, on) {
+  const input = document.getElementById(`piano2-peso-${i}`);
+  const btn = document.getElementById(`piano2-bw-${i}`);
+  if (!btn) return;
+  btn.dataset.bw = on ? '1' : '0';
+  btn.style.background  = on ? 'rgba(255,107,0,0.2)' : 'none';
+  btn.style.borderColor = on ? 'var(--orange)' : 'var(--text3)';
+  btn.style.color       = on ? 'var(--orange)' : 'var(--text3)';
+  if (input) { input.placeholder = on ? 'BW' : '—'; if (on) input.value = ''; }
+}
+
+// Cambio presa nel Plan step 2: ricalcola il peso suggerito (stesso schema + nuova presa)
+function cambiaPresaPiano(i) {
+  const sel = document.getElementById(`piano2-schema-${i}`);
+  if (sel && sel.value !== '__nuovo__') aggiornaPesoAutomatico(i);
+  else aggiornaOutputKeep();
 }
 
 function toggleBW(i) {
@@ -4446,7 +4578,9 @@ function aggiornaOutputKeep() {
         if (e) { unitaEx = e.unita || 'kg'; break; }
       }
       const pesoStr = peso ? ` ${peso}${unitaEx}` : '';
-      linee.push(`${schema} ${ex.nome}${pesoStr}`);
+      const pP = haPresa(ex.id) ? document.getElementById(`piano2-presa-${i}`)?.dataset.presa : null;
+      const presaKeep = PRESE[pP] ? ` ${PRESE[pP].emoji}${pP}` : '';
+      linee.push(`${schema} ${ex.nome}${pesoStr}${presaKeep}`);
     }
   });
   document.getElementById('keep-output').textContent = linee.join('\n');
@@ -4531,6 +4665,7 @@ function serializzaBozza() {
           bwActive: bwBtn ? bwBtn.dataset.bw === '1' : false,
           amrapOn: !!riga.querySelector('.amrap-wrap')?.classList.contains('on'),
           amrap: riga.querySelector('.ins-amrap')?.value || '',
+          presa: riga.querySelector('.presa-sel')?.dataset.presa || '',
           notaRiga
         });
       }
@@ -5147,7 +5282,9 @@ function aggiornaPreviewAllenamento() {
       const pesoStr = isBW ? ' BW' : (pesoInput ? ` ${pesoInput}${unita==='kg_mano'?'kg/mano':unita==='bw'?'kg':unita}` : '');
       const amrapOnP = riga.querySelector('.amrap-wrap')?.classList.contains('on');
       const amrapStr = amrapOnP ? ` 🔥AMRAP ${riga.querySelector('.ins-amrap')?.value || '?'}` : '';
-      linee.push(`${schema} ${ex.nome}${pesoStr}${amrapStr}${notaStr}`);
+      const presaP = riga.querySelector('.presa-sel')?.dataset.presa;
+      const presaStr = PRESE[presaP] ? ` ${PRESE[presaP].emoji}${presaP}` : '';
+      linee.push(`${schema} ${ex.nome}${pesoStr}${presaStr}${amrapStr}${notaStr}`);
     });
   });
   const note = document.getElementById('ins-note')?.value || '';
@@ -5258,6 +5395,12 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
       <input type="number" class="ins-amrap" min="1" max="999" placeholder="${precompila.rep || 'rip'}" value="${amrapVal}" oninput="aggiornaPreviewAllenamento()">
     </div>
   </div>`;
+
+  // Presa (solo pulldown): 🤚 dorsi / ✊ polsi — da Plan/bozza/modifica, altrimenti alternata rispetto all'ultima volta
+  const presaField = haPresa(exId) ? `<div style="flex:0 0 auto">
+    <div class="form-label">Presa</div>
+    ${htmlSelettorePresa(precompila.presa || presaProposta(), 'aggiornaPreviewAllenamento()')}
+  </div>` : '';
 
   // nota inline (standard) — × top-right inside input
   const notaInline = `<div style="flex:1;min-width:90px">
@@ -5386,7 +5529,7 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
     ${sepX}
     <div style="flex:0 0 48px"><div class="form-label">${exId==='verticale'?'Sec':'Rip'}</div>
       <input type="number" class="ins-rep" placeholder="${exId==='verticale'?'10':'6'}" value="${precompila.rep||''}" min="1" max="${exId==='verticale'?9999:50}" oninput="aggiornaPreviewAllenamento()"></div>
-    ${amrapField}
+    ${amrapField}${presaField}
     <div style="flex:0 0 10px"></div>
     ${pesoField}${notaInline}${rimuoviStd}
   </div>`;
@@ -5661,7 +5804,7 @@ function mostraUltimoDato(sel, cardId) {
       const u = r.unita && r.unita!=='nessuna' ? r.unita : 'kg';
       const rA = rigaAmrap(rows);
       records.push({ data:s.data, schema:r.schema||'', display: r.peso_kg ? `${r.peso_kg} ${u}` : 'BW',
-                     amrap: rA ? chipAmrap(rA.amrap_rep, repTargetRiga(rA), true) : '' });
+                     amrap: rA ? chipAmrap(rA.amrap_rep, repTargetRiga(rA), true) : '', presa: r.presa });
     }
   });
   records.sort((a,b)=>b.data.localeCompare(a.data));
@@ -5670,7 +5813,7 @@ function mostraUltimoDato(sel, cardId) {
   storicoDiv.style.display = 'block';
   storicoDiv.innerHTML =
     `<div style="font-size:10px;color:var(--text3);margin-bottom:3px">ULTIMI DATI</div>` +
-    ultimi.map(r=>`<div style="padding:1px 0;font-size:11px;line-height:1.5">${formatData(r.data)} · <span style="color:var(--orange)">${r.schema||'—'}</span> · ${r.display}${r.amrap ? ' ' + r.amrap : ''}</div>`).join('');
+    ultimi.map(r=>`<div style="padding:1px 0;font-size:11px;line-height:1.5">${formatData(r.data)} · <span style="color:var(--orange)">${r.schema||'—'}</span>${presaTag(r.presa)} · ${r.display}${r.amrap ? ' ' + r.amrap : ''}</div>`).join('');
 }
 
 function confermaAllenamento() {
@@ -5719,6 +5862,7 @@ function confermaAllenamento() {
       rep:   match ? parseInt(match[2]) : '',
       peso:  isBW ? '' : peso,
       bwActive: isBW,
+      presa: haPresa(ex.id) ? (document.getElementById(`piano2-presa-${i}`)?.dataset.presa || '') : '',
       notaRiga: ''
     });
   });
@@ -5842,6 +5986,7 @@ function salvaAllenamento() {
         tipo_riga: 'standard',
         nota_riga: nota,
         ...(amrapOn ? { amrap_rep: amrapRep } : {}),
+        ...(riga.querySelector('.presa-sel') ? { presa: riga.querySelector('.presa-sel').dataset.presa } : {}),
         data, luogo,
         file_sorgente: 'manuale'
       });
@@ -6119,6 +6264,7 @@ function caricaSessioneInModifica(idx) {
         bwActive: isBW,
         amrapOn: riga0.amrap_rep != null,
         amrap: riga0.amrap_rep ?? '',
+        presa: riga0.presa || '',
         notaRiga: riga0.nota_riga || ''
       });
       // righe aggiuntive dello stesso esercizio
@@ -6134,6 +6280,7 @@ function caricaSessioneInModifica(idx) {
             bwActive: isBW2,
             amrapOn: r.amrap_rep != null,
             amrap: r.amrap_rep ?? '',
+            presa: r.presa || '',
             notaRiga: r.nota_riga || ''
           });
         });
@@ -6329,7 +6476,7 @@ function renderSessioneBody(s) {
         <div style="display:flex;align-items:baseline;gap:12px;padding:5px 0 5px 16px;border-left:2px solid var(--orange-dim);margin-left:4px">
           <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--orange);min-width:52px;flex-shrink:0">${fmtSchema(e.schema, e.unita, g.id)}</div>
           <div style="flex:1;min-width:0">
-            ${e.amrap_rep != null ? chipAmrap(e.amrap_rep, repTargetRiga(e)) : ''}
+            ${presaTag(e.presa)}${e.amrap_rep != null ? chipAmrap(e.amrap_rep, repTargetRiga(e)) : ''}
             ${e.nota_riga ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
           </div>
           <div class="ex-peso">${peso}</div>
@@ -6400,7 +6547,7 @@ function renderExRow(e) {
       <div style="flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px">
         ${badgeEx(e.esercizio_id)}
         <div style="min-width:0">
-          <div class="ex-name">${nome}${e.amrap_rep != null ? ' ' + chipAmrap(e.amrap_rep, repTargetRiga(e)) : ''}</div>
+          <div class="ex-name">${nome}${presaTag(e.presa)}${e.amrap_rep != null ? ' ' + chipAmrap(e.amrap_rep, repTargetRiga(e)) : ''}</div>
           ${e.nota_riga ? `<div class="ex-nota">${e.nota_riga}</div>` : ''}
         </div>
       </div>
@@ -6920,7 +7067,7 @@ function apriStatsDaTrain(cardId) {
   const serie = card.querySelector('.ins-serie')?.value;
   const rep = card.querySelector('.ins-rep')?.value;
   const schema = (serie && rep) ? `${serie}x${rep}` : null; // null → vista generale
-  apriStatsByExSchema(exId, schema);
+  apriStatsByExSchema(exId, schema, card.querySelector('.presa-sel')?.dataset.presa || '');
 }
 
 // Apri la Guide dell'esercizio della card Train
@@ -6942,8 +7089,10 @@ function apriGuidaEsercizio(exId) {
 }
 
 // ---- Apri Stats preselezionando esercizio + schema ----
-function apriStatsByExSchema(exId, schema) {
+function apriStatsByExSchema(exId, schema, presa) {
   switchToTab('progressione');
+  // Pulldown: apri già filtrato sulla presa di provenienza (Train/Plan); altrimenti tutte
+  if (haPresa(exId)) impostaFiltroPresa(presa || 'tutte');
   // Trova l'esercizio nel menu Stats e selezionalo
   const idx = (window._progVociMenu || []).findIndex(v => v.val === exId);
   if (idx >= 0) selezionaProgEx(idx); // aggiorna UI + popola prog-schema (sincrono)
