@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 528,
-    "totale_righe_esercizio": 1500,
+    "totale_sessioni": 529,
+    "totale_righe_esercizio": 1503,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180,
@@ -504,6 +504,53 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-11-20_manuale.json",
+      "title": "Training 20/11/2026 TE - Casa",
+      "data": "2026-11-20",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "military_man",
+          "schema": "5x5",
+          "peso_kg": 24,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "amrap_rep": 6,
+          "data": "2026-11-20",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_dorsi",
+          "schema": "4x4",
+          "peso_kg": 20,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-11-20",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_man",
+          "schema": "5x5",
+          "peso_kg": 12,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-11-20",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-11-19_manuale.json",
       "title": "Training 19/11/2026 CH-Palestra Mariani",
