@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 530,
-    "totale_righe_esercizio": 1505,
+    "totale_sessioni": 531,
+    "totale_righe_esercizio": 1508,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180,
@@ -505,6 +505,52 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-11-23_manuale.json",
+      "title": "Training 23/11/2026 PG - BW Hotel Quattrotorri",
+      "data": "2026-11-23",
+      "luogo": "PG - BW Hotel Quattrotorri",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "bicipiti_pulley",
+          "schema": "6x10",
+          "peso_kg": 22.5,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Fatti 50kg ma la carrucola è troppo diversa da quella di casa",
+          "data": "2026-11-23",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "verticale",
+          "schema": "4x40",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-11-23",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "croci_pulley",
+          "schema": "6x8",
+          "peso_kg": 3,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": "Fatti 15kg ma la carrucola è molto diversa da quella di casa",
+          "data": "2026-11-23",
+          "luogo": "PG - BW Hotel Quattrotorri",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-11-21_manuale.json",
       "title": "Training 21/11/2026 TE - Casa",
