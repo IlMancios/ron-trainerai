@@ -2,8 +2,8 @@
   "meta": {
     "generato_il": "2026-04-19T15:40:15.383532",
     "versione_parser": "8.0",
-    "totale_sessioni": 531,
-    "totale_righe_esercizio": 1508,
+    "totale_sessioni": 532,
+    "totale_righe_esercizio": 1511,
     "esercizi_canonici_attivi": 27,
     "esercizi_archivio": 19,
     "altezza_cm": 180,
@@ -505,6 +505,53 @@
     "pliometrico": 1
   },
   "sessioni": [
+    {
+      "file": "Training_2026-11-24_manuale.json",
+      "title": "Training 24/11/2026 TE - Casa",
+      "data": "2026-11-24",
+      "luogo": "TE - Casa",
+      "note_sessione": [],
+      "esercizi": [
+        {
+          "esercizio_id": "military_bil",
+          "schema": "4x4",
+          "peso_kg": 50,
+          "unita": "kg",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "data": "2026-11-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "panca_incl_man",
+          "schema": "6x12",
+          "peso_kg": 18,
+          "unita": "kg/mano",
+          "bodyweight": false,
+          "tipo_riga": "standard",
+          "nota_riga": null,
+          "amrap_rep": 18,
+          "data": "2026-11-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        },
+        {
+          "esercizio_id": "trazioni_neutre",
+          "schema": "4x12",
+          "peso_kg": null,
+          "unita": "nessuna",
+          "bodyweight": true,
+          "tipo_riga": "standard",
+          "nota_riga": "Difficile ma riuscito",
+          "data": "2026-11-24",
+          "luogo": "TE - Casa",
+          "file_sorgente": "manuale"
+        }
+      ],
+      "righe_non_parsificate": []
+    },
     {
       "file": "Training_2026-11-23_manuale.json",
       "title": "Training 23/11/2026 PG - BW Hotel Quattrotorri",
