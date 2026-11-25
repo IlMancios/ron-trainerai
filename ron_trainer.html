@@ -1308,6 +1308,60 @@
 .imp-row-sub { font-size:11px; color:#484848; display:block; margin-top:2px; }
 /* Modali conferma esercizi */
 .ge-confirm-nome { color:#e8e8e8; font-weight:700; }
+
+/* ===== EFFETTI: tasto clip 🎬, player clip, celebrazioni, coriandoli ===== */
+.amrap-clip { display:none; height:39px; width:40px; align-items:center; justify-content:center; padding:0;
+  background:var(--bg3); border:1px solid rgba(255,100,0,.6); border-radius:var(--radius); cursor:pointer;
+  font-size:19px; line-height:1; transition: background .2s; }
+.amrap-wrap.on .amrap-clip { display:flex; }
+.amrap-clip:hover { background:rgba(255,107,0,.18); }
+@media (max-width: 600px) { .amrap-clip { width:46px; font-size:22px; } }
+
+.clip-overlay { position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,.94); display:none;
+  align-items:center; justify-content:center; padding:16px; }
+.clip-overlay.show { display:flex; }
+.clip-box { position:relative; width:100%; max-width:960px; }
+.clip-video-wrap { position:relative; background:#000; border-radius:8px; overflow:hidden; min-height:180px;
+  display:flex; align-items:center; justify-content:center; }
+.clip-video-wrap video { width:100%; max-height:calc(100vh - 110px); max-height:calc(100dvh - 110px); display:block; cursor:pointer; }
+.clip-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+  color:#ccc; font-size:14px; padding:20px; line-height:1.5; }
+.clip-bar { display:flex; align-items:center; gap:12px; margin-top:12px; }
+.clip-bar button { width:52px; height:46px; flex-shrink:0; border-radius:8px; background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18); color:#fff; font-size:21px; line-height:1; cursor:pointer; }
+.clip-bar button:hover { background:rgba(255,255,255,.18); }
+.clip-prog { flex:1; height:6px; background:rgba(255,255,255,.15); border-radius:3px; overflow:hidden; }
+.clip-prog-fill { height:100%; width:0; background:var(--orange); }
+.clip-close { position:fixed; top:12px; right:12px; z-index:3001; width:50px; height:50px; border-radius:50%;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); color:#fff; font-size:22px;
+  line-height:1; cursor:pointer; }
+.clip-close:hover { background:rgba(255,80,0,.5); }
+
+.cel-overlay { position:fixed; inset:0; z-index:2900; display:flex; align-items:center; justify-content:center;
+  padding:20px; background:rgba(0,0,0,.62); opacity:0; pointer-events:none; transition:opacity .3s; overflow:hidden; }
+.cel-overlay.show { opacity:1; pointer-events:auto; }
+.cel-rays { position:absolute; left:50%; top:50%; width:760px; height:760px; margin:-380px 0 0 -380px; display:none;
+  background:repeating-conic-gradient(rgba(255,215,0,.17) 0 9deg, transparent 9deg 18deg); border-radius:50%;
+  -webkit-mask-image:radial-gradient(circle, #000 15%, transparent 65%); mask-image:radial-gradient(circle, #000 15%, transparent 65%);
+  animation: cel-spin 14s linear infinite; pointer-events:none; }
+.cel-overlay.special .cel-rays { display:block; }
+.cel-card { position:relative; text-align:center; background:linear-gradient(160deg,#221a10,#121212 70%);
+  border:1px solid rgba(255,160,0,.5); border-radius:16px; padding:26px 24px 18px; max-width:380px; width:100%;
+  box-shadow:0 0 40px rgba(255,130,0,.35); transform:scale(.6); opacity:0; }
+.cel-overlay.show .cel-card { animation: cel-pop .6s cubic-bezier(.2,1.5,.4,1) forwards; }
+.cel-card.special { border:2px solid #ffd700; box-shadow:0 0 80px rgba(255,215,0,.55), inset 0 0 30px rgba(255,215,0,.12); }
+.cel-emoji { font-size:74px; line-height:1; display:inline-block; animation: cel-bounce 1.3s ease-in-out .6s infinite; }
+.cel-card.special .cel-emoji { font-size:92px; }
+.cel-title { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:36px; line-height:1.05;
+  color:#ffd700; letter-spacing:1px; margin-top:10px; text-shadow:0 0 18px rgba(255,180,0,.45); }
+.cel-card.special .cel-title { font-size:50px; }
+.cel-sub { font-size:15px; color:#ddd; margin-top:8px; line-height:1.4; }
+.cel-list { margin-top:12px; font-size:15px; color:#ccc; line-height:1.6; }
+.cel-hint { font-size:11px; color:#666; margin-top:14px; }
+@keyframes cel-pop { 0% { transform:scale(.6); opacity:0; } 100% { transform:scale(1); opacity:1; } }
+@keyframes cel-bounce { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-8px) scale(1.08); } }
+@keyframes cel-spin { to { transform:rotate(360deg); } }
+#confetti-cv { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:3100; display:none; }
 </style>
 </head>
 <body>
@@ -1740,6 +1794,23 @@
         </div>
       </div>
 
+      <!-- Effetti: suoni + clip motivazionali -->
+      <div class="imp-row" style="flex-direction:column;align-items:flex-start">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px">
+            <span class="imp-row-label">🔊 Suoni effetti</span>
+            <span class="imp-row-sub">Fiamma AMRAP, nuovi PR, traguardi streak, salvataggio. Spegnili in hotel o palestre esterne: le animazioni restano e la clip parte muta.</span>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;flex-shrink:0;cursor:pointer;font-size:13px;color:var(--text2)">
+            <input type="checkbox" id="effetti-suoni" onchange="impostaSuoni(this.checked)"> Attivi
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;width:100%;flex-wrap:wrap">
+          <div id="clip-status" style="flex:1;min-width:180px;font-size:12px;color:var(--text2)"></div>
+          <button class="btn btn-sm" id="clip-retry" style="display:none" onclick="prefetchClip(true)">SCARICA ORA</button>
+        </div>
+      </div>
+
     </div>
 
     <!-- SEZIONE: GESTIONE ESERCIZI -->
@@ -1757,6 +1828,28 @@
 </main>
 
 <div class="toast" id="toast"></div>
+
+<!-- Player clip motivazionale (si apre dal tasto 🎬 accanto alla fiamma AMRAP) -->
+<div class="clip-overlay" id="clip-overlay" onclick="if (event.target === this) chiudiClip()">
+  <button type="button" class="clip-close" onclick="chiudiClip()" title="Chiudi (Esc)" aria-label="Chiudi">✕</button>
+  <div class="clip-box">
+    <div class="clip-video-wrap">
+      <video id="clip-video" playsinline preload="auto"></video>
+      <div class="clip-loading" id="clip-loading">Carico la clip…</div>
+    </div>
+    <div class="clip-bar">
+      <button type="button" id="clip-play" onclick="toggleClipPlay()" title="Pausa / riprendi" aria-label="Pausa">⏸</button>
+      <div class="clip-prog"><div class="clip-prog-fill" id="clip-prog-fill"></div></div>
+      <button type="button" id="clip-mute" onclick="toggleClipMute()" title="Audio on/off" aria-label="Audio">🔊</button>
+    </div>
+  </div>
+</div>
+
+<!-- Celebrazioni (PR, traguardi streak, AMRAP +5) -->
+<div class="cel-overlay" id="cel-overlay" onclick="chiudiCelebrazione()">
+  <div class="cel-rays"></div>
+  <div class="cel-card" id="cel-card"></div>
+</div>
 <div class="undo-banner" id="undo-banner">
   Esercizio rimosso
   <button class="undo-btn" onclick="annullaRimozione()">ANNULLA</button>
@@ -2296,6 +2389,8 @@ async function caricaDati() {
   if (_amrapMigrati) msgMig.push(`🔥 ${_amrapMigrati} AMRAP convertiti dalle note`);
   if (_presaMigrate) msgMig.push(`Presa pulldown: ✊ ${_presaMigrate.polsi} polsi, 🤚 ${_presaMigrate.dorsi} dorsi`);
   if (msgMig.length) setTimeout(() => showToast(msgMig.join(' · ') + ' — si fissano al prossimo salvataggio', 'success', 6000), 1500);
+  // Clip motivazionali: scaricate in background una volta sola per dispositivo (poi restano in cache)
+  setTimeout(() => prefetchClip(), 6000);
 }
 
 function inizializza() {
@@ -2316,6 +2411,7 @@ function inizializza() {
   verificaPendingSave();
   verificaToken(); // async, non blocca
   mostraFraseRandom();
+  inizializzaEffetti();
 }
 
 // =====================
@@ -2424,55 +2520,8 @@ function inizializzaOverview() {
   ultimaDate.setHours(0,0,0,0);
   const giorniUltimo = Math.floor((oggi - ultimaDate) / 86400000);
 
-  // Streak settimanale (settimane con ≥2 allenamenti consecutive fino ad oggi)
-  const getSettimana = (dataStr) => {
-    const d = new Date(dataStr);
-    const day = d.getDay() || 7;
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - day + 1);
-    return monday.toISOString().slice(0,10);
-  };
-  const sessPerSettimana = {};
-  sessioni.forEach(s => {
-    const w = getSettimana(s.data);
-    sessPerSettimana[w] = (sessPerSettimana[w] || 0) + 1;
-  });
-  // Streak attuale e record storico
-  const settimaneOrdinate2 = Object.keys(sessPerSettimana).sort();
-  let streakAttuale = 0;
-  let streakRecord = 0;
-  let streakTemp = 0;
-  const settCorrente = getSettimana(oggi.toISOString().slice(0,10));
-  const settScorsa = getSettimana(new Date(oggi.getTime() - 7*86400000).toISOString().slice(0,10));
-
-  // Calcola record storico (scansione in avanti)
-  for (const w of settimaneOrdinate2) {
-    if (sessPerSettimana[w] >= 2) {
-      streakTemp++;
-      if (streakTemp > streakRecord) streakRecord = streakTemp;
-    } else {
-      streakTemp = 0;
-    }
-  }
-
-  // Streak attuale: se l'ultima settimana con ≥2 allenamenti
-  // non è questa settimana o quella scorsa → streak = 0
-  streakAttuale = 0;
-  const settScorsa2 = getSettimana(new Date(oggi.getTime() - 7*86400000).toISOString().slice(0,10));
-  const ultimaSettValida = settimaneOrdinate2.filter(w => (sessPerSettimana[w]||0) >= 2).slice(-1)[0];
-  // Se l'ultima settimana valida non è corrente né scorsa → streak interrotto
-  if (ultimaSettValida && (ultimaSettValida === settCorrente || ultimaSettValida === settScorsa2)) {
-    const settimaneDesc = [...settimaneOrdinate2].reverse();
-    for (const w of settimaneDesc) {
-      const count = sessPerSettimana[w] || 0;
-      if (w === settCorrente) {
-        if (count >= 2) streakAttuale++;
-        continue;
-      }
-      if (count >= 2) streakAttuale++;
-      else break;
-    }
-  }
+  // Streak settimanale (settimane consecutive con ≥2 allenamenti) — stessa funzione usata per i traguardi
+  const { attuale: streakAttuale, record: streakRecord } = calcolaStreak(sessioni);
 
   const isBattendoRecord = streakAttuale > 0 && streakAttuale >= streakRecord;
   // Esercizio non fatto da più tempo (tra gli attivi)
@@ -5392,7 +5441,8 @@ function buildRigaHtml(rigaId, cardId, exId, precompila) {
     <div class="form-label">AMRAP</div>
     <div class="amrap-wrap${amrapOn ? ' on' : ''}">
       <button type="button" class="amrap-btn" onclick="toggleAmrap(this)" title="Ultima serie AMRAP (massimo delle ripetizioni)"><span class="amrap-flame">🔥</span></button>
-      <input type="number" class="ins-amrap" min="1" max="999" placeholder="${precompila.rep || 'rip'}" value="${amrapVal}" oninput="aggiornaPreviewAllenamento()">
+      <input type="number" class="ins-amrap" min="1" max="999" placeholder="${precompila.rep || 'rip'}" value="${amrapVal}" oninput="aggiornaPreviewAllenamento()" onchange="controllaAmrapTop(this)">
+      <button type="button" class="amrap-clip" onclick="apriClip()" title="Clip motivazionale prima della serie AMRAP">🎬</button>
     </div>
   </div>`;
 
@@ -5589,6 +5639,7 @@ function toggleAmrap(btn) {
   if (on) {
     wrap.classList.remove('burst'); void wrap.offsetWidth; wrap.classList.add('burst');
     setTimeout(() => wrap.classList.remove('burst'), 800);
+    suono('crepitio');
     const rep = btn.closest('.ex-riga')?.querySelector('.ins-rep')?.value;
     if (inp && rep) inp.placeholder = rep;
   } else if (inp) {
@@ -6126,9 +6177,14 @@ function eseguiSalvaggioModifica(nuovaSessione, nEsercizi) {
   cancellaBozza();
   resetInserimento(); // resetta anche _editMode
   salvasuGitHub();
+  suono('ding');
 }
 
 function eseguiSalvaggio(nuovaSessione, nEsercizi) {
+  // Effetti: nuovi PR e streak calcolati PRIMA di aggiungere la sessione (confronto prima/dopo)
+  let nuoviPR = [], streakPrima = 0;
+  try { nuoviPR = trovaNuoviPR(nuovaSessione); streakPrima = calcolaStreak(DATA.sessioni).attuale; } catch(e) {}
+
   DATA.sessioni.push(nuovaSessione);
   DATA.sessioni.sort((a,b) => b.data.localeCompare(a.data));
   DATA.meta.totale_sessioni = DATA.sessioni.length;
@@ -6143,6 +6199,7 @@ function eseguiSalvaggio(nuovaSessione, nEsercizi) {
   cancellaBozza();
   resetInserimento();
   salvasuGitHub();
+  try { celebraSalvataggio(nuoviPR, streakPrima, calcolaStreak(DATA.sessioni).attuale); } catch(e) { suono('ding'); }
 }
 
 function mostraEsportazione() {
@@ -7795,6 +7852,514 @@ function mostraFraseRandom() {
     elT.style.opacity = '1';
     if (elA) elA.style.opacity = '1';
   }, 400);
+}
+
+// =====================
+// EFFETTI E PREMI — suoni sintetizzati (Web Audio), coriandoli, celebrazioni, clip motivazionali
+// =====================
+
+// ---- Suoni: on/off da Impostazioni (salvato su questo dispositivo) ----
+function suoniOn() { try { return localStorage.getItem('effetti_suoni') !== '0'; } catch(e) { return true; } }
+function impostaSuoni(on) {
+  try { localStorage.setItem('effetti_suoni', on ? '1' : '0'); } catch(e) {}
+  if (on) suono('ding');
+}
+let _actx = null;
+function audioCtx() {
+  try {
+    if (!_actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      _actx = new AC();
+    }
+    if (_actx.state === 'suspended') _actx.resume().catch(() => {});
+  } catch(e) { return null; }
+  return _actx;
+}
+// I browser attivano l'audio solo dopo un tocco: lo preparo al primo tocco sulla pagina
+['pointerdown', 'touchend', 'keydown'].forEach(ev =>
+  document.addEventListener(ev, () => { if (suoniOn()) audioCtx(); }, { passive: true }));
+
+function _uscita(ctx, vol) { const g = ctx.createGain(); g.gain.value = vol; g.connect(ctx.destination); return g; }
+function _tono(ctx, dest, freq, t0, dur, o = {}) {
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = o.tipo || 'sine';
+  osc.frequency.setValueAtTime(freq, t0);
+  if (o.freqFine) osc.frequency.exponentialRampToValueAtTime(o.freqFine, t0 + dur);
+  const vol = o.vol ?? 0.3, att = o.attacco ?? 0.005;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + att);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g); g.connect(dest);
+  osc.start(t0); osc.stop(t0 + dur + 0.05);
+}
+let _bufRumore = null;
+function _rumore(ctx) {
+  if (_bufRumore && _bufRumore.sampleRate === ctx.sampleRate) return _bufRumore;
+  const b = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate); // 1 s di rumore bianco
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return (_bufRumore = b);
+}
+// Rumore filtrato con inviluppo (soffio della fiamma, scoppiettii, colpo del gong)
+function _soffio(ctx, dest, t0, dur, f0, f1, vol, tipoFiltro = 'bandpass', q = 0.8) {
+  const src = ctx.createBufferSource(); src.buffer = _rumore(ctx); src.loop = true;
+  const f = ctx.createBiquadFilter(); f.type = tipoFiltro; f.Q.value = q;
+  f.frequency.setValueAtTime(f0, t0); f.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + Math.min(0.08, dur / 3));
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(f); f.connect(g); g.connect(dest);
+  src.start(t0, Math.random() * 0.5); src.stop(t0 + dur + 0.05);
+}
+// Voce "ottone" per le fanfare: due onde a dente di sega leggermente stonate + filtro che si apre
+function _ottone(ctx, dest, freq, t0, dur, vol) {
+  const g = ctx.createGain(), f = ctx.createBiquadFilter();
+  f.type = 'lowpass'; f.Q.value = 1.2;
+  f.frequency.setValueAtTime(500, t0);
+  f.frequency.exponentialRampToValueAtTime(2800, t0 + 0.05);
+  f.frequency.exponentialRampToValueAtTime(1600, t0 + Math.max(0.1, dur));
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.03);
+  g.gain.setValueAtTime(vol, t0 + Math.max(0.04, dur - 0.08));
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur + 0.15);
+  f.connect(g); g.connect(dest);
+  [1, 1.005].forEach(det => {
+    const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = freq * det;
+    o.connect(f); o.start(t0); o.stop(t0 + dur + 0.2);
+  });
+}
+const SUONI = {
+  // Salvataggio: "fatto" — due note brevi e pulite
+  ding(ctx, t) {
+    const out = _uscita(ctx, 0.5);
+    _tono(ctx, out, 1318.5, t, 0.35, { vol: 0.28 });
+    _tono(ctx, out, 1975.5, t + 0.1, 0.6, { vol: 0.22 });
+  },
+  // Fiamma accesa: soffio che sale + scoppiettii
+  crepitio(ctx, t) {
+    const out = _uscita(ctx, 0.7);
+    _soffio(ctx, out, t, 0.7, 250, 1800, 0.35, 'bandpass', 0.7);
+    _tono(ctx, out, 90, t, 0.35, { vol: 0.25, freqFine: 45, attacco: 0.01 });
+    for (let i = 0; i < 16; i++) {
+      const tt = t + 0.05 + Math.random() * 0.75;
+      _soffio(ctx, out, tt, 0.02 + Math.random() * 0.03, 2500 + Math.random() * 3000,
+              1500 + Math.random() * 2000, 0.15 + Math.random() * 0.3, 'highpass', 0.5);
+    }
+  },
+  // Nuovo PR: gong + scintillio
+  gong(ctx, t) {
+    const out = _uscita(ctx, 0.45);
+    const base = 87;
+    [[1, .5, 4.5], [1.48, .12, 3], [2, .3, 3.6], [2.76, .22, 2.8], [3.4, .1, 2.2], [4.17, .12, 1.9], [5.43, .07, 1.3], [6.8, .05, 1]]
+      .forEach(([r, v, d]) => _tono(ctx, out, base * r, t, d, { vol: v, attacco: 0.008 }));
+    _soffio(ctx, out, t, 0.25, 1500, 400, 0.25, 'lowpass', 0.7); // colpo del battente
+    [2093, 2637, 3136, 4186].forEach((f, i) => _tono(ctx, out, f, t + 0.25 + i * 0.08, 0.7, { vol: 0.07 }));
+  },
+  // Fanfara corta: AMRAP +5, traguardo ogni 5 settimane
+  fanfara(ctx, t) {
+    const out = _uscita(ctx, 0.16);
+    [[392, 0, .11], [523.25, .13, .11], [659.25, .26, .11], [783.99, .39, .5]]
+      .forEach(([f, dt, d]) => _ottone(ctx, out, f, t + dt, d, 0.8));
+    [523.25, 659.25, 1046.5].forEach(f => _ottone(ctx, out, f, t + 0.39, 0.5, 0.45));
+  },
+  // Fanfara lunga: traguardi speciali (6 mesi, 1 anno, 2 anni)
+  fanfaraGrande(ctx, t) {
+    const out = _uscita(ctx, 0.15);
+    [[392, 0, .12], [392, .15, .12], [392, .3, .12], [523.25, .45, .55],
+     [466.16, 1.05, .2], [523.25, 1.3, .2], [659.25, 1.55, .2], [783.99, 1.8, 1.4]]
+      .forEach(([f, dt, d]) => _ottone(ctx, out, f, t + dt, d, 0.8));
+    [[523.25, .5], [659.25, .5], [1046.5, .35], [261.63, .6]].forEach(([f, v]) => _ottone(ctx, out, f, t + 1.8, 1.4, v));
+    const out2 = _uscita(ctx, 0.5);
+    [0.45, 1.8].forEach(dt => _tono(ctx, out2, 70, t + dt, 0.6, { vol: 0.6, freqFine: 50, attacco: 0.005 })); // timpano
+    SUONI.gong(ctx, t + 1.8);
+  },
+};
+function suono(tipo) {
+  if (!tipo || !SUONI[tipo] || !suoniOn()) return;
+  const ctx = audioCtx(); if (!ctx) return;
+  try { SUONI[tipo](ctx, ctx.currentTime + 0.03); } catch(e) {}
+}
+
+// ---- Coriandoli (canvas a tutto schermo, non blocca i tocchi) ----
+const _conf = { parts: [], raf: 0, last: 0 };
+function coriandoli(forza = 'medio') {
+  let cv = document.getElementById('confetti-cv');
+  if (!cv) { cv = document.createElement('canvas'); cv.id = 'confetti-cv'; document.body.appendChild(cv); }
+  const W = window.innerWidth, H = window.innerHeight;
+  const n = forza === 'mega' ? 220 : forza === 'piccolo' ? 70 : 140;
+  const colori = ['#FF6B00', '#FFD700', '#FF3D3D', '#FFFFFF', '#FFA500', '#4DA3FF', '#3DDC84'];
+  const vBase = Math.max(H, 500) / 34;
+  const spara = (x, y, num, ang, apertura) => {
+    for (let i = 0; i < num; i++) {
+      const a = ang + (Math.random() - 0.5) * apertura;
+      const v = vBase * (0.55 + Math.random() * 0.6);
+      _conf.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v,
+        w: 6 + Math.random() * 6, h: 4 + Math.random() * 5, r: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.3,
+        fase: Math.random() * 6.28, c: colori[(Math.random() * colori.length) | 0], vita: 0, max: 170 + Math.random() * 90 });
+    }
+  };
+  const raffica = () => {
+    spara(-10, H * 0.92, n * 0.4, -Math.PI / 3, 0.7);           // cannone sinistro
+    spara(W + 10, H * 0.92, n * 0.4, -2 * Math.PI / 3, 0.7);    // cannone destro
+    spara(W / 2, H * 0.42, n * 0.2, -Math.PI / 2, Math.PI * 2); // esplosione al centro
+  };
+  raffica();
+  if (forza === 'mega') { setTimeout(raffica, 700); setTimeout(raffica, 1400); }
+  if (!_conf.raf) { _conf.last = performance.now(); _conf.raf = requestAnimationFrame(_animaCoriandoli); }
+}
+function _animaCoriandoli(ora) {
+  const cv = document.getElementById('confetti-cv');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = window.innerWidth, H = window.innerHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  cv.style.display = 'block';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const dt = Math.min(3, Math.max(0, (ora - _conf.last) / 16.67)); _conf.last = ora;
+  _conf.parts = _conf.parts.filter(p => p.vita < p.max && p.y < H + 40);
+  for (const p of _conf.parts) {
+    p.vita += dt;
+    p.vx *= Math.pow(0.97, dt);
+    p.vy = p.vy * Math.pow(0.965, dt) + 0.24 * dt;
+    p.vx += Math.sin(p.vita * 0.08 + p.fase) * 0.08 * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, (p.max - p.vita) / 30));
+    ctx.translate(p.x, p.y); ctx.rotate(p.r);
+    ctx.fillStyle = p.c;
+    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.vita * 0.15 + p.fase)) + 1);
+    ctx.restore();
+  }
+  if (_conf.parts.length) _conf.raf = requestAnimationFrame(_animaCoriandoli);
+  else { _conf.raf = 0; ctx.clearRect(0, 0, W, H); cv.style.display = 'none'; }
+}
+
+// ---- Celebrazioni: una alla volta (coda), si chiudono con un tocco, con Esc o da sole ----
+const _celCoda = [];
+let _celTimer = null, _celAttiva = false;
+function celebra(c) { _celCoda.push(c); if (!_celAttiva) _prossimaCelebrazione(); }
+function _prossimaCelebrazione() {
+  const c = _celCoda.shift();
+  if (!c) { _celAttiva = false; return; }
+  _celAttiva = true;
+  const ov = document.getElementById('cel-overlay'), card = document.getElementById('cel-card');
+  card.className = 'cel-card' + (c.speciale ? ' special' : '');
+  ov.classList.toggle('special', !!c.speciale);
+  card.innerHTML = `<div class="cel-emoji">${c.emoji}</div>
+    <div class="cel-title">${c.titolo}</div>
+    ${c.sub ? `<div class="cel-sub">${c.sub}</div>` : ''}
+    ${c.righe && c.righe.length ? `<div class="cel-list">${c.righe.map(r => `<div>${r}</div>`).join('')}</div>` : ''}
+    <div class="cel-hint">tocca per chiudere</div>`;
+  ov.classList.remove('show'); void ov.offsetWidth; ov.classList.add('show');
+  suono(c.suono);
+  coriandoli(c.coriandoli);
+  clearTimeout(_celTimer);
+  _celTimer = setTimeout(chiudiCelebrazione, c.durata || 4500);
+}
+function chiudiCelebrazione() {
+  clearTimeout(_celTimer);
+  const ov = document.getElementById('cel-overlay');
+  if (!ov || !ov.classList.contains('show')) return;
+  ov.classList.remove('show');
+  setTimeout(_prossimaCelebrazione, 400);
+}
+
+// ---- 🏆 Nuovi PR: record assoluto dell'esercizio (come la sezione PR), solo esercizi con ≥5 sedute precedenti ----
+const PR_MIN_SEDUTE = 5;
+const _prMinoreMeglio = u => u === 'min/km' || u === 'sec'; // tempi e passo: vince il più basso
+function trovaNuoviPR(nuova) {
+  const best = {}, sedute = {};
+  DATA.sessioni.forEach(s => {
+    const visti = new Set();
+    (s.esercizi || []).forEach(e => {
+      if (!e.peso_kg) return;
+      const id = e.esercizio_id;
+      if (!visti.has(id)) { visti.add(id); sedute[id] = (sedute[id] || 0) + 1; }
+      const b = best[id];
+      if (b == null || (_prMinoreMeglio(e.unita) ? e.peso_kg < b : e.peso_kg > b)) best[id] = e.peso_kg;
+    });
+  });
+  const nuovi = {};
+  (nuova.esercizi || []).forEach(e => {
+    if (!e.peso_kg) return;
+    const id = e.esercizio_id;
+    if ((sedute[id] || 0) < PR_MIN_SEDUTE || best[id] == null) return;
+    const meno = _prMinoreMeglio(e.unita);
+    if (!(meno ? e.peso_kg < best[id] : e.peso_kg > best[id])) return;
+    if (!nuovi[id] || (meno ? e.peso_kg < nuovi[id].nuovo : e.peso_kg > nuovi[id].nuovo))
+      nuovi[id] = { id, nome: getExNome(id), prima: best[id], nuovo: e.peso_kg, unita: e.unita };
+  });
+  return Object.values(nuovi);
+}
+function _fmtValorePR(v, unita) {
+  if (unita === 'min/km') {
+    let m = Math.floor(v), s = Math.round((v - m) * 60);
+    if (s === 60) { m++; s = 0; }
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+  return String(v);
+}
+function _unitaPR(u) { return u === 'min/km' ? 'min/km' : u === 'sec' ? 's' : (u || 'kg'); }
+
+// ---- 🎉 Streak: settimane consecutive con ≥2 allenamenti (una settimana vuota la interrompe) ----
+function lunediDi(dataStr) {
+  const [y, m, d] = dataStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() - ((dt.getDay() || 7) - 1));
+  return dataLocale(dt);
+}
+function _piuGiorni(dataStr, n) {
+  const [y, m, d] = dataStr.split('-').map(Number);
+  return dataLocale(new Date(y, m - 1, d + n));
+}
+function calcolaStreak(sessioni, oggiD = new Date()) {
+  const per = {};
+  sessioni.forEach(s => { if (!s.data) return; const w = lunediDi(s.data); per[w] = (per[w] || 0) + 1; });
+  const chiavi = Object.keys(per).sort();
+  if (!chiavi.length) return { attuale: 0, record: 0 };
+  const corrente = lunediDi(dataLocale(oggiD));
+  const fine = chiavi[chiavi.length - 1] > corrente ? chiavi[chiavi.length - 1] : corrente;
+  const sett = [];
+  for (let w = chiavi[0]; w <= fine && sett.length < 5000; w = _piuGiorni(w, 7)) sett.push(w);
+  let record = 0, tmp = 0;
+  for (const w of sett) { if ((per[w] || 0) >= 2) { if (++tmp > record) record = tmp; } else tmp = 0; }
+  // Attuale: la settimana in corso conta solo quando arriva a 2 allenamenti (prima non interrompe)
+  let attuale = 0;
+  for (let i = sett.length - 1; i >= 0; i--) {
+    const w = sett[i], c = per[w] || 0;
+    if (w > corrente) continue;
+    if (w === corrente) { if (c >= 2) attuale++; continue; }
+    if (c >= 2) attuale++; else break;
+  }
+  return { attuale, record };
+}
+// Traguardi: piccolo ogni 5 settimane, speciali a 26 (6 mesi), 52 (1 anno), 104 (2 anni) e ogni anno dopo
+function traguardoStreak(n) {
+  if (n === 26) return { speciale: true, emoji: '🏅', titolo: '6 MESI' };
+  if (n >= 52 && n % 52 === 0) {
+    const a = n / 52;
+    return { speciale: true, emoji: a === 1 ? '👑' : '💎', titolo: a === 1 ? 'UN ANNO' : a === 2 ? 'DUE ANNI' : `${a} ANNI` };
+  }
+  if (n > 0 && n % 5 === 0) return { speciale: false, emoji: '🎉', titolo: `${n} SETTIMANE` };
+  return null;
+}
+// Dopo il salvataggio di un allenamento NUOVO: PR e/o traguardo streak, altrimenti solo il "ding"
+function celebraSalvataggio(prs, streakPrima, streakDopo) {
+  let tr = null;
+  for (let n = streakPrima + 1; n <= streakDopo; n++) {
+    const t = traguardoStreak(n);
+    if (t && (!tr || t.speciale || !tr.speciale)) tr = { ...t, n };
+  }
+  if (!prs.length && !tr) { suono('ding'); return; }
+  setTimeout(() => {
+    if (prs.length) celebra({
+      emoji: '🏆', titolo: prs.length > 1 ? `${prs.length} NUOVI PR!` : 'NUOVO PR!',
+      righe: prs.map(p => `<strong style="color:#eee">${p.nome}</strong> · ${_fmtValorePR(p.prima, p.unita)} → ` +
+        `<strong style="color:#ffd700">${_fmtValorePR(p.nuovo, p.unita)}</strong> <span style="color:#888">${_unitaPR(p.unita)}</span>`),
+      suono: 'gong', coriandoli: 'medio', durata: 5500
+    });
+    if (tr) celebra(tr.speciale
+      ? { ...tr, sub: `${tr.n} settimane di fila con almeno 2 allenamenti a settimana`, suono: 'fanfaraGrande', coriandoli: 'mega', durata: 9000 }
+      : { ...tr, sub: 'di fila con almeno 2 allenamenti a settimana', suono: 'fanfara', coriandoli: 'piccolo', durata: 4000 });
+  }, 350);
+}
+
+// ---- 🔥 AMRAP: celebrazione quando le rip fatte superano di almeno +5 quelle previste ----
+const AMRAP_SOGLIA_TOP = 5;
+function controllaAmrapTop(inp) {
+  if (_editMode) return; // solo allenamenti nuovi, non le correzioni di sessioni passate
+  const rep = parseInt(inp.value);
+  const target = parseInt(inp.closest('.ex-riga')?.querySelector('.ins-rep')?.value);
+  if (!rep || !target) return;
+  const d = rep - target;
+  if (d < AMRAP_SOGLIA_TOP || inp.dataset.celebrato === String(rep)) return; // una volta per valore
+  inp.dataset.celebrato = String(rep);
+  const exId = inp.closest('.ex-builder-row')?.querySelector('.ins-ex-sel')?.value;
+  celebra({ emoji: '🔥', titolo: `+${d} RIPETIZIONI!`,
+    sub: `${exId ? getExNome(exId) + '<br>' : ''}${rep} rip nell'ultima serie · previste ${target}`,
+    suono: 'fanfara', coriandoli: 'medio', durata: 4500 });
+}
+
+// ---- 🎬 Clip motivazionali: repo GitHub PRIVATO, scaricate una volta per dispositivo e tenute in cache ----
+const MEDIA_REPO = 'IlMancios/ron-trainerai-media';
+const CLIPS = ['platz_1.mp4', 'platz_2.mp4', 'platz_3.mp4'];
+const MEDIA_CACHE = 'ron-media-v1';
+let _clipDownload = null, _clipErrore = null, _prefetchInCorso = false;
+async function _clipDaCache(nome) {
+  try {
+    if (typeof caches === 'undefined') return null;
+    const c = await caches.open(MEDIA_CACHE);
+    return (await c.match('media/' + nome)) || null;
+  } catch(e) { return null; }
+}
+async function scaricaClip(nome, onProg) {
+  const token = localStorage.getItem('gh_token');
+  if (!token) throw new Error('token GitHub mancante (Impostazioni)');
+  let r;
+  try {
+    r = await fetch(`https://api.github.com/repos/${MEDIA_REPO}/contents/${encodeURIComponent(nome)}`, {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.raw+json' },
+      cache: 'no-store'
+    });
+  } catch(e) { throw new Error('connessione non disponibile'); }
+  if (!r.ok) throw new Error(r.status === 404 ? 'clip non trovata (repo o permessi del token)'
+                           : r.status === 401 ? 'token GitHub non valido' : 'errore GitHub ' + r.status);
+  let blob;
+  const tot = parseInt(r.headers.get('Content-Length')) || 0;
+  if (onProg && r.body && r.body.getReader) {
+    const rd = r.body.getReader(), parti = [];
+    let letti = 0;
+    for (;;) {
+      const { done, value } = await rd.read();
+      if (done) break;
+      parti.push(value); letti += value.length;
+      if (tot) onProg(letti / tot);
+    }
+    blob = new Blob(parti, { type: 'video/mp4' });
+  } else {
+    blob = new Blob([await r.arrayBuffer()], { type: 'video/mp4' }); // GitHub lo etichetta generico: forzo video/mp4
+  }
+  if (blob.size < 100000) throw new Error('file della clip non valido');
+  try {
+    if (typeof caches !== 'undefined') {
+      const c = await caches.open(MEDIA_CACHE);
+      await c.put('media/' + nome, new Response(blob, { headers: { 'Content-Type': 'video/mp4' } }));
+    }
+  } catch(e) { /* cache piena o non disponibile: la clip funziona lo stesso, verrà riscaricata */ }
+  return blob;
+}
+async function getClipBlob(nome, onProg) {
+  const hit = await _clipDaCache(nome);
+  if (hit) {
+    try { const b = await hit.blob(); if (b.size > 100000) return new Blob([b], { type: 'video/mp4' }); } catch(e) {}
+  }
+  return scaricaClip(nome, onProg);
+}
+async function prefetchClip(forza) {
+  if (_prefetchInCorso) return;
+  if (typeof caches === 'undefined' || !localStorage.getItem('gh_token')) { aggiornaStatoClip(); return; }
+  if (!forza && navigator.connection && navigator.connection.saveData) { aggiornaStatoClip(); return; } // risparmio dati attivo
+  _prefetchInCorso = true; _clipErrore = null;
+  for (const nome of CLIPS) {
+    if (await _clipDaCache(nome)) continue;
+    _clipDownload = nome; aggiornaStatoClip();
+    try { await scaricaClip(nome); }
+    catch(e) { _clipErrore = e.message || 'download non riuscito'; break; }
+  }
+  _clipDownload = null; _prefetchInCorso = false;
+  aggiornaStatoClip();
+}
+async function aggiornaStatoClip() {
+  const el = document.getElementById('clip-status');
+  if (!el) return;
+  const btn = document.getElementById('clip-retry');
+  if (typeof caches === 'undefined') {
+    el.innerHTML = '🎬 Questo browser non permette di salvare le clip: verranno scaricate ogni volta';
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+  let n = 0;
+  for (const c of CLIPS) if (await _clipDaCache(c)) n++;
+  let txt = `🎬 Clip motivazionali: <strong style="color:${n === CLIPS.length ? '#4caf50' : 'var(--orange)'}">${n}/${CLIPS.length}</strong> pronte su questo dispositivo`;
+  if (_clipDownload) txt += ` · scarico ${_clipDownload}…`;
+  else if (_clipErrore) txt += ` · <span style="color:#ff6b6b">⚠️ ${_clipErrore}</span>`;
+  else if (n < CLIPS.length && !localStorage.getItem('gh_token')) txt += ' · serve il token GitHub';
+  el.innerHTML = txt;
+  if (btn) btn.style.display = (n < CLIPS.length && !_clipDownload) ? '' : 'none';
+}
+
+// Player: clip a caso (mai la stessa due volte di fila), con pausa / muto / chiudi in ogni momento
+let _clipUrl = null, _clipSessione = 0;
+function _scegliClip() {
+  let ultima = null;
+  try { ultima = localStorage.getItem('clip_ultima'); } catch(e) {}
+  const scelte = CLIPS.filter(c => c !== ultima);
+  const nome = scelte[Math.floor(Math.random() * scelte.length)];
+  try { localStorage.setItem('clip_ultima', nome); } catch(e) {}
+  return nome;
+}
+async function apriClip() {
+  const ov = document.getElementById('clip-overlay');
+  const v = document.getElementById('clip-video');
+  const load = document.getElementById('clip-loading');
+  const mia = ++_clipSessione;
+  ov.classList.add('show');
+  load.style.display = 'flex';
+  load.textContent = 'Carico la clip…';
+  document.getElementById('clip-prog-fill').style.width = '0';
+  v.muted = !suoniOn();
+  aggiornaTastiClip();
+  let blob;
+  try {
+    blob = await getClipBlob(_scegliClip(), p => { if (mia === _clipSessione) load.textContent = `Scarico la clip… ${Math.round(p * 100)}%`; });
+  } catch(e) {
+    if (mia === _clipSessione) load.innerHTML = `⚠️ ${e.message}<br><small style="color:#888">Tocca ✕ per chiudere</small>`;
+    return;
+  }
+  if (mia !== _clipSessione) return; // chiusa mentre caricava
+  _clipUrl = URL.createObjectURL(blob);
+  v.src = _clipUrl;
+  load.style.display = 'none';
+  try { await v.play(); }
+  catch(e) {
+    if (mia !== _clipSessione) return;
+    // il browser blocca l'audio senza un tocco recente: parte muta, si attiva col tasto 🔊
+    v.muted = true;
+    try { await v.play(); } catch(e2) {}
+  }
+  aggiornaTastiClip();
+}
+function chiudiClip() {
+  _clipSessione++;
+  const v = document.getElementById('clip-video');
+  try { v.pause(); } catch(e) {}
+  v.removeAttribute('src');
+  try { v.load(); } catch(e) {}
+  if (_clipUrl) { URL.revokeObjectURL(_clipUrl); _clipUrl = null; }
+  document.getElementById('clip-overlay').classList.remove('show');
+}
+function toggleClipPlay() {
+  const v = document.getElementById('clip-video');
+  if (!v.src) return;
+  if (v.paused) v.play().catch(() => {}); else v.pause();
+  aggiornaTastiClip();
+}
+function toggleClipMute() {
+  const v = document.getElementById('clip-video');
+  v.muted = !v.muted;
+  aggiornaTastiClip();
+}
+function aggiornaTastiClip() {
+  const v = document.getElementById('clip-video');
+  const bp = document.getElementById('clip-play'), bm = document.getElementById('clip-mute');
+  if (bp) { bp.textContent = v.paused && v.src ? '▶' : '⏸'; bp.setAttribute('aria-label', v.paused ? 'Riprendi' : 'Pausa'); }
+  if (bm) { bm.textContent = v.muted ? '🔇' : '🔊'; bm.setAttribute('aria-label', v.muted ? 'Attiva audio' : 'Togli audio'); }
+}
+
+// Esc chiude la clip (o la celebrazione)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('clip-overlay')?.classList.contains('show')) { e.preventDefault(); chiudiClip(); }
+  else if (document.getElementById('cel-overlay')?.classList.contains('show')) chiudiCelebrazione();
+});
+
+let _effettiPronti = false;
+function inizializzaEffetti() {
+  const cb = document.getElementById('effetti-suoni');
+  if (cb) cb.checked = suoniOn();
+  aggiornaStatoClip();
+  if (_effettiPronti) return;
+  _effettiPronti = true;
+  const v = document.getElementById('clip-video');
+  v.addEventListener('click', toggleClipPlay); // tocco sul video = pausa/riprendi
+  v.addEventListener('timeupdate', () => {
+    if (v.duration) document.getElementById('clip-prog-fill').style.width = (v.currentTime / v.duration * 100) + '%';
+  });
+  v.addEventListener('ended', chiudiClip); // a fine clip si chiude da sola
+  ['play', 'pause', 'volumechange'].forEach(ev => v.addEventListener(ev, aggiornaTastiClip));
 }
 
 // AVVIO
